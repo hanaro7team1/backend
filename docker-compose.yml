@@ -1,0 +1,17 @@
+services:
+  localdb:
+    container_name: sidodb
+    image: mysql:8.0
+    ports:
+      - "3310:3306"
+    expose:
+      - 3310
+    environment:
+      MYSQL_ROOT_PASSWORD: 12345678
+      MYSQL_DATABASE: sidodb
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+
+    volumes:
+      - ./mysql:/var/lib/mysql
