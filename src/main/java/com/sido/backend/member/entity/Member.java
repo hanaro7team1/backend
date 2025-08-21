@@ -16,11 +16,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE) // 자식의 nullable=false가 DB DDL로 강제되지 않음
@@ -37,11 +38,13 @@ public class Member {
 	@Column(nullable = false, length = 50, unique = true)
 	private String loginId;
 
+	@Column(nullable = false)
 	private String password;
 
 	@Column(nullable = false, length = 15, unique = true)
 	private String phone; // 일반 회원: 개인 연락처, Host: 면사무소 연락처
 
 	@Enumerated(EnumType.STRING)
-	private MemberRole role; // USER, HOST, ADMIN
+	@Builder.Default
+	private MemberRole role = MemberRole.ROLE_USER; // USER, HOST, ADMIN
 }
