@@ -1,12 +1,13 @@
-package reservation.entity;
+package com.sido.backend.reservation.entity;
 
 import java.time.LocalDate;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import common.entity.BaseEntity;
-import house.entity.House;
+import com.sido.backend.common.entity.BaseEntity;
+import com.sido.backend.house.entity.House;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

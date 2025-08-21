@@ -13,6 +13,7 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,6 +28,7 @@ import lombok.experimental.SuperBuilder;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE) // 자식의 nullable=false가 DB DDL로 강제되지 않음
 @DiscriminatorColumn(name = "memberType", length = 10) // USER, HOST
 @DiscriminatorValue("USER")
+@EqualsAndHashCode(callSuper = false)
 public class Member {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,8 +40,8 @@ public class Member {
 	@Column(nullable = false, length = 50, unique = true)
 	private String loginId;
 
-	@Column(nullable = false)
-	private String password;
+	@Column(nullable = false, length = 250)
+	private String password; // 영문자 , 숫자, 특수문자 포함 8~20자
 
 	@Column(nullable = false, length = 15, unique = true)
 	private String phone; // 일반 회원: 개인 연락처, Host: 면사무소 연락처
