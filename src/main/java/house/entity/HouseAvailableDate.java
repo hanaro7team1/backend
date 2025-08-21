@@ -1,6 +1,7 @@
 package house.entity;
 
-import common.entity.BaseEntity;
+import java.time.LocalDate;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ForeignKey;
@@ -11,47 +12,31 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.Setter;
-import member.entity.HostMember;
 
 @Entity
 @Getter
 @Setter
-public class House extends BaseEntity {
+public class HouseAvailableDate {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(length = 16, nullable = false)
-	private String title;
-
-	@Column(length = 64, nullable = false)
-	private String address;
+	@Column(nullable = false)
+	private LocalDate startDate;
 
 	@Column(nullable = false)
-	private Short capacity;
-
-	@Column(nullable = false)
-	private Short areaSize;
-
-	@Column(length = 512, nullable = true)
-	private String description;
-
-	@Column(nullable = false)
-	private Boolean isHomestay;
-
-	@Column(length = 31, nullable = true)
-	private String ownerPhone;
+	private LocalDate endDate;
 
 	@ManyToOne
-	@JoinColumn(name = "host",
+	@JoinColumn(name = "house",
 		foreignKey = @ForeignKey(
-			name = "fk_House_HostMember",
+			name = "fk_HouseAvailabeDate_House",
 			foreignKeyDefinition = """
-					foreign key (host)
-					   references HostMember(id)
+					foreign key (house)
+					   references House(id)
 					    on DELETE cascade on UPDATE cascade
 				"""
 		)
 	)
-	private HostMember host;
+	private House house;
 }

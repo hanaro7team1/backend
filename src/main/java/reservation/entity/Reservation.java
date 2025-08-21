@@ -18,10 +18,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
+import lombok.Getter;
+import lombok.Setter;
 import member.entity.HanaMember;
 import member.entity.HostMember;
 
 @Entity
+@Getter
+@Setter
 public class Reservation extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
