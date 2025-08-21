@@ -21,6 +21,19 @@ public class House extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	@ManyToOne
+	@JoinColumn(name = "host",
+		foreignKey = @ForeignKey(
+			name = "fk_House_HostMember",
+			foreignKeyDefinition = """
+					foreign key (host)
+					   references HostMember(id)
+					    on DELETE cascade on UPDATE cascade
+				"""
+		)
+	)
+	private HostMember host;
+
 	@Column(length = 16, nullable = false)
 	private String title;
 
@@ -41,17 +54,4 @@ public class House extends BaseEntity {
 
 	@Column(length = 31, nullable = true)
 	private String ownerPhone;
-
-	@ManyToOne
-	@JoinColumn(name = "host",
-		foreignKey = @ForeignKey(
-			name = "fk_House_HostMember",
-			foreignKeyDefinition = """
-					foreign key (host)
-					   references HostMember(id)
-					    on DELETE cascade on UPDATE cascade
-				"""
-		)
-	)
-	private HostMember host;
 }

@@ -30,7 +30,7 @@ public class HouseAvailableDate {
 	@ManyToOne
 	@JoinColumn(name = "house",
 		foreignKey = @ForeignKey(
-			name = "fk_HouseAvailabeDate_House",
+			name = "fk_HouseAvailableDate_House",
 			foreignKeyDefinition = """
 					foreign key (house)
 					   references House(id)
