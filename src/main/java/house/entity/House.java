@@ -24,10 +24,10 @@ public class House extends BaseEntity {
 	private String address;
 
 	@Column(nullable = false)
-	private Short capacity = 1;
+	private Short capacity;
 
 	@Column(nullable = false)
-	private Short areaSize = 0;
+	private Short areaSize;
 
 	@Column(length = 512, nullable = true)
 	private String description;
