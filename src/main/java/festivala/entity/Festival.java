@@ -29,9 +29,6 @@ public class Festival extends BaseEntity {
 	@Column(length = 125, nullable = false)
 	private String url;
 
-	@Column(nullable = false)
-	private byte[] poster;
-
 	@Column(length = 512, nullable = false)
 	private String description;
 }
