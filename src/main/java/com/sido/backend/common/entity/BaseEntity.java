@@ -1,4 +1,4 @@
-package common.entity;
+package com.sido.backend.common.entity;
 
 import java.time.LocalDateTime;
 

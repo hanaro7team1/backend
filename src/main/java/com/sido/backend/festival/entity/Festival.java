@@ -1,6 +1,7 @@
-package festivala.entity;
+package com.sido.backend.festival.entity;
 
-import common.entity.BaseEntity;
+import com.sido.backend.common.entity.BaseEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
