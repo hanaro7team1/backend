@@ -16,12 +16,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import lombok.Getter;
 import lombok.Setter;
-import member.entity.HanaMember;
-import member.entity.HostMember;
 
 @Entity
 @Getter
@@ -46,22 +43,9 @@ public class Reservation extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	private ResrvStatus resrvStatus;
 
-	@ManyToOne
-	@JoinColumn(name = "member",
-		foreignKey = @ForeignKey(
-			name = "fk_Reservation_HanaMember",
-			foreignKeyDefinition = """
-					foreign key (host)
-					   references HostMember(id)
-					    on DELETE cascade on UPDATE cascade
-				"""
-		)
-	)
-	private HanaMember member;
-
 	@OneToOne(optional = false)
 	@JoinColumn(name = "house",
 		foreignKey = @ForeignKey(name = "fk_Reservation_House"))
-	@OnDelete(action = OnDeleteAction.CASCADE)
+	@OnDelete(action = OnDeleteAction.SET_NULL)
 	private House house;
 }

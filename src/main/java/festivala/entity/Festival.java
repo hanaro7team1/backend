@@ -23,14 +23,14 @@ public class Festival extends BaseEntity {
 	@Column(length = 64, nullable = false)
 	private String region;
 
-	@Column(length = 16, nullable = false)
+	@Column(length = 64, nullable = false)
 	private String title;
 
-	@Column(length = 31, nullable = false)
+	@Column(length = 125, nullable = false)
 	private String url;
 
 	@Column(nullable = false)
-	private byte poster;
+	private byte[] poster;
 
 	@Column(length = 512, nullable = false)
 	private String description;

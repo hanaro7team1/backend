@@ -11,7 +11,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.Setter;
-import member.entity.HostMember;
 
 @Entity
 @Getter
@@ -21,20 +20,7 @@ public class House extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@ManyToOne
-	@JoinColumn(name = "host",
-		foreignKey = @ForeignKey(
-			name = "fk_House_HostMember",
-			foreignKeyDefinition = """
-					foreign key (host)
-					   references HostMember(id)
-					    on DELETE cascade on UPDATE cascade
-				"""
-		)
-	)
-	private HostMember host;
-
-	@Column(length = 16, nullable = false)
+	@Column(length = 64, nullable = false)
 	private String title;
 
 	@Column(length = 64, nullable = false)
