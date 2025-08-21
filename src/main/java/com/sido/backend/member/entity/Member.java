@@ -25,7 +25,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE) // 자식의 nullable=false가 DB DDL로 강제되지 않음
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "memberType", length = 10) // USER, HOST
 @DiscriminatorValue("USER")
 @EqualsAndHashCode(callSuper = false)
