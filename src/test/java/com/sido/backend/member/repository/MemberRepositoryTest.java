@@ -70,9 +70,9 @@ class MemberRepositoryTest {
 		// 일반 user 생성
 		List<Member> users = Stream.iterate(1, n -> n + 1).limit(10)
 			.map(n -> (Member)Member.builder()
-				.loginId("member" + n)
+				.loginId("user" + n)
 				.password(passwordEncoder.encode("password123!"))
-				.name("member" + n)
+				.name("user" + n)
 				.role(MemberRole.ROLE_USER)
 				.phone("010-2222-" + String.format("%04d", n))
 				.build()
