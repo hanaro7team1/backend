@@ -24,13 +24,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	private final AntPathMatcher pathMatcher = new AntPathMatcher(); // /** 처럼 n depth 체크해줄 수 있도록
 
 	private final String[] excludePatterns = { // 로그인 체크 안 하는 도메인
-		"/api/members/login", // spring security
-		"/api/members/signup", // spring security
+		"/api/users/login", // spring security
+		"/api/users/signup", // spring security
 		"/actuator/**",
 		"/swagger-ui/**",
 		"/sido/api-docs/**",
-		"/members/signUp",
-		"/members/login",
+		"/api/members/signUp",
+		"/api/members/login",
 		"/api/**"
 	};
 

@@ -42,7 +42,7 @@ public class SecurityConfig {
 			.sessionManagement(config ->
 				config.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.formLogin(form -> form
-				.loginPage("/api/members/login")
+				.loginPage("/api/users/login")
 				.successHandler(new LoginSuccessHandler()) // loginPage에서 성공하면 LoginSuccessHandler 실행
 				.failureHandler(new LoginFailureHandler()) // 실패하면 LoginFailureHandler 실행
 			)
