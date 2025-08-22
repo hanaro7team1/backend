@@ -1,4 +1,4 @@
-package house.entity;
+package com.sido.backend.house.entity;
 
 import java.time.LocalDate;
 

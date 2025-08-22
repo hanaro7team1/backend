@@ -1,12 +1,14 @@
-package reservation.entity;
+package com.sido.backend.reservation.entity;
 
 import java.time.LocalDate;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import common.entity.BaseEntity;
-import house.entity.House;
+import com.sido.backend.common.entity.BaseEntity;
+import com.sido.backend.house.entity.House;
+import com.sido.backend.member.entity.Member;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -16,6 +18,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import lombok.Getter;
 import lombok.Setter;
@@ -48,4 +51,10 @@ public class Reservation extends BaseEntity {
 		foreignKey = @ForeignKey(name = "fk_Reservation_House"))
 	@OnDelete(action = OnDeleteAction.SET_NULL)
 	private House house;
+
+	@ManyToOne
+	@JoinColumn(name = "member",
+		foreignKey = @ForeignKey(name = "fk_Reservation_Member"))
+	@OnDelete(action = OnDeleteAction.SET_NULL)
+	private Member member;
 }
