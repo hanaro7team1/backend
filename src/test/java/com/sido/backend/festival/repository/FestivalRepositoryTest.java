@@ -31,4 +31,30 @@ class FestivalRepositoryTest extends RepositoryTest{
 
 		assertEquals(20, repository.count());
 	}
+
+	@Test
+	void editTest() {
+		long before = repository.count();
+
+		Festival target = repository.findAll().stream()
+			.filter(f -> f.getTitle().equals("축제10"))
+			.findFirst().orElseThrow();
+
+		target.setTitle("축제10-수정");
+		target.setRegion("포항시");
+		repository.save(target);
+		
+		Festival updated = repository.findById(target.getId()).orElseThrow();
+		assertEquals(before, repository.count());
+		assertEquals("축제10-수정", updated.getTitle());
+		assertEquals("포항시", updated.getRegion());
+	}
+
+	@Test
+	void deleteTest() {
+		long id = 3L;
+		repository.deleteById(id);
+
+		assertTrue(repository.findById(id).isEmpty());
+	}
 }
