@@ -11,12 +11,18 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class House extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,18 +35,19 @@ public class House extends BaseEntity {
 	private String address;
 
 	@Column(nullable = false)
-	private Short capacity;
+	private Integer capacity;
 
 	@Column(nullable = false)
-	private Short areaSize;
+	private Integer areaSize;
 
-	@Column(length = 512, nullable = true)
+	@Column(length = 512)
 	private String description;
 
 	@Column(nullable = false)
-	private Boolean isHomestay;
+	@Builder.Default
+	private boolean isHomestay = true;
 
-	@Column(length = 31, nullable = true)
+	@Column(length = 31)
 	private String ownerPhone;
 
 	@ManyToOne
