@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.sido.backend.festival.dto.FestivalResponseDTO;
 import com.sido.backend.festival.dto.FestivalResponseDetailDTO;
-import com.sido.backend.festival.dto.ServiceRequestDTO;
+import com.sido.backend.festival.dto.FestivalServiceRequestDTO;
 
 @Service
 public class FestivalServiceImpl implements FestivalService{
@@ -22,12 +22,12 @@ public class FestivalServiceImpl implements FestivalService{
 	}
 
 	@Override
-	public FestivalResponseDetailDTO addFestival(ServiceRequestDTO requestDTO) {
+	public FestivalResponseDetailDTO addFestival(FestivalServiceRequestDTO requestDTO) {
 		return null;
 	}
 
 	@Override
-	public FestivalResponseDetailDTO editFestival(ServiceRequestDTO requestDTO) {
+	public FestivalResponseDetailDTO editFestival(FestivalServiceRequestDTO requestDTO) {
 		return null;
 	}
 
