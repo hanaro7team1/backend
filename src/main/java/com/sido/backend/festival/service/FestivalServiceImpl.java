@@ -1,5 +1,31 @@
 package com.sido.backend.festival.service;
 
+import java.util.List;
+
 public class FestivalServiceImpl implements FestivalService{
 
+	@Override
+	public List<FestivalResponseDTO> getFestivalList(int page, int pageSize) {
+		return List.of();
+	}
+
+	@Override
+	public FestivalResponseDetailDTO getServiceDetail(Long id) {
+		return null;
+	}
+
+	@Override
+	public FestivalResponseDetailDTO addFestival(ServiceRequestDTO requestDTO) {
+		return null;
+	}
+
+	@Override
+	public FestivalResponseDetailDTO editFestival(ServiceRequestDTO requestDTO) {
+		return null;
+	}
+
+	@Override
+	public void removeFestival(Long id) {
+
+	}
 }
