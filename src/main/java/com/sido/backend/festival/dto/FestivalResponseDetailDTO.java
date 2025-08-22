@@ -10,7 +10,7 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @SuperBuilder
 public class FestivalResponseDetailDTO extends FestivalResponseDTO {
-	private String price;
+	private int price;
 	private String url;
 	private String description;
 
