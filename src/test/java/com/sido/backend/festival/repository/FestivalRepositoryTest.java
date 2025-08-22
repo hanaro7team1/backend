@@ -43,7 +43,7 @@ class FestivalRepositoryTest extends RepositoryTest{
 		target.setTitle("축제10-수정");
 		target.setRegion("포항시");
 		repository.save(target);
-		
+
 		Festival updated = repository.findById(target.getId()).orElseThrow();
 		assertEquals(before, repository.count());
 		assertEquals("축제10-수정", updated.getTitle());
