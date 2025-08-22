@@ -11,6 +11,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -38,8 +40,13 @@ public class Festival extends BaseEntity {
 	@Column(nullable = false)
 	private LocalDate endDate;
 
-	@Column(length = 64, nullable = false)
-	private String region;
+	@NotBlank
+	@Size(min = 1, max = 31)
+	private String city;
+
+	@NotBlank
+	@Size(min = 1, max = 31)
+	private String street;
 
 	@Column(nullable = false)
 	private int price;

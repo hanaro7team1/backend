@@ -27,8 +27,9 @@ class FestivalRepositoryTest extends RepositoryTest{
 					.title("축제" + n)
 					.startDate(ym.atDay(n))
 					.endDate(ym.atDay(n).plusDays(14))
-					.region("안동시")
-					.price("1000원")
+					.city("안동시")
+					.street("어딘가로 " + n)
+					.price(10000)
 					.url("andong.com/festival=" + n)
 					.description("festival description")
 					.build())
@@ -46,13 +47,13 @@ class FestivalRepositoryTest extends RepositoryTest{
 			.findFirst().orElseThrow();
 
 		target.setTitle("축제10-수정");
-		target.setRegion("포항시");
+		target.setCity("포항시");
 		repository.save(target);
 
 		Festival updated = repository.findById(target.getId()).orElseThrow();
 		assertEquals(before, repository.count());
 		assertEquals("축제10-수정", updated.getTitle());
-		assertEquals("포항시", updated.getRegion());
+		assertEquals("포항시", updated.getCity());
 	}
 
 	@Test

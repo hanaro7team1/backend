@@ -14,10 +14,15 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class FestivalController {
 	private final FestivalService service;
 
+	public FestivalController(FestivalService service) {
+		this.service = service;
+	}
 
-	@Tag(name = "아이템 삭제")
+
+
+	@Tag(name = "축제 삭제")
 	@DeleteMapping("/{id}")
-	public int removeFestival(@PathVariable Long id) {
+	public long removeFestival(@PathVariable Long id) {
 		service.removeFestival(id);
 		return id;
 	}

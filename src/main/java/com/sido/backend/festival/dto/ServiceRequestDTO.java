@@ -25,8 +25,12 @@ public class ServiceRequestDTO {
 	private LocalDate endDate;
 
 	@NotBlank
-	@Size(min = 1, max = 64)
-	private String region;
+	@Size(min = 1, max = 31)
+	private String city;
+
+	@NotBlank
+	@Size(min = 1, max = 31)
+	private String street;
 
 	@NotBlank
 	@Size(min = 1, max = 16)
