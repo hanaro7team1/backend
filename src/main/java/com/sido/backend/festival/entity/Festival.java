@@ -1,5 +1,7 @@
 package com.sido.backend.festival.entity;
 
+import java.time.LocalDate;
+
 import org.hibernate.annotations.DynamicInsert;
 
 import com.sido.backend.common.entity.BaseEntity;
@@ -27,14 +29,17 @@ public class Festival extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(length = 31, nullable = false)
-	private String date;
+	@Column(length = 64, nullable = false)
+	private String title;
+
+	@Column(nullable = false)
+	private LocalDate startDate;
+
+	@Column(nullable = false)
+	private LocalDate endDate;
 
 	@Column(length = 64, nullable = false)
 	private String region;
-
-	@Column(length = 64, nullable = false)
-	private String title;
 
 	@Column(length = 16, nullable = false)
 	private String price;

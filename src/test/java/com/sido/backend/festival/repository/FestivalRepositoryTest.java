@@ -2,6 +2,7 @@ package com.sido.backend.festival.repository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.time.YearMonth;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
@@ -17,13 +18,17 @@ class FestivalRepositoryTest extends RepositoryTest{
 
 	@Test
 	void addTest() {
+		YearMonth ym = YearMonth.of(2025, 10);
+
 		repository.saveAll(
 			Stream.iterate(1, n -> n + 1)
 				.limit(20)
 				.map(n -> Festival.builder()
-					.date("2025-10-" + n)
-					.region("안동시")
 					.title("축제" + n)
+					.startDate(ym.atDay(n))
+					.endDate(ym.atDay(n).plusDays(14))
+					.region("안동시")
+					.price("1000원")
 					.url("andong.com/festival=" + n)
 					.description("festival description")
 					.build())

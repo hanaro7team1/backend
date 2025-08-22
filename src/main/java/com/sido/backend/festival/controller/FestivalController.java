@@ -8,5 +8,5 @@ import com.sido.backend.festival.service.FestivalService;
 @RestController
 @RequestMapping("/festival")
 public class FestivalController {
-	private final FestivalService service;
+	// private final FestivalService service;
 }
