@@ -26,12 +26,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	private final String[] excludePatterns = { // 로그인 체크 안 하는 도메인
 		"/api/members/login", // spring security
 		"/api/members/signup", // spring security
-		"/api/public/**",
 		"/actuator/**",
 		"/swagger-ui/**",
 		"/sido/api-docs/**",
 		"/members/signUp",
-		"/members/login"
+		"/members/login",
+		"/api/**"
 	};
 
 	@Override
