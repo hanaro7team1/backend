@@ -2,6 +2,10 @@ package com.sido.backend.festival.service;
 
 import java.util.List;
 
+import com.sido.backend.festival.dto.FestivalResponseDTO;
+import com.sido.backend.festival.dto.FestivalResponseDetailDTO;
+import com.sido.backend.festival.dto.ServiceRequestDTO;
+
 public class FestivalServiceImpl implements FestivalService{
 
 	@Override

@@ -4,6 +4,10 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.sido.backend.festival.dto.FestivalResponseDTO;
+import com.sido.backend.festival.dto.FestivalResponseDetailDTO;
+import com.sido.backend.festival.dto.ServiceRequestDTO;
+
 @Service
 public interface FestivalService {
 	List<FestivalResponseDTO> getFestivalList(int page, int pageSize);
