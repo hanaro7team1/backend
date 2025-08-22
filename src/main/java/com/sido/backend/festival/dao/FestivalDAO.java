@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable;
 
 import com.sido.backend.festival.entity.Festival;
 
-public interface ServiceDAO {
+public interface FestivalDAO {
 	List<Festival> findAll(Pageable pager);
 
 	Festival findOne(Long id);

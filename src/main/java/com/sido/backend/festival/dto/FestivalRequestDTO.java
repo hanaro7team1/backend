@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class FestivalServiceRequestDTO {
+public class FestivalRequestDTO {
 	private Long id;
 
 	@NotBlank

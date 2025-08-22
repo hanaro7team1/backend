@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sido.backend.festival.dto.FestivalResponseDTO;
 import com.sido.backend.festival.dto.FestivalResponseDetailDTO;
-import com.sido.backend.festival.dto.FestivalServiceRequestDTO;
+import com.sido.backend.festival.dto.FestivalRequestDTO;
 import com.sido.backend.festival.service.FestivalService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@RequestMapping("/festivals")
+@RequestMapping("/api/festivals")
 public class FestivalController {
 	private final FestivalService service;
 
@@ -42,13 +42,13 @@ public class FestivalController {
 
 	@Tag(name = "등록")
 	@PostMapping
-	public FestivalResponseDetailDTO addFestival(@RequestBody FestivalServiceRequestDTO requestDTO) {
+	public FestivalResponseDetailDTO addFestival(@RequestBody FestivalRequestDTO requestDTO) {
 		return service.addFestival(requestDTO);
 	}
 
 	@Tag(name = "수정")
 	@PatchMapping
-	public FestivalResponseDetailDTO editFestival(@RequestBody FestivalServiceRequestDTO requestDTO) {
+	public FestivalResponseDetailDTO editFestival(@RequestBody FestivalRequestDTO requestDTO) {
 		return service.editFestival(requestDTO);
 	}
 

@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class ServiceDAOImpl implements ServiceDAO{
+public class FestivalDAOImpl implements FestivalDAO {
 	private final FestivalRepository repository;
 
 	@Override
