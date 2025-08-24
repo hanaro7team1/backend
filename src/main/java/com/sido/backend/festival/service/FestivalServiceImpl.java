@@ -1,14 +1,11 @@
 package com.sido.backend.festival.service;
 
-import java.util.List;
-
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.sido.backend.common.dto.PageResponseDTO;
-import com.sido.backend.festival.dao.FestivalDAO;
 import com.sido.backend.festival.dto.FestivalResponseDTO;
 import com.sido.backend.festival.dto.FestivalResponseDetailDTO;
 import com.sido.backend.festival.dto.FestivalRequestDTO;
@@ -18,18 +15,16 @@ import com.sido.backend.festival.repository.FestivalRepository;
 @Service
 public class FestivalServiceImpl implements FestivalService{
 	private final FestivalRepository repository;
-	// private final FestivalDAO dao;
 
-	public FestivalServiceImpl(FestivalRepository repository, FestivalDAO dao) {
+	public FestivalServiceImpl(FestivalRepository repository) {
 		this.repository = repository;
-		// this.dao = dao;
 	}
 
 	@Override
-	public List<FestivalResponseDTO> getFestivalList(int page, int listSize) {
+	public PageResponseDTO<FestivalResponseDTO, Festival> getFestivalList(int page, int listSize) {
 		Slice<Festival> lists = repository.findAll(
 			PageRequest.of(page - 1, listSize, Sort.by(Sort.Order.desc("id"))));
-		return new PageResponseDTO<>(lists, FestivalServiceImpl::toDTO).getDtoList();
+		return new PageResponseDTO<>(lists, FestivalServiceImpl::toDTO);
 	}
 
 	@Override

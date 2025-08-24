@@ -1,7 +1,5 @@
 package com.sido.backend.festival.controller;
 
-import java.util.List;
-
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -12,9 +10,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sido.backend.common.dto.PageResponseDTO;
 import com.sido.backend.festival.dto.FestivalResponseDTO;
 import com.sido.backend.festival.dto.FestivalResponseDetailDTO;
 import com.sido.backend.festival.dto.FestivalRequestDTO;
+import com.sido.backend.festival.entity.Festival;
 import com.sido.backend.festival.service.FestivalService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,7 +30,9 @@ public class FestivalController {
 
 	@Tag(name = "전체 조회")
 	@GetMapping
-	public List<FestivalResponseDTO> getFestivalList(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "5") int listSize) {
+	public PageResponseDTO<FestivalResponseDTO, Festival> getFestivalList(
+		@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "5") int listSize) {
+
 		return service.getFestivalList(page, listSize);
 	}
 
