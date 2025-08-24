@@ -18,13 +18,12 @@ import com.sido.backend.festival.repository.FestivalRepository;
 @Service
 public class FestivalServiceImpl implements FestivalService{
 	private final FestivalRepository repository;
-	private final FestivalDAO dao;
+	// private final FestivalDAO dao;
 
 	public FestivalServiceImpl(FestivalRepository repository, FestivalDAO dao) {
 		this.repository = repository;
-		this.dao = dao;
+		// this.dao = dao;
 	}
-	private static final int listSize = 5;
 
 	@Override
 	public List<FestivalResponseDTO> getFestivalList(int page, int listSize) {
