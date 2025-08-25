@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 public class StayServiceImpl implements StayService {
 	private final StayRepository repository;
 
+	// another way by using @RequiredArgsConstructor
 	// public StayServiceImpl(StayRepository repository) {
 	// 	this.repository = repository;
 	// }
@@ -23,12 +24,26 @@ public class StayServiceImpl implements StayService {
 	public StayRegisterDTO addStay(StayRequestDTO requestDTO) {
 		Stay stay = toStayEntity(requestDTO);
 
-		return toRegisterDTO(repository.save(Stay));
+		return toRegisterDTO(repository.save(stay));
 	}
 
 	@Override
 	public StayEditDTO editStay(StayRequestDTO requestDTO) {
-		return null;
+		Stay stay = repository.findById(requestDTO.getId()).orElseThrow();
+		stay.setCapacity(requestDTO.getCapacity());
+		stay.setAreaSize(requestDTO.getAreaSize());
+		stay.setDescription(requestDTO.getDescription());
+
+		return toEditDTO(repository.save(stay));
+	}
+
+	private StayEditDTO toEditDTO(Stay stay) {
+		return StayEditDTO.builder()
+			.id(stay.getId())
+			.capacity(stay.getCapacity())
+			.areaSize(stay.getAreaSize())
+			.description(stay.getDescription())
+			.build();
 	}
 
 	private StayRegisterDTO toRegisterDTO(Stay stay) {
