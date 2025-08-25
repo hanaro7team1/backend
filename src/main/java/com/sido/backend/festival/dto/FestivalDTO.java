@@ -1,9 +1,10 @@
 package com.sido.backend.festival.dto;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
 
@@ -12,7 +13,8 @@ import lombok.experimental.SuperBuilder;
 public class FestivalDTO {
 	private Long id;
 
-	@NotNull
+	@NotBlank
+	@Size(min = 1, max = 64)
 	private String title;
 
 	@NotNull
@@ -21,18 +23,7 @@ public class FestivalDTO {
 	@NotNull
 	private LocalDate endDate;
 
-	@NotNull
-	private String region;
-
-	@NotNull
-	private int price;
-
-	@NotNull
-	private String url;
-
-	@NotNull
-	private String description;
-
-	private LocalDateTime createdAt;
-	private LocalDateTime updatedAt;
+	@NotBlank
+	@Size(min = 1, max = 31)
+	private String city;
 }
