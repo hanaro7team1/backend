@@ -14,16 +14,20 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sido.backend.member.dto.LoginRequestDTO;
 import com.sido.backend.security.JwtUtil;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/members")
+@Tag(name = "회원")
 public class MemberController {
 	private final AuthenticationManager authenticationManager;
 
-	@PostMapping("/login")
+	@Operation(summary = "사용자 로그인")
+	@PostMapping("/signin")
 	public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDTO loginRequestDTO) {
 		try {
 			// AuthenticationManager -> AuthenticationProvider로 요청 전달
