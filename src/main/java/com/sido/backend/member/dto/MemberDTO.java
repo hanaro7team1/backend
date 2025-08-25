@@ -15,6 +15,7 @@ import lombok.ToString;
 @Setter
 @ToString
 public class MemberDTO extends User {
+	private Long memberId; // 컨트롤러에서 memberId 가져오도록 @AuthenticationPrincipal 쓰기 위해 추가
 	private String loginId;
 	private String password;
 	private String role;
@@ -22,9 +23,10 @@ public class MemberDTO extends User {
 	private String name; // 일반 사용자 이름
 	private String villageName; // 호스트 마을 이름
 
-	public MemberDTO(String loginId, String password, String role, String name, String villageName) {
+	public MemberDTO(Long memberId, String loginId, String password, String role, String name, String villageName) {
 		super(loginId, password, List.of(new SimpleGrantedAuthority(role)));
 
+		this.memberId = memberId;
 		this.loginId = loginId;
 		this.password = password;
 		this.role = role;
@@ -32,18 +34,20 @@ public class MemberDTO extends User {
 		this.villageName = villageName;
 	}
 
-	public MemberDTO(String loginId, String password, String role, String displayName) {
+	public MemberDTO(Long memberId, String loginId, String password, String role, String displayName) {
 		this(
+			memberId,
 			loginId,
 			password,
 			role,
-			"ROLE_HOST".equals(role) ? null : displayName, // user, admin -> name
-			"ROLE_HOST".equals(role) ? displayName : null // host -> villageName
+			"ROLE_ADMIN".equals(role) ? null : displayName, // user -> name
+			"ROLE_ADMIN".equals(role) ? displayName : null // admin -> villageName
 		);
 	}
 
 	public Map<String, Object> getClaims() { // JWT Payload에 들어갈 claims
 		Map<String, Object> map = new HashMap<>();
+		map.put("memberId", memberId);
 		map.put("loginId", loginId);
 		// map.put("password", password); // claim에 password 넣지 X
 		map.put("role", role);
@@ -52,11 +56,11 @@ public class MemberDTO extends User {
 		return map;
 	}
 
-	public boolean isHost() {
-		return "ROLE_HOST".equals(role);
+	public boolean isAdmin() {
+		return "ROLE_ADMIN".equals(role);
 	}
 
 	public String getDisplayName() {
-		return isHost() ? villageName : name;
+		return isAdmin() ? villageName : name;
 	}
 }

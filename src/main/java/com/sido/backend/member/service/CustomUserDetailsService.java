@@ -27,6 +27,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 		String displayName = (m instanceof HostMember hm) ? hm.getVillageName() : m.getName();
 		MemberDTO memberDTO = new MemberDTO(
+			m.getId(),
 			m.getLoginId(),
 			m.getPassword(),
 			m.getRole().name(),
