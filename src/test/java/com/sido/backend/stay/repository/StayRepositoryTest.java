@@ -1,6 +1,4 @@
-package com.sido.backend.house.repository;
-
-import static org.junit.jupiter.api.Assertions.*;
+package com.sido.backend.stay.repository;
 
 import java.util.stream.Stream;
 
@@ -8,22 +6,22 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.sido.backend.house.entity.House;
+import com.sido.backend.stay.entity.Stay;
 
 @SpringBootTest
-class HouseRepositoryTest {
+class StayRepositoryTest {
 	@Autowired
-	private HouseRepository houseRepository;
+	private StayRepository stayRepository;
 
 	@Test
-	void houseAddTest() {
+	void stayAddTest() {
 		short numOfHumans = 4;
 		short size = 20;
 
-		houseRepository.saveAll(
+		stayRepository.saveAll(
 			Stream.iterate(1, n -> n + 1)
 				.limit(10)
-				.map(n -> House.builder()
+				.map(n -> Stay.builder()
 					.isHomestay(true)
 					.title("사랑방 " + n + "호")
 					.address("전남 해남 화산면 새꽃마을")
@@ -37,16 +35,16 @@ class HouseRepositoryTest {
 	}
 
 	@Test
-	void houseEditTest() {
+	void stayEditTest() {
 		short numOfHumansEdit = 5;
 		short sizeEdit = 25;
 		long id = 3L;
 
-		House houseEdit = houseRepository.findById(id).orElseThrow();
-		houseEdit.setAreaSize(sizeEdit);
-		houseEdit.setCapacity(numOfHumansEdit);
-		houseEdit.setDescription("고양이들이 많음\n작은 텃밭 있음");
+		Stay stayEdit = stayRepository.findById(id).orElseThrow();
+		stayEdit.setAreaSize(sizeEdit);
+		stayEdit.setCapacity(numOfHumansEdit);
+		stayEdit.setDescription("고양이들이 많음\n작은 텃밭 있음");
 
-		houseRepository.save(houseEdit);
+		stayRepository.save(stayEdit);
 	}
 }

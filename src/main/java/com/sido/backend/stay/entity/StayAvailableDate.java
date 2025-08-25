@@ -1,4 +1,4 @@
-package com.sido.backend.house.entity;
+package com.sido.backend.stay.entity;
 
 import java.time.LocalDate;
 
@@ -16,7 +16,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class HouseAvailableDate {
+public class StayAvailableDate {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -35,5 +35,5 @@ public class HouseAvailableDate {
 				"""
 		)
 	)
-	private House house;
+	private Stay house;
 }

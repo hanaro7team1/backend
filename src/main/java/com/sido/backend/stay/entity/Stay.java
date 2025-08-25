@@ -1,4 +1,4 @@
-package com.sido.backend.house.entity;
+package com.sido.backend.stay.entity;
 
 import org.hibernate.annotations.DynamicInsert;
 
@@ -26,7 +26,7 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class House extends BaseEntity {
+public class Stay extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
