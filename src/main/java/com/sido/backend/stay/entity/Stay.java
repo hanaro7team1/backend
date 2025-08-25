@@ -43,7 +43,7 @@ public class Stay extends BaseEntity {
 	@Column(nullable = false)
 	private Short areaSize;
 
-	@Column(length = 512, nullable = true)
+	@Column(length = 512, nullable = false)
 	private String description;
 
 	@Column(nullable = false)
@@ -52,12 +52,12 @@ public class Stay extends BaseEntity {
 	@Column(length = 5, nullable = false)
 	private String owner;
 
-	@Column(length = 31, nullable = true)
+	@Column(length = 31, nullable = false)
 	private String ownerPhone;
 
 	@ManyToOne
 	@JoinColumn(name = "host", foreignKey = @ForeignKey(
-		name = "fk_House_Member_host",
+		name = "fk_Stay_Member_host",
 		foreignKeyDefinition = """
 			foreign key (host) references Member(id)
 			on delete set null

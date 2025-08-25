@@ -25,15 +25,15 @@ public class StayAvailableDate {
 	private LocalDate availableDate;
 
 	@ManyToOne
-	@JoinColumn(name = "house",
+	@JoinColumn(name = "stay",
 		foreignKey = @ForeignKey(
-			name = "fk_HouseAvailableDate_House",
+			name = "fk_StayAvailableDate_Stay",
 			foreignKeyDefinition = """
-					foreign key (house)
-					   references House(id)
+					foreign key (stay)
+					   references Stay(id)
 					    on DELETE cascade on UPDATE cascade
 				"""
 		)
 	)
-	private Stay house;
+	private Stay stay;
 }
