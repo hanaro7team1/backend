@@ -8,5 +8,5 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @SuperBuilder
 public class FestivalResponseDTO extends FestivalDTO {
-
+	// 혹시 변경사항 생길것 고려해서 살려둠
 }
