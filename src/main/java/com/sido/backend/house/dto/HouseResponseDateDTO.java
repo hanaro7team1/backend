@@ -1,4 +1,4 @@
 package com.sido.backend.house.dto;
 
-public class HouseResponseDTO {
+public class HouseResponseDateDTO {
 }

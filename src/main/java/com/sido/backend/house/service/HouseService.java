@@ -1,8 +1,11 @@
 package com.sido.backend.house.service;
 
-import com.sido.backend.house.dto.HouseDetailRequestDTO;
-import com.sido.backend.house.dto.HouseResponseDTO;
+import com.sido.backend.house.dto.HouseRequestDTO;
+import com.sido.backend.house.dto.HouseResponseDateDTO;
+import com.sido.backend.house.dto.HouseResponseRegisterDTO;
 
 public interface HouseService {
-	HouseResponseDTO addHouse(HouseDetailRequestDTO requestDetailDTO);
+	HouseResponseRegisterDTO addHouse(HouseRequestDTO requestDetailDTO);
+
+	HouseResponseDateDTO addHouseDate(HouseRequestDTO requestDetailDTO);
 }
