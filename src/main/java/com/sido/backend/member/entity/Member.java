@@ -26,7 +26,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "memberType", length = 10) // USER, HOST
+@DiscriminatorColumn(name = "memberType", length = 10) // USER, ADMIN
 @DiscriminatorValue("USER")
 @EqualsAndHashCode(callSuper = false)
 public class Member {
@@ -48,5 +48,5 @@ public class Member {
 
 	@Enumerated(EnumType.STRING)
 	@Builder.Default
-	private MemberRole role = MemberRole.ROLE_USER; // USER, HOST, ADMIN
+	private MemberRole role = MemberRole.ROLE_USER; // USER, ADMIN
 }

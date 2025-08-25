@@ -42,10 +42,23 @@ public class SecurityConfig {
 			.sessionManagement(config ->
 				config.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.formLogin(form -> form
-				.loginPage("/api/users/login")
+				.loginPage("/api/users/signin")
 				.successHandler(new LoginSuccessHandler()) // loginPage에서 성공하면 LoginSuccessHandler 실행
 				.failureHandler(new LoginFailureHandler()) // 실패하면 LoginFailureHandler 실행
 			)
+			.authorizeHttpRequests(auth -> auth
+				// 로그인, 회원가입, 문서: 공개
+				.requestMatchers("/api/users/**", "/api/members/**", "/swagger-ui/**", "/sido/api-docs/**",
+					"/actuator/**")
+				.permitAll()
+				// 공개 API
+				.requestMatchers(HttpMethod.GET, "/api/stays/**", "/api/real-estates/**", "/api/festivals/**")
+				.permitAll()
+				// 인증 필요
+				.requestMatchers(HttpMethod.POST, "/api/stays/**")
+				.authenticated()
+				.requestMatchers("/api/admin/**", "/api/reservations/**", "/api/festivals/**", "/api/mypage/**")
+				.authenticated())
 			.exceptionHandling(config
 				-> config.accessDeniedHandler(new CustomAccessDeniedHandler())) // 권한 핸들러 (403에러)
 			.addFilterBefore(new JwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
