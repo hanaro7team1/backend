@@ -28,11 +28,11 @@ public class StayRegisterDTO {
 	private short areaSize;
 
 	@NotBlank
-	@Size(min = 2, max = 5)
+	@Size(min = 1, max = 9)
 	private String owner;
 
 	@NotBlank
-	@Size(min = 8, max = 31)
+	@Size(min = 1, max = 31)
 	private String ownerPhone;
 
 	@NotBlank

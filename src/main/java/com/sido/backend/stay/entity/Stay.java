@@ -49,7 +49,7 @@ public class Stay extends BaseEntity {
 	@Column(nullable = false)
 	private Boolean isHomestay;
 
-	@Column(length = 5, nullable = false)
+	@Column(length = 9, nullable = false)
 	private String owner;
 
 	@Column(length = 31, nullable = false)
