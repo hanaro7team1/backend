@@ -22,10 +22,7 @@ public class HouseAvailableDate {
 	private Long id;
 
 	@Column(nullable = false)
-	private LocalDate startDate;
-
-	@Column(nullable = false)
-	private LocalDate endDate;
+	private LocalDate availableDate;
 
 	@ManyToOne
 	@JoinColumn(name = "house",
