@@ -8,13 +8,16 @@ import com.sido.backend.stay.dto.StayRegisterDTO;
 import com.sido.backend.stay.entity.Stay;
 import com.sido.backend.stay.repository.StayRepository;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 @Service
 public class StayServiceImpl implements StayService {
 	private final StayRepository repository;
 
-	public StayServiceImpl(StayRepository repository) {
-		this.repository = repository;
-	}
+	// public StayServiceImpl(StayRepository repository) {
+	// 	this.repository = repository;
+	// }
 
 	@Override
 	public StayRegisterDTO addStay(StayRequestDTO requestDTO) {
