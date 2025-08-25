@@ -23,7 +23,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
 		// 비밀번호 빈 문자열로
 		MemberDTO memberDTO = new MemberDTO(
-			dto.getLoginId(), "", dto.getRole(), dto.getName(), dto.getVillageName());
+			dto.getMemberId(), dto.getLoginId(), "", dto.getRole(), dto.getName(), dto.getVillageName());
 
 		// claim을 access 토큰에 담아서 클라이언트에게 전송
 		Map<String, Object> claims = memberDTO.getClaims();

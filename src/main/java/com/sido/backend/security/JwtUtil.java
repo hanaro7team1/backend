@@ -65,7 +65,7 @@ public class JwtUtil {
 	public static Map<String, Object> authenticationToClaims(Authentication authentication) {
 		MemberDTO dto = (MemberDTO)authentication.getPrincipal();
 		MemberDTO memberDTO = new MemberDTO(
-			dto.getLoginId(), "", dto.getRole(), dto.getName(), dto.getVillageName());
+			dto.getMemberId(), dto.getLoginId(), "", dto.getRole(), dto.getName(), dto.getVillageName());
 
 		Map<String, Object> claims = memberDTO.getClaims();
 

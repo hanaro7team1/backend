@@ -33,16 +33,17 @@ class MemberRepositoryTest {
 	@Order(1)
 	void saveTest() {
 		// admin 생성
-		Member admin = Member.builder()
-			.loginId("admin")
+		HostMember admin = HostMember.builder()
+			.loginId("garam")
 			.password(passwordEncoder.encode("password123!"))
-			.name("admin")
+			.villageName("가람마을")
 			.role(MemberRole.ROLE_ADMIN)
-			.phone("010-0000-0000")
+			.phone("055-000-0000")
+			.region("경남 창원시")
 			.build();
 
-		Member savedAdmin = memberRepository.save(admin);
-		Member foundAdmin = memberRepository.findById(savedAdmin.getId()).orElseThrow();
+		HostMember savedAdmin = hostMemberRepository.save(admin);
+		HostMember foundAdmin = hostMemberRepository.findById(savedAdmin.getId()).orElseThrow();
 
 		assertEquals(savedAdmin, foundAdmin);
 	}
@@ -58,7 +59,7 @@ class MemberRepositoryTest {
 			.map(n -> (HostMember)HostMember.builder()
 				.loginId("host" + n)
 				.password(passwordEncoder.encode("password123!"))
-				.role(MemberRole.ROLE_HOST)
+				.role(MemberRole.ROLE_ADMIN)
 				.phone("055-111-" + String.format("%04d", n))
 				.villageName("village" + n)
 				.region("region" + n)

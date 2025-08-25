@@ -16,7 +16,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-@DiscriminatorValue("HOST")
+@DiscriminatorValue("ADMIN")
 public class HostMember extends Member {
 	@Column(length = 30)
 	@NotBlank
