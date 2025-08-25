@@ -6,7 +6,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.sido.backend.common.dto.PageResponseDTO;
-import com.sido.backend.festival.dto.FestivalResponseDTO;
+import com.sido.backend.festival.dto.FestivalDTO;
 import com.sido.backend.festival.dto.FestivalResponseDetailDTO;
 import com.sido.backend.festival.dto.FestivalRequestDTO;
 import com.sido.backend.festival.entity.Festival;
@@ -21,7 +21,7 @@ public class FestivalServiceImpl implements FestivalService{
 	}
 
 	@Override
-	public PageResponseDTO<FestivalResponseDTO, Festival> getFestivalList(int page, int listSize) {
+	public PageResponseDTO<FestivalDTO, Festival> getFestivalList(int page, int listSize) {
 		Slice<Festival> lists = repository.findAll(
 			PageRequest.of(page - 1, listSize, Sort.by(Sort.Order.desc("id"))));
 		return new PageResponseDTO<>(lists, FestivalServiceImpl::toDTO);
@@ -56,8 +56,8 @@ public class FestivalServiceImpl implements FestivalService{
 		repository.deleteById(id);
 	}
 
-	public static FestivalResponseDTO toDTO (Festival festival) {
-		return FestivalResponseDTO.builder()
+	public static FestivalDTO toDTO (Festival festival) {
+		return FestivalDTO.builder()
 			.id(festival.getId())
 			.title(festival.getTitle())
 			.startDate(festival.getStartDate())

@@ -9,7 +9,7 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @Setter
 @SuperBuilder
-public class FestivalResponseDetailDTO extends FestivalResponseDTO {
+public class FestivalResponseDetailDTO extends FestivalDTO {
 	private String street;
 	private int price;
 	private String url;
