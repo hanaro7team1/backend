@@ -1,0 +1,20 @@
+package com.sido.backend.festival.dto;
+
+import java.time.LocalDateTime;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+
+@Getter
+@Setter
+@SuperBuilder
+public class FestivalResponseDetailDTO extends FestivalDTO {
+	private String street;
+	private int price;
+	private String url;
+	private String description;
+
+	private LocalDateTime createdAt;
+	private LocalDateTime updatedAt;
+}
