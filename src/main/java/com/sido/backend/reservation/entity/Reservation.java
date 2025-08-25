@@ -6,7 +6,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import com.sido.backend.common.entity.BaseEntity;
-import com.sido.backend.house.entity.House;
+import com.sido.backend.stay.entity.Stay;
 import com.sido.backend.member.entity.Member;
 
 import jakarta.persistence.Column;
@@ -50,7 +50,7 @@ public class Reservation extends BaseEntity {
 	@JoinColumn(name = "house",
 		foreignKey = @ForeignKey(name = "fk_Reservation_House"))
 	@OnDelete(action = OnDeleteAction.SET_NULL)
-	private House house;
+	private Stay house;
 
 	@ManyToOne
 	@JoinColumn(name = "member",
