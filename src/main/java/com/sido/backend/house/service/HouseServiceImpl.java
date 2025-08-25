@@ -17,7 +17,7 @@ public class HouseServiceImpl implements HouseService {
 
 	@Override
 	public HouseResponseRegisterDTO addHouse(HouseRequestDTO requestDTO) {
-		// House house = re;
+		return null;
 	}
 
 	@Override

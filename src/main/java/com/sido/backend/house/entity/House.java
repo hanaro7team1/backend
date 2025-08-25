@@ -1,5 +1,7 @@
 package com.sido.backend.house.entity;
 
+import org.hibernate.annotations.DynamicInsert;
+
 import com.sido.backend.common.entity.BaseEntity;
 import com.sido.backend.member.entity.HostMember;
 
@@ -11,12 +13,19 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
+@DynamicInsert
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class House extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,6 +48,9 @@ public class House extends BaseEntity {
 
 	@Column(nullable = false)
 	private Boolean isHomestay;
+
+	@Column(length = 5, nullable = false)
+	private String owner;
 
 	@Column(length = 31, nullable = true)
 	private String ownerPhone;
