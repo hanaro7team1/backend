@@ -10,13 +10,24 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
-public class StayAvailableDate {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(uniqueConstraints = {
+	@UniqueConstraint(name = "uk_stay_date", columnNames = {"stay", "availableDate"})
+})
+public class StayAvailDate {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -24,10 +35,14 @@ public class StayAvailableDate {
 	@Column(nullable = false)
 	private LocalDate availableDate;
 
+	@Column(nullable = false)
+	@Builder.Default
+	private Boolean isAvailable = true;
+
 	@ManyToOne
 	@JoinColumn(name = "stay",
 		foreignKey = @ForeignKey(
-			name = "fk_StayAvailableDate_Stay",
+			name = "fk_StayAvailDate_Stay",
 			foreignKeyDefinition = """
 					foreign key (stay)
 					   references Stay(id)
