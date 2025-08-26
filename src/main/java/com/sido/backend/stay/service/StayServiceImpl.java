@@ -2,7 +2,9 @@ package com.sido.backend.stay.service;
 
 import org.springframework.stereotype.Service;
 
-import com.sido.backend.stay.dto.StayEditDTO;
+import com.sido.backend.member.entity.HostMember;
+import com.sido.backend.member.repository.HostMemberRepository;
+import com.sido.backend.stay.dto.StayDTO;
 import com.sido.backend.stay.dto.StayRequestDTO;
 import com.sido.backend.stay.dto.StayRegisterDTO;
 import com.sido.backend.stay.entity.Stay;
@@ -13,33 +15,32 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Service
 public class StayServiceImpl implements StayService {
-	private final StayRepository repository;
-
-	// another way by using @RequiredArgsConstructor
-	// public StayServiceImpl(StayRepository repository) {
-	// 	this.repository = repository;
-	// }
+	private final StayRepository stayRepository;
+	private final HostMemberRepository hostMemberRepository;
 
 	@Override
-	public StayRegisterDTO addStay(StayRequestDTO requestDTO) {
-		Stay stay = toStayEntity(requestDTO);
+	public StayRegisterDTO addStay(long memberId, StayRequestDTO requestDTO) {
+		HostMember host = hostMemberRepository.findById(memberId).orElseThrow();
 
-		return toRegisterDTO(repository.save(stay));
+		Stay stay = requestDTO.toEntity();
+		stay.setHost(host);
+		stayRepository.save(stay);
+
+		return toRegisterDTO(stay);
 	}
 
 	@Override
-	public StayEditDTO editStay(StayRequestDTO requestDTO) {
-		Stay stay = repository.findById(requestDTO.getId()).orElseThrow();
-		stay.setCapacity(requestDTO.getCapacity());
-		stay.setAreaSize(requestDTO.getAreaSize());
-		stay.setDescription(requestDTO.getDescription());
+	public StayDTO editStay(long stayId, long memberId, StayDTO stayDTO) {
+		Stay stay = stayRepository.findById(stayId).orElseThrow();
+		stay.setCapacity(stayDTO.getCapacity());
+		stay.setAreaSize(stayDTO.getAreaSize());
+		stay.setDescription(stayDTO.getDescription());
 
-		return toEditDTO(repository.save(stay));
+		return toEditDTO(stayRepository.save(stay));
 	}
 
-	private StayEditDTO toEditDTO(Stay stay) {
-		return StayEditDTO.builder()
-			.id(stay.getId())
+	private StayDTO toEditDTO(Stay stay) {
+		return StayDTO.builder()
 			.capacity(stay.getCapacity())
 			.areaSize(stay.getAreaSize())
 			.description(stay.getDescription())
@@ -48,27 +49,13 @@ public class StayServiceImpl implements StayService {
 
 	private StayRegisterDTO toRegisterDTO(Stay stay) {
 		return StayRegisterDTO.builder()
-			.isHomestay(true)
 			.title(stay.getTitle())
 			.address(stay.getAddress())
 			.capacity(stay.getCapacity())
 			.areaSize(stay.getAreaSize())
-			.owner(stay.getOwner())
+			.ownerName(stay.getOwnerName())
 			.ownerPhone(stay.getOwnerPhone())
 			.description(stay.getDescription())
-			.build();
-	}
-
-	private static Stay toStayEntity(StayRequestDTO dto) {
-		return Stay.builder()
-			.isHomestay(true)
-			.title(dto.getTitle())
-			.address(dto.getAddress())
-			.capacity(dto.getCapacity())
-			.areaSize(dto.getAreaSize())
-			.owner(dto.getOwner())
-			.ownerPhone(dto.getOwnerPhone())
-			.description(dto.getDescription())
 			.build();
 	}
 }

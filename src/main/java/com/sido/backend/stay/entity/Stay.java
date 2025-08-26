@@ -38,19 +38,20 @@ public class Stay extends BaseEntity {
 	private String address;
 
 	@Column(nullable = false)
-	private Short capacity;
+	private Integer capacity;
 
 	@Column(nullable = false)
-	private Short areaSize;
+	private Integer areaSize;
 
-	@Column(length = 512, nullable = false)
+	@Column(length = 1000, nullable = false)
 	private String description;
 
 	@Column(nullable = false)
-	private Boolean isHomestay;
+	@Builder.Default
+	private Boolean isHomestay = true;
 
 	@Column(length = 9, nullable = false)
-	private String owner;
+	private String ownerName;
 
 	@Column(length = 31, nullable = false)
 	private String ownerPhone;

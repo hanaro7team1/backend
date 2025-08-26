@@ -47,10 +47,10 @@ public class Reservation extends BaseEntity {
 	private ResrvStatus resrvStatus;
 
 	@OneToOne(optional = false)
-	@JoinColumn(name = "house",
-		foreignKey = @ForeignKey(name = "fk_Reservation_House"))
+	@JoinColumn(name = "stay",
+		foreignKey = @ForeignKey(name = "fk_Reservation_Stay"))
 	@OnDelete(action = OnDeleteAction.SET_NULL)
-	private Stay house;
+	private Stay stay;
 
 	@ManyToOne
 	@JoinColumn(name = "member",
