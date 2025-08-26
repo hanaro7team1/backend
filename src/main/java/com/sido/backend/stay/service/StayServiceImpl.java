@@ -28,7 +28,9 @@ public class StayServiceImpl implements StayService {
 
 	@Override
 	public StayRegisterDTO addStay(long memberId, StayRequestDTO requestDTO) {
-		HostMember host = hostMemberRepository.findById(memberId).orElseThrow();
+		HostMember host = hostMemberRepository.findById(memberId).orElseThrow(
+			() -> new EntityNotFoundException("해당 호스트를 찾을 수 없습니다.")
+		);
 
 		Stay stay = requestDTO.toEntity();
 		stay.setHost(host);
@@ -39,7 +41,9 @@ public class StayServiceImpl implements StayService {
 
 	@Override
 	public StayDTO editStay(long stayId, long memberId, StayDTO stayDTO) {
-		Stay stay = stayRepository.findById(stayId).orElseThrow();
+		Stay stay = stayRepository.findById(stayId).orElseThrow(
+			() -> new EntityNotFoundException("해당 사랑방을 찾을 수 없습니다.")
+		);
 		stay.setCapacity(stayDTO.getCapacity());
 		stay.setAreaSize(stayDTO.getAreaSize());
 		stay.setDescription(stayDTO.getDescription());
