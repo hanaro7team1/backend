@@ -50,11 +50,15 @@ public class Stay extends BaseEntity {
 	@Builder.Default
 	private Boolean isHomestay = true;
 
-	@Column(length = 9, nullable = false)
+	@Column(length = 9) // 독립형: 집주인 X -> nullable
 	private String ownerName;
 
-	@Column(length = 31, nullable = false)
+	@Column(length = 31) // 독립형: 집주인 X -> nullable
 	private String ownerPhone;
+
+	@Column(nullable = false)
+	@Builder.Default
+	private Boolean isActive = true; // stay 삭제 처리 시 false로. 조회할 땐 true인 것들만.
 
 	@ManyToOne
 	@JoinColumn(name = "host", foreignKey = @ForeignKey(
