@@ -1,4 +1,6 @@
-package com.sido.backend.house.entity;
+package com.sido.backend.stay.entity;
+
+import org.hibernate.annotations.DynamicInsert;
 
 import com.sido.backend.common.entity.BaseEntity;
 import com.sido.backend.member.entity.HostMember;
@@ -20,10 +22,11 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
+@DynamicInsert
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class House extends BaseEntity {
+@NoArgsConstructor
+public class Stay extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -40,19 +43,22 @@ public class House extends BaseEntity {
 	@Column(nullable = false)
 	private Integer areaSize;
 
-	@Column(length = 512)
+	@Column(length = 1000, nullable = false)
 	private String description;
 
 	@Column(nullable = false)
 	@Builder.Default
-	private boolean isHomestay = true;
+	private Boolean isHomestay = true;
 
-	@Column(length = 31)
+	@Column(length = 9, nullable = false)
+	private String ownerName;
+
+	@Column(length = 31, nullable = false)
 	private String ownerPhone;
 
 	@ManyToOne
 	@JoinColumn(name = "host", foreignKey = @ForeignKey(
-		name = "fk_House_Member_host",
+		name = "fk_Stay_Member_host",
 		foreignKeyDefinition = """
 			foreign key (host) references Member(id)
 			on delete set null
