@@ -24,13 +24,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	private final AntPathMatcher pathMatcher = new AntPathMatcher(); // /** 처럼 n depth 체크해줄 수 있도록
 
 	private final String[] excludePatterns = { // 로그인 체크 안 하는 도메인
-		"/api/users/singin", // spring security
+		"/api/users/signin", // spring security
 		"/api/users/signup", // spring security
 		"/actuator/**",
 		"/swagger-ui/**",
 		"/sido/api-docs/**",
 		"/api/members/signin",
-		"/api/members/signUp"
+		"/api/members/signup"
 	};
 
 	@Override
@@ -49,7 +49,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		System.out.println("*** [JWT} doFilterInternal path = " + request.getRequestURI());
 		String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
+		// 토큰이 없거나 Bearer로 시작하지 않으면 다음 필터로 넘김
+		// SecurityConfig : http.addFilterBefore(new JwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+		// JwtAuthenticationFilter -> UsernamePasswordAuthenticationFilter (인증 필터) -> authorizeHttpRequests (인가 설정)
+		if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+			filterChain.doFilter(request, response);
+			return;
+		}
+
 		try {
+			// 토큰이 있을 때만 검증
 			Map<String, Object> claims = JwtUtil.validateToken(authHeader.substring(7)); // Bearer 빼고 토큰 부분만
 
 			Object rawId = claims.get("memberId");
