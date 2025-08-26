@@ -1,4 +1,4 @@
-package com.sido.backend.house.entity;
+package com.sido.backend.stay.entity;
 
 import java.time.LocalDate;
 
@@ -16,27 +16,24 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class HouseAvailableDate {
+public class StayAvailableDate {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	@Column(nullable = false)
-	private LocalDate startDate;
-
-	@Column(nullable = false)
-	private LocalDate endDate;
+	private LocalDate availableDate;
 
 	@ManyToOne
-	@JoinColumn(name = "house",
+	@JoinColumn(name = "stay",
 		foreignKey = @ForeignKey(
-			name = "fk_HouseAvailableDate_House",
+			name = "fk_StayAvailableDate_Stay",
 			foreignKeyDefinition = """
-					foreign key (house)
-					   references House(id)
+					foreign key (stay)
+					   references Stay(id)
 					    on DELETE cascade on UPDATE cascade
 				"""
 		)
 	)
-	private House house;
+	private Stay stay;
 }
