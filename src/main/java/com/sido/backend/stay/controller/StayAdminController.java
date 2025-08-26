@@ -20,7 +20,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/admin/stays")
-@Tag(name = "사랑방")
+@Tag(name = "사랑방-Admin")
 public class StayAdminController {
 	private final StayService service;
 
@@ -31,14 +31,16 @@ public class StayAdminController {
 	@Operation(description = "등록")
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@PostMapping
-	public ResponseEntity<?> addStay(@AuthenticationPrincipal(expression = "memberId") Long memberId, @Valid @RequestBody StayRequestDTO requestDTO) {
+	public ResponseEntity<?> addStay(@AuthenticationPrincipal(expression = "memberId") Long memberId,
+		@Valid @RequestBody StayRequestDTO requestDTO) {
 		return ResponseEntity.ok(service.addStay(memberId, requestDTO));
 	}
 
 	@Operation(description = "수정")
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@PatchMapping({"/{id}"})
-	public ResponseEntity<?> editStay(@PathVariable long id, @AuthenticationPrincipal(expression = "memberId") Long memberId, @Valid @RequestBody StayDTO stayDTO) {
+	public ResponseEntity<?> editStay(@PathVariable long id,
+		@AuthenticationPrincipal(expression = "memberId") Long memberId, @Valid @RequestBody StayDTO stayDTO) {
 		return ResponseEntity.ok(service.editStay(id, memberId, stayDTO));
 	}
 }
