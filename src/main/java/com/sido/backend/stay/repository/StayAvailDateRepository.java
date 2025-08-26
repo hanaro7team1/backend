@@ -27,4 +27,7 @@ public interface StayAvailDateRepository extends JpaRepository<StayAvailDate, Lo
 
 	// end보다 늦은 날짜에 예약 가능한 날이 있는지
 	boolean existsByStayIdAndAvailableDateGreaterThanAndIsAvailableTrue(Long stayId, LocalDate end);
+
+	// start, end 사이에 예약 가능한 날짜 개수
+	long countByStayIdAndAvailableDateBetweenAndIsAvailableTrue(Long stayId, LocalDate start, LocalDate end);
 }
