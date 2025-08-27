@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class StayRegisterDTO {
+public class StayCreateDTO {
 	@NotBlank
 	@Size(min = 1, max = 64)
 	private String title;
@@ -18,6 +18,10 @@ public class StayRegisterDTO {
 	@NotBlank
 	@Size(min = 1, max = 64)
 	private String address;
+
+	@NotBlank
+	@Size(min = 1, max = 64)
+	private String detailAddress;
 
 	@NotNull
 	private Integer capacity;

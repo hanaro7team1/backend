@@ -9,10 +9,10 @@ import org.springframework.stereotype.Service;
 import com.sido.backend.member.entity.HostMember;
 import com.sido.backend.member.repository.HostMemberRepository;
 import com.sido.backend.stay.dto.AvailDatesDTO;
-import com.sido.backend.stay.dto.StayDTO;
-import com.sido.backend.stay.dto.StayRegisterDTO;
+import com.sido.backend.stay.dto.StayCreateDTO;
 import com.sido.backend.stay.dto.StayRequestDTO;
 import com.sido.backend.stay.dto.StayResponseDetailDTO;
+import com.sido.backend.stay.dto.StayUpdateDTO;
 import com.sido.backend.stay.entity.Stay;
 import com.sido.backend.stay.repository.StayAvailDateRepository;
 import com.sido.backend.stay.repository.StayRepository;
@@ -28,7 +28,7 @@ public class StayServiceImpl implements StayService {
 	private final HostMemberRepository hostMemberRepository;
 
 	@Override
-	public StayRegisterDTO addStay(long memberId, StayRequestDTO requestDTO) {
+	public StayCreateDTO addStay(long memberId, StayRequestDTO requestDTO) {
 		HostMember host = hostMemberRepository.findById(memberId).orElseThrow(
 			() -> new EntityNotFoundException("해당 호스트를 찾을 수 없습니다.")
 		);
@@ -41,7 +41,7 @@ public class StayServiceImpl implements StayService {
 	}
 
 	@Override
-	public StayDTO editStay(long stayId, long memberId, StayDTO stayDTO) {
+	public StayUpdateDTO editStay(long stayId, long memberId, StayUpdateDTO stayDTO) {
 		Stay stay = stayRepository.findById(stayId).orElseThrow(
 			() -> new EntityNotFoundException("해당 사랑방을 찾을 수 없습니다.")
 		);
@@ -110,16 +110,16 @@ public class StayServiceImpl implements StayService {
 		return builder.build();
 	}
 
-	private StayDTO toEditDTO(Stay stay) {
-		return StayDTO.builder()
+	private StayUpdateDTO toEditDTO(Stay stay) {
+		return StayUpdateDTO.builder()
 			.capacity(stay.getCapacity())
 			.areaSize(stay.getAreaSize())
 			.description(stay.getDescription())
 			.build();
 	}
 
-	private StayRegisterDTO toRegisterDTO(Stay stay) {
-		return StayRegisterDTO.builder()
+	private StayCreateDTO toRegisterDTO(Stay stay) {
+		return StayCreateDTO.builder()
 			.title(stay.getTitle())
 			.address(stay.getAddress())
 			.capacity(stay.getCapacity())

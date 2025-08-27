@@ -15,7 +15,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class StayDTO {
+public class StayUpdateDTO {
 	@NotNull
 	@Schema(name = "capacity", example = "8")
 	private Integer capacity;
