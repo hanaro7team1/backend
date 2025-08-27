@@ -16,4 +16,6 @@ public interface StayService {
 	AvailDatesDTO getAvailableDatesByMonth(Long stayId, YearMonth yearMonth);
 
 	StayResponseDetailDTO getStayDetail(Long stayId);
+
+	void deleteStay(Long stayId);
 }

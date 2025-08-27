@@ -86,6 +86,15 @@ public class StayServiceImpl implements StayService {
 		return toResponseDetailDTO(stay);
 	}
 
+	@Override
+	public void deleteStay(Long stayId) {
+		Stay stay = stayRepository.findById(stayId).orElseThrow(
+			() -> new EntityNotFoundException("해당 사랑방을 찾을 수 없습니다.")
+		);
+		stay.setIsActive(false);
+		stayRepository.save(stay);
+	}
+
 	private StayResponseDetailDTO toResponseDetailDTO(Stay stay) {
 		HostMember host = stay.getHost();
 		List<String> imageUrls = stay.getImages().stream()

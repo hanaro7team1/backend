@@ -4,6 +4,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,9 +40,17 @@ public class StayAdminController {
 
 	@Operation(description = "수정")
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
-	@PatchMapping({"/{id}"})
+	@PatchMapping({"/{stayId}"})
 	public ResponseEntity<?> editStay(@PathVariable long id,
 		@AuthenticationPrincipal(expression = "memberId") Long memberId, @Valid @RequestBody StayDTO stayDTO) {
 		return ResponseEntity.ok(service.editStay(id, memberId, stayDTO));
+	}
+
+	@Operation(description = "삭제")
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@DeleteMapping("/{stayId}")
+	public ResponseEntity<Void> deleteStay(@PathVariable Long stayId) {
+		service.deleteStay(stayId);
+		return ResponseEntity.noContent().build();
 	}
 }
