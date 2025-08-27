@@ -3,7 +3,6 @@ package com.sido.backend.stay.service;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,16 +34,17 @@ public class StayServiceImpl implements StayService {
 			() -> new EntityNotFoundException("해당 호스트를 찾을 수 없습니다.")
 		);
 
+		// 사랑방 개수 증가 (HostMember 업데이트)
+		host.incrementStayCount();
+
 		Stay stay = stayCreateDTO.toEntity();
 		stay.setHost(host);
-		//nullable 제약 -> id 생기기 전, 임시로 이름 지정 후 update(중복 삽입 방지 uuid)
-		stay.setTitle(UUID.randomUUID().toString().substring(0, 8));
+
+		//{마을 이름} + 사랑방 + {사랑방 개수} + 호
+		stay.setTitle(host.getVillageName() + " 사랑방 " + host.getStayCount() + "호");
 
 		stayRepository.save(stay);
-
-		//{마을 이름} + 사랑방 + {사랑방 id} + 호
-		stay.setTitle(host.getVillageName() + " 사랑방 " + stay.getId() + "호");
-
+		
 		return toResponseDetailDTO(stay);
 	}
 
@@ -106,6 +106,7 @@ public class StayServiceImpl implements StayService {
 			.id(stay.getId())
 			.title(stay.getTitle())
 			.address(stay.getAddress())
+			.detailAddress(stay.getDetailAddress())
 			.capacity(stay.getCapacity())
 			.areaSize(stay.getAreaSize())
 			.description(stay.getDescription())
