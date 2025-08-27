@@ -75,8 +75,4 @@ public class Stay extends BaseEntity {
 			"""
 	))
 	private HostMember host;
-
-    @OneToMany(mappedBy = "stay", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<StayImage> images = new ArrayList<>();
 }
