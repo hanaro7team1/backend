@@ -14,7 +14,7 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @SuperBuilder
 @NoArgsConstructor
-public class StayRequestDTO extends StayDTO {
+public class StayRequestDTO extends StayUpdateDTO {
 	@NotBlank
 	@Size(min = 1, max = 64)
 	private String title;
@@ -35,7 +35,6 @@ public class StayRequestDTO extends StayDTO {
 	public Stay toEntity() {
 		return Stay.builder()
 			.isHomestay(true)
-			.title(title)
 			.address(address)
 			.capacity(getCapacity())
 			.areaSize(getAreaSize())

@@ -31,11 +31,15 @@ public class Stay extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	//title 생성되는 id 기반으로 만듦
 	@Column(length = 64, nullable = false)
 	private String title;
 
 	@Column(length = 64, nullable = false)
 	private String address;
+
+	@Column(length = 64, nullable = false)
+	private String detailAddress;
 
 	@Column(nullable = false)
 	private Integer capacity;

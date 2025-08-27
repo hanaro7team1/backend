@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sido.backend.stay.dto.StayRequestDTO;
+import com.sido.backend.stay.dto.StayCreateDTO;
+import com.sido.backend.stay.dto.StayResponseDetailDTO;
 import com.sido.backend.stay.dto.StayUpdateDTO;
 import com.sido.backend.stay.service.StayService;
 
@@ -32,9 +33,10 @@ public class StayAdminController {
 	@Operation(description = "등록")
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@PostMapping
-	public ResponseEntity<?> addStay(@AuthenticationPrincipal(expression = "memberId") Long memberId,
-		@Valid @RequestBody StayRequestDTO requestDTO) {
-		return ResponseEntity.ok(service.addStay(memberId, requestDTO));
+	public ResponseEntity<StayResponseDetailDTO> addStay(
+		@AuthenticationPrincipal(expression = "memberId") Long memberId,
+		@Valid @RequestBody StayCreateDTO stayCreateDTO) {
+		return ResponseEntity.ok(service.addStay(memberId, stayCreateDTO));
 	}
 
 	@Operation(description = "수정")

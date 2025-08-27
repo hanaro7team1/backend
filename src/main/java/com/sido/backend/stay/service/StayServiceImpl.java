@@ -3,14 +3,15 @@ package com.sido.backend.stay.service;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.sido.backend.member.entity.HostMember;
 import com.sido.backend.member.repository.HostMemberRepository;
 import com.sido.backend.stay.dto.AvailDatesDTO;
 import com.sido.backend.stay.dto.StayCreateDTO;
-import com.sido.backend.stay.dto.StayRequestDTO;
 import com.sido.backend.stay.dto.StayResponseDetailDTO;
 import com.sido.backend.stay.dto.StayUpdateDTO;
 import com.sido.backend.stay.entity.Stay;
@@ -28,16 +29,23 @@ public class StayServiceImpl implements StayService {
 	private final HostMemberRepository hostMemberRepository;
 
 	@Override
-	public StayCreateDTO addStay(long memberId, StayRequestDTO requestDTO) {
+	@Transactional
+	public StayResponseDetailDTO addStay(long memberId, StayCreateDTO stayCreateDTO) {
 		HostMember host = hostMemberRepository.findById(memberId).orElseThrow(
 			() -> new EntityNotFoundException("해당 호스트를 찾을 수 없습니다.")
 		);
 
-		Stay stay = requestDTO.toEntity();
+		Stay stay = stayCreateDTO.toEntity();
 		stay.setHost(host);
+		//nullable 제약 -> id 생기기 전, 임시로 이름 지정 후 update(중복 삽입 방지 uuid)
+		stay.setTitle(UUID.randomUUID().toString().substring(0, 8));
+
 		stayRepository.save(stay);
 
-		return toRegisterDTO(stay);
+		//{마을 이름} + 사랑방 + {사랑방 id} + 호
+		stay.setTitle(host.getVillageName() + " 사랑방 " + stay.getId() + "호");
+
+		return toResponseDetailDTO(stay);
 	}
 
 	@Override
@@ -114,18 +122,6 @@ public class StayServiceImpl implements StayService {
 		return StayUpdateDTO.builder()
 			.capacity(stay.getCapacity())
 			.areaSize(stay.getAreaSize())
-			.description(stay.getDescription())
-			.build();
-	}
-
-	private StayCreateDTO toRegisterDTO(Stay stay) {
-		return StayCreateDTO.builder()
-			.title(stay.getTitle())
-			.address(stay.getAddress())
-			.capacity(stay.getCapacity())
-			.areaSize(stay.getAreaSize())
-			.ownerName(stay.getOwnerName())
-			.ownerPhone(stay.getOwnerPhone())
 			.description(stay.getDescription())
 			.build();
 	}
