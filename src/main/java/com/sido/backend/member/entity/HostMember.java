@@ -25,4 +25,8 @@ public class HostMember extends Member {
 	@Column(length = 100)
 	@NotBlank
 	private String region;
+
+	@Column(nullable = false)
+	private Integer stayCount = 0;
+
 }
