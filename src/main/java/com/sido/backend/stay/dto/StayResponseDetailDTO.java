@@ -12,18 +12,12 @@ import lombok.Getter;
 public class StayResponseDetailDTO {
     private Long id;
     private String title;
-    private List<String> imageUrls;
 
     private String address;
     private Integer capacity;
     private Integer areaSize;
     private String description;
     private Boolean isHomestay;
-    private String ownerName;
-    private String ownerPhone;
-    private String hostVillageName;
-    private String hostRegion;
-    private String hostPhone;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+
+    private String isActiveMsg;
 }

@@ -97,27 +97,21 @@ public class StayServiceImpl implements StayService {
 
 	private StayResponseDetailDTO toResponseDetailDTO(Stay stay) {
 		HostMember host = stay.getHost();
-		List<String> imageUrls = stay.getImages().stream()
-			.map(image -> image.getSaveUrl())
-			.collect(Collectors.toList());
 
-		return StayResponseDetailDTO.builder()
+		StayResponseDetailDTO.StayResponseDetailDTOBuilder builder = StayResponseDetailDTO.builder()
 			.id(stay.getId())
 			.title(stay.getTitle())
 			.address(stay.getAddress())
 			.capacity(stay.getCapacity())
 			.areaSize(stay.getAreaSize())
 			.description(stay.getDescription())
-			.isHomestay(stay.getIsHomestay())
-			.ownerName(stay.getOwnerName())
-			.ownerPhone(stay.getOwnerPhone())
-			.hostVillageName(host != null ? host.getVillageName() : null)
-			.hostRegion(host != null ? host.getRegion() : null)
-			.hostPhone(host != null ? host.getPhone() : null)
-			.createdAt(stay.getCreatedAt())
-			.updatedAt(stay.getUpdatedAt())
-			.imageUrls(imageUrls)
-			.build();
+			.isHomestay(stay.getIsHomestay());
+
+		if (!stay.getIsActive()) {
+			builder.isActiveMsg("해당 사랑방은 예약이 닫힌 상태입니다.");
+		}
+
+		return builder.build();
 	}
 
 	private StayDTO toEditDTO(Stay stay) {
