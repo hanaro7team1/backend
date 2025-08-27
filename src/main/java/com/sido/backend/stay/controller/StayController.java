@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sido.backend.stay.dto.AvailDatesDTO;
+import com.sido.backend.stay.dto.StayResponseDetailDTO;
 import com.sido.backend.stay.service.StayService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,4 +34,11 @@ public class StayController {
 		AvailDatesDTO availDatesDTO = stayService.getAvailableDatesByMonth(stayId, yearMonth);
 		return ResponseEntity.ok(availDatesDTO);
 	}
+
+	@Operation(summary = "숙소 상세 조회")
+    @GetMapping("/{stayId}")
+    public ResponseEntity<StayResponseDetailDTO> getStayDetail(@PathVariable("stayId") Long stayId) {
+        StayResponseDetailDTO stayDetail = stayService.getStayDetail(stayId);
+        return ResponseEntity.ok(stayDetail);
+    }
 }

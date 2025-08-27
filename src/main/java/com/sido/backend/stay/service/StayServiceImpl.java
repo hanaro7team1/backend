@@ -12,6 +12,7 @@ import com.sido.backend.stay.dto.AvailDatesDTO;
 import com.sido.backend.stay.dto.StayDTO;
 import com.sido.backend.stay.dto.StayRegisterDTO;
 import com.sido.backend.stay.dto.StayRequestDTO;
+import com.sido.backend.stay.dto.StayResponseDetailDTO;
 import com.sido.backend.stay.entity.Stay;
 import com.sido.backend.stay.repository.StayAvailDateRepository;
 import com.sido.backend.stay.repository.StayRepository;
@@ -73,6 +74,40 @@ public class StayServiceImpl implements StayService {
 			.hasPrev(hasPrev)
 			.hasNext(hasNext)
 			.build();
+	}
+
+	@Override
+	public StayResponseDetailDTO getStayDetail(Long stayId) {
+		Stay stay = stayRepository.findById(stayId).orElseThrow(
+			() -> new EntityNotFoundException("해당 사랑방을 찾을 수 없습니다.")
+		);
+		return toResponseDetailDTO(stay);
+	}
+
+	@Override
+	public void deleteStay(Long stayId) {
+		Stay stay = stayRepository.findById(stayId).orElseThrow(
+			() -> new EntityNotFoundException("해당 사랑방을 찾을 수 없습니다.")
+		);
+		stay.setIsActive(false);
+		stayRepository.save(stay);
+	}
+
+	private StayResponseDetailDTO toResponseDetailDTO(Stay stay) {
+		StayResponseDetailDTO.StayResponseDetailDTOBuilder builder = StayResponseDetailDTO.builder()
+			.id(stay.getId())
+			.title(stay.getTitle())
+			.address(stay.getAddress())
+			.capacity(stay.getCapacity())
+			.areaSize(stay.getAreaSize())
+			.description(stay.getDescription())
+			.isHomestay(stay.getIsHomestay());
+
+		if (!stay.getIsActive()) {
+			builder.isActiveMsg("해당 사랑방은 예약이 닫힌 상태입니다.");
+		}
+
+		return builder.build();
 	}
 
 	private StayDTO toEditDTO(Stay stay) {
