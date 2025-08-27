@@ -3,8 +3,6 @@ package com.sido.backend.stay.service;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
-import java.util.stream.Collectors;
-
 
 import org.springframework.stereotype.Service;
 
@@ -12,9 +10,9 @@ import com.sido.backend.member.entity.HostMember;
 import com.sido.backend.member.repository.HostMemberRepository;
 import com.sido.backend.stay.dto.AvailDatesDTO;
 import com.sido.backend.stay.dto.StayDTO;
-import com.sido.backend.stay.dto.StayResponseDetailDTO;
 import com.sido.backend.stay.dto.StayRegisterDTO;
 import com.sido.backend.stay.dto.StayRequestDTO;
+import com.sido.backend.stay.dto.StayResponseDetailDTO;
 import com.sido.backend.stay.entity.Stay;
 import com.sido.backend.stay.repository.StayAvailDateRepository;
 import com.sido.backend.stay.repository.StayRepository;
@@ -96,8 +94,6 @@ public class StayServiceImpl implements StayService {
 	}
 
 	private StayResponseDetailDTO toResponseDetailDTO(Stay stay) {
-		HostMember host = stay.getHost();
-
 		StayResponseDetailDTO.StayResponseDetailDTOBuilder builder = StayResponseDetailDTO.builder()
 			.id(stay.getId())
 			.title(stay.getTitle())
