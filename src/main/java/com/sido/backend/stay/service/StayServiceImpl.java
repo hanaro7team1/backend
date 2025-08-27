@@ -3,6 +3,8 @@ package com.sido.backend.stay.service;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.stream.Collectors;
+
 
 import org.springframework.stereotype.Service;
 
@@ -10,6 +12,7 @@ import com.sido.backend.member.entity.HostMember;
 import com.sido.backend.member.repository.HostMemberRepository;
 import com.sido.backend.stay.dto.AvailDatesDTO;
 import com.sido.backend.stay.dto.StayDTO;
+import com.sido.backend.stay.dto.StayResponseDetailDTO;
 import com.sido.backend.stay.dto.StayRegisterDTO;
 import com.sido.backend.stay.dto.StayRequestDTO;
 import com.sido.backend.stay.entity.Stay;
@@ -72,6 +75,39 @@ public class StayServiceImpl implements StayService {
 			.dates(availableDates)
 			.hasPrev(hasPrev)
 			.hasNext(hasNext)
+			.build();
+	}
+
+	@Override
+	public StayResponseDetailDTO getStayDetail(Long stayId) {
+		Stay stay = stayRepository.findById(stayId).orElseThrow(
+			() -> new EntityNotFoundException("해당 사랑방을 찾을 수 없습니다.")
+		);
+		return toResponseDetailDTO(stay);
+	}
+
+	private StayResponseDetailDTO toResponseDetailDTO(Stay stay) {
+		HostMember host = stay.getHost();
+		List<String> imageUrls = stay.getImages().stream()
+			.map(image -> image.getSaveUrl())
+			.collect(Collectors.toList());
+
+		return StayResponseDetailDTO.builder()
+			.id(stay.getId())
+			.title(stay.getTitle())
+			.address(stay.getAddress())
+			.capacity(stay.getCapacity())
+			.areaSize(stay.getAreaSize())
+			.description(stay.getDescription())
+			.isHomestay(stay.getIsHomestay())
+			.ownerName(stay.getOwnerName())
+			.ownerPhone(stay.getOwnerPhone())
+			.hostVillageName(host != null ? host.getVillageName() : null)
+			.hostRegion(host != null ? host.getRegion() : null)
+			.hostPhone(host != null ? host.getPhone() : null)
+			.createdAt(stay.getCreatedAt())
+			.updatedAt(stay.getUpdatedAt())
+			.imageUrls(imageUrls)
 			.build();
 	}
 
