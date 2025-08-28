@@ -25,7 +25,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(uniqueConstraints = {
-	@UniqueConstraint(name = "uk_stay_date", columnNames = {"stay", "availableDate"})
+	@UniqueConstraint(name = "uk_StayAvailDate_stay_availableDate", columnNames = {"stay", "availableDate"})
 })
 public class StayAvailDate {
 	@Id
@@ -34,10 +34,6 @@ public class StayAvailDate {
 
 	@Column(nullable = false)
 	private LocalDate availableDate;
-
-	@Column(nullable = false)
-	@Builder.Default
-	private Boolean isAvailable = true;
 
 	@ManyToOne
 	@JoinColumn(name = "stay",
