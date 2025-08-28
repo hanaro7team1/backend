@@ -35,6 +35,12 @@ public class StayServiceImpl implements StayService {
 			() -> new EntityNotFoundException("해당 호스트를 찾을 수 없습니다.")
 		);
 
+		if (stayRepository.existsByAddressAndDetailAddress(
+			stayCreateDTO.getAddress(),
+			stayCreateDTO.getDetailAddress())) {
+			throw new IllegalArgumentException("이미 등록된 주소입니다.");
+		}
+
 		// 사랑방 개수 증가 (HostMember 업데이트)
 		host.incrementStayCount();
 
