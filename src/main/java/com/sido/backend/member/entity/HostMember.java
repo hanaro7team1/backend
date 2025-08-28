@@ -25,4 +25,12 @@ public class HostMember extends Member {
 	@Column(length = 100)
 	@NotBlank
 	private String region;
+
+	@Column(nullable = false, columnDefinition = "int default 0")
+	private Integer stayCount = 0;
+
+	public void incrementStayCount() {
+		this.stayCount++;
+	}
+
 }
