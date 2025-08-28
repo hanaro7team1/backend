@@ -47,7 +47,7 @@ public class StayAdminController {
 	@Operation(description = "수정")
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@PatchMapping({"/{stayId}"})
-	public ResponseEntity<?> editStay(@PathVariable long stayId,
+	public ResponseEntity<StayUpdateDTO> editStay(@PathVariable long stayId,
 		@AuthenticationPrincipal(expression = "memberId") Long memberId, @Valid @RequestBody StayUpdateDTO stayDTO) {
 		return ResponseEntity.ok(stayService.editStay(stayId, memberId, stayDTO));
 	}
@@ -62,7 +62,7 @@ public class StayAdminController {
 
 	@Operation(summary = "월별 오픈한 날짜 조회", description = "시골 관리자: 사랑방 목록 관리- 예약 가능 날짜 변경하기")
 	@GetMapping("/{stayId}/open-dates")
-	public ResponseEntity<?> getOpenDatesByMonth(@PathVariable Long stayId,
+	public ResponseEntity<AvailDatesDTO> getOpenDatesByMonth(@PathVariable Long stayId,
 		@Schema(example = "2025-08") @DateTimeFormat(pattern = "yyyy-MM") @RequestParam(required = false)
 		YearMonth month) {
 		AvailDatesDTO availDatesDTO = stayService.getOpenDatesByMonth(stayId, month);
