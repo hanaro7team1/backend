@@ -37,6 +37,7 @@ class StayRepositoryTest {
 					.isHomestay(false)
 					.title("사랑방 " + n + "호")
 					.address("전남 해남 화산면 새꽃마을")
+					.detailAddress("127-" + n)
 					.capacity(5)
 					.areaSize(40)
 					.description("전기가 아닌 진짜 온돌집\n집근처에 맹꽁이가 아름답게 울음")
