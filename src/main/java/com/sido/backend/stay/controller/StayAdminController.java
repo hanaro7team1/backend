@@ -3,17 +3,17 @@ package com.sido.backend.stay.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
-
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sido.backend.stay.dto.StayDTO;
-import com.sido.backend.stay.dto.StayRequestDTO;
+import com.sido.backend.stay.dto.StayCreateDTO;
+import com.sido.backend.stay.dto.StayResponseDetailDTO;
+import com.sido.backend.stay.dto.StayUpdateDTO;
 import com.sido.backend.stay.service.StayService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,17 +33,18 @@ public class StayAdminController {
 	@Operation(description = "등록")
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@PostMapping
-	public ResponseEntity<?> addStay(@AuthenticationPrincipal(expression = "memberId") Long memberId,
-		@Valid @RequestBody StayRequestDTO requestDTO) {
-		return ResponseEntity.ok(service.addStay(memberId, requestDTO));
+	public ResponseEntity<StayResponseDetailDTO> addStay(
+		@AuthenticationPrincipal(expression = "memberId") Long memberId,
+		@Valid @RequestBody StayCreateDTO stayCreateDTO) {
+		return ResponseEntity.ok(service.addStay(memberId, stayCreateDTO));
 	}
 
 	@Operation(description = "수정")
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@PatchMapping({"/{stayId}"})
-	public ResponseEntity<?> editStay(@PathVariable long id,
-		@AuthenticationPrincipal(expression = "memberId") Long memberId, @Valid @RequestBody StayDTO stayDTO) {
-		return ResponseEntity.ok(service.editStay(id, memberId, stayDTO));
+	public ResponseEntity<?> editStay(@PathVariable long stayId,
+		@AuthenticationPrincipal(expression = "memberId") Long memberId, @Valid @RequestBody StayUpdateDTO stayDTO) {
+		return ResponseEntity.ok(service.editStay(stayId, memberId, stayDTO));
 	}
 
 	@Operation(description = "삭제")

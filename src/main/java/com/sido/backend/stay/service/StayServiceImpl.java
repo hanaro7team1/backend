@@ -5,14 +5,15 @@ import java.time.YearMonth;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.sido.backend.member.entity.HostMember;
 import com.sido.backend.member.repository.HostMemberRepository;
 import com.sido.backend.stay.dto.AvailDatesDTO;
-import com.sido.backend.stay.dto.StayDTO;
-import com.sido.backend.stay.dto.StayRegisterDTO;
-import com.sido.backend.stay.dto.StayRequestDTO;
+import com.sido.backend.stay.dto.StayCreateDTO;
 import com.sido.backend.stay.dto.StayResponseDetailDTO;
+import com.sido.backend.stay.dto.StaySpecDTO;
+import com.sido.backend.stay.dto.StayUpdateDTO;
 import com.sido.backend.stay.entity.Stay;
 import com.sido.backend.stay.repository.StayAvailDateRepository;
 import com.sido.backend.stay.repository.StayRepository;
@@ -28,26 +29,40 @@ public class StayServiceImpl implements StayService {
 	private final HostMemberRepository hostMemberRepository;
 
 	@Override
-	public StayRegisterDTO addStay(long memberId, StayRequestDTO requestDTO) {
+	@Transactional
+	public StayResponseDetailDTO addStay(long memberId, StayCreateDTO stayCreateDTO) {
 		HostMember host = hostMemberRepository.findById(memberId).orElseThrow(
 			() -> new EntityNotFoundException("해당 호스트를 찾을 수 없습니다.")
 		);
 
-		Stay stay = requestDTO.toEntity();
+		if (stayRepository.existsByAddressAndDetailAddress(
+			stayCreateDTO.getAddress(),
+			stayCreateDTO.getDetailAddress())) {
+			throw new IllegalArgumentException("이미 등록된 주소입니다.");
+		}
+
+		// 사랑방 개수 증가 (HostMember 업데이트)
+		host.incrementStayCount();
+
+		Stay stay = stayCreateDTO.toEntity();
 		stay.setHost(host);
+
+		//{마을 이름} + 사랑방 + {사랑방 개수} + 호
+		stay.setTitle(host.getVillageName() + " 사랑방 " + host.getStayCount() + "호");
+
 		stayRepository.save(stay);
 
-		return toRegisterDTO(stay);
+		return toResponseDetailDTO(stay);
 	}
 
 	@Override
-	public StayDTO editStay(long stayId, long memberId, StayDTO stayDTO) {
+	public StayUpdateDTO editStay(long stayId, long memberId, StayUpdateDTO stayDTO) {
 		Stay stay = stayRepository.findById(stayId).orElseThrow(
 			() -> new EntityNotFoundException("해당 사랑방을 찾을 수 없습니다.")
 		);
-		stay.setCapacity(stayDTO.getCapacity());
-		stay.setAreaSize(stayDTO.getAreaSize());
-		stay.setDescription(stayDTO.getDescription());
+		stay.setCapacity(stayDTO.capacity());
+		stay.setAreaSize(stayDTO.areaSize());
+		stay.setDescription(stayDTO.description());
 
 		return toEditDTO(stayRepository.save(stay));
 	}
@@ -98,6 +113,7 @@ public class StayServiceImpl implements StayService {
 			.id(stay.getId())
 			.title(stay.getTitle())
 			.address(stay.getAddress())
+			.detailAddress(stay.getDetailAddress())
 			.capacity(stay.getCapacity())
 			.areaSize(stay.getAreaSize())
 			.description(stay.getDescription())
@@ -110,23 +126,15 @@ public class StayServiceImpl implements StayService {
 		return builder.build();
 	}
 
-	private StayDTO toEditDTO(Stay stay) {
-		return StayDTO.builder()
-			.capacity(stay.getCapacity())
-			.areaSize(stay.getAreaSize())
-			.description(stay.getDescription())
-			.build();
-	}
+	private StayUpdateDTO toEditDTO(Stay stay) {
+		StaySpecDTO spec = new StaySpecDTO(
+			stay.getCapacity(),
+			stay.getAreaSize(),
+			stay.getDescription()
+		);
 
-	private StayRegisterDTO toRegisterDTO(Stay stay) {
-		return StayRegisterDTO.builder()
-			.title(stay.getTitle())
-			.address(stay.getAddress())
-			.capacity(stay.getCapacity())
-			.areaSize(stay.getAreaSize())
-			.ownerName(stay.getOwnerName())
-			.ownerPhone(stay.getOwnerPhone())
-			.description(stay.getDescription())
+		return StayUpdateDTO.builder()
+			.staySpec(spec)
 			.build();
 	}
 }

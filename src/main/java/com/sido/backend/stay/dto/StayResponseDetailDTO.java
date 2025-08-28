@@ -10,6 +10,7 @@ public class StayResponseDetailDTO {
 	private String title;
 
 	private String address;
+	private String detailAddress;
 	private Integer capacity;
 	private Integer areaSize;
 	private String description;
