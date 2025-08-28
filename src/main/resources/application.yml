@@ -1,0 +1,8 @@
+# src/main/resources/application.yml
+app:
+  s3:
+    bucket: sido-upload
+  aws:
+    region: ap-northeast-2
+
+logging.level.org.springframework.security: DEBUG
