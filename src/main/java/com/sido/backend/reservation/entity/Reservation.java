@@ -41,7 +41,10 @@ public class Reservation extends BaseEntity {
 	private Boolean isFarm;
 
 	@Enumerated(EnumType.STRING)
-	private ResrvStatus resrvStatus;
+	private ResrvStatus resrvStatus; // 예약 상태
+
+	@Enumerated(EnumType.STRING)
+	private VisitStatus visitStatus; // 방문 상태
 
 	@Column
 	private LocalDateTime reservedAt; // resrvStatus가 RESERVED가 된 순간

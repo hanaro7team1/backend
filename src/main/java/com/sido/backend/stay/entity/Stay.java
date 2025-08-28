@@ -34,7 +34,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(
-	uniqueConstraints = @UniqueConstraint(columnNames = {"address", "detailAddress"})
+	uniqueConstraints = @UniqueConstraint(name = "uk_Stay_address_detailAddress", columnNames = {"address",
+		"detailAddress"})
 )
 public class Stay extends BaseEntity {
 	@Id
