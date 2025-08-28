@@ -66,7 +66,20 @@ class StayRepositoryTest {
 	void stayAvailAddTest() {
 		long preCnt = stayAvailDateRepository.count();
 
-		List<StayAvailDate> fiveDays = LongStream.rangeClosed(1, 5)
+		LocalDate fiveWeekAgo = LocalDate.now().minusDays(31);
+		List<StayAvailDate> prevMonthSevenDays = LongStream.rangeClosed(1, 5)
+			.boxed()
+			.flatMap(stayId ->
+				IntStream.range(0, 7)
+					.mapToObj(d ->
+						StayAvailDate.builder()
+							.availableDate(fiveWeekAgo.plusDays(d))
+							.stay(stayRepository.findById(stayId).orElseThrow())
+							.build()
+					)
+			).toList();
+
+		List<StayAvailDate> fiveDaysFromToday = LongStream.rangeClosed(1, 5)
 			.boxed()
 			.flatMap(stayId ->
 				IntStream.range(0, 5)
@@ -78,7 +91,7 @@ class StayRepositoryTest {
 					)
 			).toList();
 
-		List<StayAvailDate> threeDays = LongStream.rangeClosed(1, 5)
+		List<StayAvailDate> threeDaysFromFuture = LongStream.rangeClosed(1, 5)
 			.boxed()
 			.flatMap(stayId ->
 				IntStream.range(0, 3)
@@ -90,9 +103,10 @@ class StayRepositoryTest {
 					)
 			).toList();
 
-		stayAvailDateRepository.saveAll(fiveDays);
-		stayAvailDateRepository.saveAll(threeDays);
+		stayAvailDateRepository.saveAll(prevMonthSevenDays);
+		stayAvailDateRepository.saveAll(fiveDaysFromToday);
+		stayAvailDateRepository.saveAll(threeDaysFromFuture);
 
-		assertEquals(preCnt + 25 + 15, stayAvailDateRepository.count());
+		assertEquals(preCnt + 35 + 25 + 15, stayAvailDateRepository.count());
 	}
 }
