@@ -17,4 +17,6 @@ public interface StayService {
 	StayResponseDetailDTO getStayDetail(Long stayId);
 
 	void deleteStay(Long stayId);
+
+	AvailDatesDTO getOpenDatesByMonth(Long stayId, YearMonth yearMonth);
 }

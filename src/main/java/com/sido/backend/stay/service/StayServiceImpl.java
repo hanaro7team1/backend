@@ -73,22 +73,20 @@ public class StayServiceImpl implements StayService {
 			() -> new EntityNotFoundException("해당 사랑방을 찾을 수 없습니다.")
 		);
 
-		YearMonth target = (yearMonth == null) ? YearMonth.from(LocalDate.now()) : yearMonth;
-		LocalDate start = target.atDay(1);
-		LocalDate endExclusive = target.plusMonths(1).atDay(1); // [start, end)
+		MonthContext monthCtx = MonthContext.of(yearMonth);
 
-		List<LocalDate> availableDates = stayAvailDateRepository.findAvailableDatesInRange(stayId, start, endExclusive);
-		boolean hasPrev = stayAvailDateRepository.existsByStayIdAndAvailableDateLessThanAndIsAvailableTrue(stayId,
-			start);
-		boolean hasNext = stayAvailDateRepository.existsByStayIdAndAvailableDateGreaterThanAndIsAvailableTrue(stayId,
-			endExclusive.minusDays(1));
+		return buildAvailableCalendar(stayId, monthCtx);
+	}
 
-		return AvailDatesDTO.builder()
-			.yearMonth(target)
-			.dates(availableDates)
-			.hasPrev(hasPrev)
-			.hasNext(hasNext)
-			.build();
+	@Override
+	public AvailDatesDTO getOpenDatesByMonth(Long stayId, YearMonth yearMonth) {
+		stayRepository.findById(stayId).orElseThrow(
+			() -> new EntityNotFoundException("해당 사랑방을 찾을 수 없습니다.")
+		);
+
+		MonthContext monthCtx = MonthContext.of(yearMonth);
+
+		return buildOpenCalendar(stayId, monthCtx);
 	}
 
 	@Override
@@ -136,5 +134,97 @@ public class StayServiceImpl implements StayService {
 		return StayUpdateDTO.builder()
 			.staySpec(spec)
 			.build();
+	}
+
+	private AvailDatesDTO buildAvailableCalendar(Long stayId, MonthContext monthCtx) {
+		List<LocalDate> dates;
+		boolean hasPrev;
+		boolean hasNext;
+
+		if (monthCtx.isPast()) {
+			// 과거 달: 항상 빈 목록, 좌측 이동 불가
+			dates = List.of();
+			hasPrev = false;
+			hasNext = stayAvailDateRepository.countOpenAndUnreservedOnOrAfter(stayId, monthCtx.today) > 0;
+		} else if (monthCtx.isCurrent()) {
+			// 이번 달
+			dates = stayAvailDateRepository.findOpenAndUnreservedInRange(stayId, monthCtx.today, monthCtx.monthEndEx);
+			hasPrev = false;
+			hasNext = stayAvailDateRepository.countOpenAndUnreservedOnOrAfter(stayId, monthCtx.monthEndEx) > 0;
+		} else {
+			// 미래 달
+			dates = stayAvailDateRepository.findOpenAndUnreservedInRange(stayId, monthCtx.monthStart,
+				monthCtx.monthEndEx);
+			hasPrev =
+				stayAvailDateRepository.countOpenAndUnreservedInRange(stayId, monthCtx.today, monthCtx.monthStart) > 0;
+			hasNext = stayAvailDateRepository.countOpenAndUnreservedOnOrAfter(stayId, monthCtx.monthEndEx) > 0;
+		}
+
+		return AvailDatesDTO.builder()
+			.yearMonth(monthCtx.target)
+			.dates(dates)
+			.hasPrev(hasPrev)
+			.hasNext(hasNext)
+			.build();
+	}
+
+	private AvailDatesDTO buildOpenCalendar(Long stayId, MonthContext monthCtx) {
+		List<LocalDate> dates;
+		boolean hasPrev;
+		boolean hasNext;
+
+		if (monthCtx.isPast()) {
+			// 과거 달: 항상 빈 목록, 좌측 이동 불가
+			dates = List.of();
+			hasPrev = false;
+			hasNext = stayAvailDateRepository.existsByStayIdAndAvailableDateGreaterThanEqual(stayId, monthCtx.today);
+		} else if (monthCtx.isCurrent()) {
+			// 이번 달
+			dates = stayAvailDateRepository.findOpenInRange(stayId, monthCtx.today, monthCtx.monthEndEx);
+			hasPrev = false;
+			hasNext = stayAvailDateRepository.existsByStayIdAndAvailableDateGreaterThanEqual(stayId,
+				monthCtx.monthEndEx);
+		} else {
+			// 미래 달
+			dates = stayAvailDateRepository.findOpenInRange(stayId, monthCtx.monthStart, monthCtx.monthEndEx);
+			hasPrev = stayAvailDateRepository.existsByStayIdAndAvailableDateGreaterThanEqualAndAvailableDateLessThan(
+				stayId, monthCtx.today, monthCtx.monthStart);
+			hasNext = stayAvailDateRepository.existsByStayIdAndAvailableDateGreaterThanEqual(stayId,
+				monthCtx.monthEndEx);
+		}
+
+		return AvailDatesDTO.builder()
+			.yearMonth(monthCtx.target)
+			.dates(dates)
+			.hasPrev(hasPrev)
+			.hasNext(hasNext)
+			.build();
+	}
+
+	private record MonthContext(
+		LocalDate today,
+		YearMonth nowYM,
+		YearMonth target,
+		LocalDate monthStart,
+		LocalDate monthEndEx
+	) {
+		static MonthContext of(YearMonth input) {
+			LocalDate today = LocalDate.now();
+			YearMonth nowYM = YearMonth.from(today);
+			YearMonth target = (input == null) ? nowYM : input; // null이면 이번달
+
+			LocalDate monthStart = target.atDay(1);
+			LocalDate monthEndEx = target.plusMonths(1).atDay(1); // [monthStart, monthEndEx)
+
+			return new MonthContext(today, nowYM, target, monthStart, monthEndEx);
+		}
+
+		boolean isPast() {
+			return target.isBefore(nowYM);
+		}
+
+		boolean isCurrent() {
+			return target.equals(nowYM);
+		}
 	}
 }

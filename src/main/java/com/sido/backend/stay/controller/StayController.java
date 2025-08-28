@@ -30,8 +30,8 @@ public class StayController {
 	@GetMapping("/{stayId}/available-dates")
 	public ResponseEntity<?> getAvailableDatesByMonth(@PathVariable("stayId") Long stayId,
 		@Schema(example = "2025-08") @DateTimeFormat(pattern = "yyyy-MM") @RequestParam(required = false)
-		YearMonth yearMonth) {
-		AvailDatesDTO availDatesDTO = stayService.getAvailableDatesByMonth(stayId, yearMonth);
+		YearMonth month) {
+		AvailDatesDTO availDatesDTO = stayService.getAvailableDatesByMonth(stayId, month);
 		return ResponseEntity.ok(availDatesDTO);
 	}
 
