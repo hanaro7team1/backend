@@ -1,9 +1,8 @@
 package com.sido.backend.stay.dto;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
+
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,15 +15,20 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 public class StayUpdateDTO {
-	@NotNull
-	@Schema(name = "capacity", example = "8")
-	private Integer capacity;
+	@Valid
+	@JsonUnwrapped
+	private StaySpecDTO staySpec;
 
-	@NotNull
-	@Schema(name = "areaSize", example = "86")
-	private Integer areaSize;
+	//헬퍼 메서드 추가 (get을 두 번씩이나 부르지 않도록)
+	public Integer capacity() {
+		return staySpec.capacity();
+	}
 
-	@NotBlank
-	@Size(min = 1, max = 1000)
-	private String description;
+	public Integer areaSize() {
+		return staySpec.areaSize();
+	}
+
+	public String description() {
+		return staySpec.description();
+	}
 }

@@ -1,9 +1,10 @@
 package com.sido.backend.stay.dto;
 
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.sido.backend.stay.entity.Stay;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,34 +22,28 @@ public class StayCreateDTO {
 	@Size(min = 1, max = 64)
 	private String detailAddress;
 
-	@NotNull
-	private Integer capacity;
-
-	@NotNull
-	private Integer areaSize;
-
 	@NotBlank
 	@Size(min = 1, max = 9)
 	private String ownerName;
 
+	@Valid
+	@JsonUnwrapped
+	private StaySpecDTO staySpec;
+
 	@NotBlank
 	@Size(min = 1, max = 31)
 	private String ownerPhone;
-
-	@NotBlank
-	@Size(min = 1, max = 512)
-	private String description;
 
 	public Stay toEntity() {
 		return Stay.builder()
 			.isHomestay(true)
 			.address(address)
 			.detailAddress(detailAddress)
-			.capacity(capacity)
-			.areaSize(areaSize)
+			.capacity(staySpec.capacity())
+			.areaSize(staySpec.areaSize())
 			.ownerName(ownerName)
 			.ownerPhone(ownerPhone)
-			.description(description)
+			.description(staySpec.description())
 			.build();
 	}
 }

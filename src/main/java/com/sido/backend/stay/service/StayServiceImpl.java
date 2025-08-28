@@ -12,6 +12,7 @@ import com.sido.backend.member.repository.HostMemberRepository;
 import com.sido.backend.stay.dto.AvailDatesDTO;
 import com.sido.backend.stay.dto.StayCreateDTO;
 import com.sido.backend.stay.dto.StayResponseDetailDTO;
+import com.sido.backend.stay.dto.StaySpecDTO;
 import com.sido.backend.stay.dto.StayUpdateDTO;
 import com.sido.backend.stay.entity.Stay;
 import com.sido.backend.stay.repository.StayAvailDateRepository;
@@ -44,7 +45,7 @@ public class StayServiceImpl implements StayService {
 		stay.setTitle(host.getVillageName() + " 사랑방 " + host.getStayCount() + "호");
 
 		stayRepository.save(stay);
-		
+
 		return toResponseDetailDTO(stay);
 	}
 
@@ -53,9 +54,9 @@ public class StayServiceImpl implements StayService {
 		Stay stay = stayRepository.findById(stayId).orElseThrow(
 			() -> new EntityNotFoundException("해당 사랑방을 찾을 수 없습니다.")
 		);
-		stay.setCapacity(stayDTO.getCapacity());
-		stay.setAreaSize(stayDTO.getAreaSize());
-		stay.setDescription(stayDTO.getDescription());
+		stay.setCapacity(stayDTO.capacity());
+		stay.setAreaSize(stayDTO.areaSize());
+		stay.setDescription(stayDTO.description());
 
 		return toEditDTO(stayRepository.save(stay));
 	}
@@ -120,10 +121,14 @@ public class StayServiceImpl implements StayService {
 	}
 
 	private StayUpdateDTO toEditDTO(Stay stay) {
+		StaySpecDTO spec = new StaySpecDTO(
+			stay.getCapacity(),
+			stay.getAreaSize(),
+			stay.getDescription()
+		);
+
 		return StayUpdateDTO.builder()
-			.capacity(stay.getCapacity())
-			.areaSize(stay.getAreaSize())
-			.description(stay.getDescription())
+			.staySpec(spec)
 			.build();
 	}
 }

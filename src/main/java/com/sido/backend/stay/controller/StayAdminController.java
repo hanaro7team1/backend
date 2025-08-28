@@ -42,9 +42,9 @@ public class StayAdminController {
 	@Operation(description = "수정")
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@PatchMapping({"/{stayId}"})
-	public ResponseEntity<?> editStay(@PathVariable long id,
+	public ResponseEntity<?> editStay(@PathVariable long stayId,
 		@AuthenticationPrincipal(expression = "memberId") Long memberId, @Valid @RequestBody StayUpdateDTO stayDTO) {
-		return ResponseEntity.ok(service.editStay(id, memberId, stayDTO));
+		return ResponseEntity.ok(service.editStay(stayId, memberId, stayDTO));
 	}
 
 	@Operation(description = "삭제")
