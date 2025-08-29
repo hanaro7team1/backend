@@ -1,0 +1,21 @@
+name: SIDO CI/CD
+on:
+  push:
+    branches: [ develop ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: test pwd
+        run: pwd
+
+      - name: test ls
+        run: ls -al
+
+      - name: set props
+        working-directory: backend
+        run: echo "${{ secrets.APPLICATION }}"
