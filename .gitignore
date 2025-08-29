@@ -4,6 +4,8 @@ build/
 logs/
 mysql/
 dump.sql
+application-secret.properties
+application-prod.properties
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/

@@ -1,4 +1,4 @@
-name: SIDO CI/CD
+name: Sido CI/CD
 on:
   push:
     branches: [ develop ]
@@ -10,12 +10,36 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: test pwd
-        run: pwd
-
-      - name: test ls
-        run: ls -al
+      - uses: actions/setup-java@v5.0.0
+        with:
+          distribution: 'temurin'
+          java-version: '21'
 
       - name: set props
-        working-directory: backend
-        run: echo "${{ secrets.APPLICATION }}"
+        run: echo "${{ secrets.APPLICATION }}" > ./src/main/resources/application.properties
+
+      - name: grant exe to gradlew
+        run: chmod +x gradlew
+
+      - name: build with gradle
+        run: ./gradlew clean build -x test
+
+      - name: setup ssh
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 400 ~/.ssh/id_rsa
+          ssh-keyscan ${{ secrets.WAS }} >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: scp jar to was
+        run: |
+          scp build/libs/*.jar ec2-user@${{ secrets.WAS }}:/home/ec2-user/workspace/sido.jar
+
+
+      - name: restart spring
+        run: |
+          ssh ec2-user@${{ secrets.WAS }} '
+            cd /home/ec2-user/workspace &&
+            sudo systemctl restart springboot
+          '
