@@ -47,6 +47,7 @@ public class SecurityConfig {
 				.failureHandler(new LoginFailureHandler()) // 실패하면 LoginFailureHandler 실행
 			)
 			.authorizeHttpRequests(auth -> auth
+				// 인가 설정으로, 인증 필터인 UsernamePasswordAuthenticationFilter보다 뒷 순서
 				// 로그인, 회원가입, 문서: 공개
 				.requestMatchers("/api/users/**", "/api/members/**", "/swagger-ui/**", "/sido/api-docs/**",
 					"/actuator/**")
@@ -55,9 +56,11 @@ public class SecurityConfig {
 				.requestMatchers(HttpMethod.GET, "/api/stays/**", "/api/real-estates/**", "/api/festivals/**")
 				.permitAll()
 				// 인증 필요
-				.requestMatchers(HttpMethod.POST, "/api/stays/**")
+				.requestMatchers(HttpMethod.POST, "/api/stays/**", "/api/festivals/**")
 				.authenticated()
-				.requestMatchers("/api/admin/**", "/api/reservations/**", "/api/festivals/**", "/api/mypage/**")
+				.requestMatchers(HttpMethod.PATCH, "/api/festivals/**").authenticated()
+				.requestMatchers(HttpMethod.DELETE, "/api/festivals/**").authenticated()
+				.requestMatchers("/api/admin/**", "/api/reservations/**", "/api/mypage/**")
 				.authenticated())
 			.exceptionHandling(config
 				-> config.accessDeniedHandler(new CustomAccessDeniedHandler())) // 권한 핸들러 (403에러)

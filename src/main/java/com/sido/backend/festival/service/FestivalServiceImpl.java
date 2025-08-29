@@ -7,13 +7,15 @@ import org.springframework.stereotype.Service;
 
 import com.sido.backend.common.dto.PageResponseDTO;
 import com.sido.backend.festival.dto.FestivalDTO;
-import com.sido.backend.festival.dto.FestivalResponseDetailDTO;
 import com.sido.backend.festival.dto.FestivalRequestDTO;
+import com.sido.backend.festival.dto.FestivalResponseDetailDTO;
 import com.sido.backend.festival.entity.Festival;
 import com.sido.backend.festival.repository.FestivalRepository;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
-public class FestivalServiceImpl implements FestivalService{
+public class FestivalServiceImpl implements FestivalService {
 	private final FestivalRepository repository;
 
 	public FestivalServiceImpl(FestivalRepository repository) {
@@ -29,7 +31,9 @@ public class FestivalServiceImpl implements FestivalService{
 
 	@Override
 	public FestivalResponseDetailDTO getServiceDetail(Long id) {
-		return repository.findById(id).map(FestivalServiceImpl::toDetailDTO).orElse(null);
+		return repository.findById(id).map(FestivalServiceImpl::toDetailDTO).orElseThrow(
+			() -> new EntityNotFoundException("해당 축제를 찾을 수 없습니다.")
+		);
 	}
 
 	@Override
@@ -41,7 +45,9 @@ public class FestivalServiceImpl implements FestivalService{
 
 	@Override
 	public FestivalResponseDetailDTO editFestival(FestivalRequestDTO requestDTO) {
-		Festival festival = repository.findById(requestDTO.getId()).orElseThrow();
+		Festival festival = repository.findById(requestDTO.getId()).orElseThrow(
+			() -> new EntityNotFoundException("해당 축제를 찾을 수 없습니다.")
+		);
 		festival.setStartDate(requestDTO.getStartDate());
 		festival.setEndDate(requestDTO.getEndDate());
 		festival.setPrice(requestDTO.getPrice());
@@ -56,7 +62,7 @@ public class FestivalServiceImpl implements FestivalService{
 		repository.deleteById(id);
 	}
 
-	public static FestivalDTO toDTO (Festival festival) {
+	public static FestivalDTO toDTO(Festival festival) {
 		return FestivalDTO.builder()
 			.id(festival.getId())
 			.title(festival.getTitle())
@@ -66,7 +72,7 @@ public class FestivalServiceImpl implements FestivalService{
 			.build();
 	}
 
-	public static FestivalResponseDetailDTO toDetailDTO (Festival festival) {
+	public static FestivalResponseDetailDTO toDetailDTO(Festival festival) {
 		return FestivalResponseDetailDTO.builder()
 			.id(festival.getId())
 			.title(festival.getTitle())
@@ -82,7 +88,7 @@ public class FestivalServiceImpl implements FestivalService{
 			.build();
 	}
 
-	public static Festival toEntity (FestivalRequestDTO dto) {
+	public static Festival toEntity(FestivalRequestDTO dto) {
 		return Festival.builder()
 			.title(dto.getTitle())
 			.startDate(dto.getStartDate())
