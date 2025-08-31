@@ -10,6 +10,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sido.backend.common.exception.BadRequestException;
+import com.sido.backend.common.exception.ConflictException;
 import com.sido.backend.member.entity.Member;
 import com.sido.backend.member.repository.MemberRepository;
 import com.sido.backend.reservation.dto.ReservationCommonDTOs;
@@ -96,7 +98,7 @@ public class ReservationServiceImpl implements ReservationService {
 		reservationValidator.assertConfirmable(reservation); // PENDING인지 검증
 
 		if (confirmRequest.reservationInfo().isFarm() == null) {
-			throw new IllegalArgumentException("농장 체험 유무를 선택해야 합니다.");
+			throw new BadRequestException("농장 체험 유무를 선택해야 합니다.");
 		}
 
 		// 엔티티의 현재 값으로 기본 세팅
@@ -138,7 +140,7 @@ public class ReservationServiceImpl implements ReservationService {
 		try {
 			reservationDayRepository.saveAll(reservationDays);
 		} catch (DataIntegrityViolationException e) { // 409 CONFLICT
-			throw new IllegalStateException("다른 사용자가 먼저 예약을 확정했습니다.");
+			throw new ConflictException("다른 사용자가 먼저 예약을 확정했습니다.");
 		}
 
 		reservation.setResrvStatus(ResrvStatus.RESERVED);

@@ -5,6 +5,7 @@ import java.time.temporal.ChronoUnit;
 
 import org.springframework.stereotype.Component;
 
+import com.sido.backend.common.exception.ConflictException;
 import com.sido.backend.stay.repository.StayAvailDateRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,7 @@ public class AvailabilityChecker {
 		System.out.println("requestDays = " + requestDays);
 		System.out.println("availableDays = " + availableDays);
 		if (requestDays != availableDays) {
-			throw new IllegalArgumentException("선택한 기간에 예약 불가 날짜가 포함되어 있습니다.");
+			throw new ConflictException("선택한 기간에 예약 불가 날짜가 포함되어 있습니다.");
 		}
 	}
 }
