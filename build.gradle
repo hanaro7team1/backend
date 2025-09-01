@@ -47,7 +47,10 @@ dependencies {
 }
 
 jar {
-    enabled = false
+    enabled = false // plain jar 비활성화
+}
+bootJar {
+    archiveFileName = "sido.jar" // 파일명 sido.jar로 고정
 }
 
 tasks.named('test', Test) {
