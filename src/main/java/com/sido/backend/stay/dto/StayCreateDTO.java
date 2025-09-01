@@ -24,7 +24,7 @@ public class StayCreateDTO {
 
 	@NotBlank
 	@Size(min = 1, max = 9)
-	private String ownerName;
+	private String hostName;
 
 	@Valid
 	@JsonUnwrapped
@@ -32,7 +32,7 @@ public class StayCreateDTO {
 
 	@NotBlank
 	@Size(min = 1, max = 31)
-	private String ownerPhone;
+	private String hostPhone;
 
 	public Stay toEntity() {
 		return Stay.builder()
@@ -41,8 +41,8 @@ public class StayCreateDTO {
 			.detailAddress(detailAddress)
 			.capacity(staySpec.capacity())
 			.areaSize(staySpec.areaSize())
-			.ownerName(ownerName)
-			.ownerPhone(ownerPhone)
+			.ownerName(hostName)
+			.ownerPhone(hostPhone)
 			.description(staySpec.description())
 			.build();
 	}
