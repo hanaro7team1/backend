@@ -49,7 +49,7 @@ public class SecurityConfig {
 			.authorizeHttpRequests(auth -> auth
 				// 인가 설정으로, 인증 필터인 UsernamePasswordAuthenticationFilter보다 뒷 순서
 				// 로그인, 회원가입, 문서: 공개
-				.requestMatchers("/api/users/**", "/api/members/**", "/swagger-ui/**", "/sido/api-docs/**",
+				.requestMatchers("/api/users/**", "/api/members/**", "/swagger-ui/**", "/v3/api-docs/**",
 					"/actuator/**")
 				.permitAll()
 				// 공개 API

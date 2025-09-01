@@ -28,7 +28,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		"/api/users/signup", // spring security
 		"/actuator/**",
 		"/swagger-ui/**",
-		"/sido/api-docs/**",
+		"/v3/api-docs/**",
 		"/api/members/signin",
 		"/api/members/signup"
 	};
