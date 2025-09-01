@@ -192,7 +192,7 @@ VALUES (100, 84.5, 6, 1000000000, 3, '2025-08-28 07:35:51', 1, '2025-08-28 07:35
        (2945, 1198, 581, 1995032704, 2, '2025-08-28 07:35:51', 6, '2025-08-28 07:35:51', '서울시 송파구 올림픽로 579',
         '잠실 근처 오피스텔 5', '오피스텔', '매매');
 
-INSERT INTO `RealEstateImage`
+INSERT INTO `RealEstateImage` (id, realEstate, orgname, savedir, savename)
 VALUES (1, 1, 'original_image_0.jpg', '/images/realEstate/test/0.jpg', 'saved_image_0.jpg'),
        (2, 1, 'original_image_1.jpg', '/images/realEstate/test/1.jpg', 'saved_image_1.jpg'),
        (3, 2, 'multi_image_59_0.jpg', '/images/realEstate/multi/59_0.jpg', 'multi_saved_59_0.jpg'),

@@ -1,6 +1,7 @@
 package com.sido.backend.realestate.entity;
 
 import com.sido.backend.common.entity.BaseEntity;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
@@ -22,15 +23,17 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class RealEstateImage extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    private String orgname;  // 원본 이름
-    private String savename;  // 저장 이름
-    private String savedir;  // 저장 경로
+	private String orgname;  // 원본 이름
+	private String savename;  // 저장 이름
+	private String savedir;  // 저장 경로
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "realEstate", foreignKey = @ForeignKey(foreignKeyDefinition = "foreign key (realEstate) references real_estate(id) on delete cascade on update cascade"))
-    private RealEstate realEstate;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "realEstate", foreignKey = @ForeignKey(
+		name = "fk_RealEstateImage_RealEstate",
+		foreignKeyDefinition = "foreign key (realEstate) references realEstate(id) on delete cascade on update cascade"))
+	private RealEstate realEstate;
 }

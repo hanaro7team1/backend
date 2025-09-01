@@ -14,7 +14,7 @@ import jakarta.persistence.ManyToOne;
 public class StayImage extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private String id;
+	private Long id;
 
 	@Column(nullable = false)
 	private String orgName;
@@ -29,6 +29,6 @@ public class StayImage extends BaseEntity {
 	private String s3Key;
 
 	@ManyToOne
-	@JoinColumn(name = "stayId", nullable = false)
+	@JoinColumn(name = "stay", nullable = false)
 	private Stay stay;
 }
