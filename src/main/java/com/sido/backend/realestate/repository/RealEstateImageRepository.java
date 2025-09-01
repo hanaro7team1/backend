@@ -1,7 +1,8 @@
-package com.sido.backend.realEstates.repository;
+package com.sido.backend.realestate.repository;
 
-import com.sido.backend.realEstates.entity.RealEstateImage;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.sido.backend.realestate.entity.RealEstateImage;
 
 public interface RealEstateImageRepository extends JpaRepository<RealEstateImage, Long> {
 }

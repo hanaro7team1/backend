@@ -1,4 +1,4 @@
-package com.sido.backend.realEstates.service;
+package com.sido.backend.realestate.service;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -9,10 +9,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.sido.backend.common.dto.PageResponseDTO;
-import com.sido.backend.realEstates.dto.RealEstateDTO;
-import com.sido.backend.realEstates.dto.RealEstateResponseDetailDTO;
-import com.sido.backend.realEstates.entity.RealEstates;
-import com.sido.backend.realEstates.repository.RealEstatesRepository;
+import com.sido.backend.realestate.dto.RealEstateDetailResponseDTO;
+import com.sido.backend.realestate.dto.RealEstateResponseDTO;
+import com.sido.backend.realestate.entity.RealEstate;
+import com.sido.backend.realestate.repository.RealEstateRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -21,40 +21,38 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class RealEstateServiceImpl implements RealEstateService {
 
-	private final RealEstatesRepository realEstatesRepository;
+	private final RealEstateRepository realEstatesRepository;
 
 	@Override
-	public PageResponseDTO<RealEstateDTO, RealEstates> getRealEstateList(int page, int listSize) {
-		Slice<RealEstates> lists = realEstatesRepository.findAll(
+	public PageResponseDTO<RealEstateResponseDTO, RealEstate> getRealEstateList(int page, int listSize) {
+		Slice<RealEstate> lists = realEstatesRepository.findAll(
 			PageRequest.of(page - 1, listSize, Sort.by(Sort.Order.desc("id"))));
 		return new PageResponseDTO<>(lists, RealEstateServiceImpl::toDTO);
 	}
 
 	@Override
-	public RealEstateResponseDetailDTO getRealEstateDetail(Long id) {
-		RealEstates realEstate = realEstatesRepository.findById(id).orElseThrow(
+	public RealEstateDetailResponseDTO getRealEstateDetail(Long id) {
+		RealEstate realEstate = realEstatesRepository.findById(id).orElseThrow(
 			() -> new EntityNotFoundException("해당 매물을 찾을 수 없습니다.")
 		);
 		return toDetailDTO(realEstate);
 	}
 
-	public static RealEstateDTO toDTO(RealEstates realEstate) {
-		return RealEstateDTO.builder()
+	public static RealEstateResponseDTO toDTO(RealEstate realEstate) {
+		return RealEstateResponseDTO.builder()
 			.id(realEstate.getId())
 			.address(realEstate.getAddress())
 			.price(realEstate.getPrice())
-			.capacity(realEstate.getCapacity())
-			.area(realEstate.getArea())
 			.tradeType(realEstate.getTradeType())
 			.build();
 	}
 
-	public static RealEstateResponseDetailDTO toDetailDTO(RealEstates realEstate) {
+	public static RealEstateDetailResponseDTO toDetailDTO(RealEstate realEstate) {
 		List<String> imageUrls = realEstate.getImages().stream()
 			.map(image -> image.getSavedir())
 			.collect(Collectors.toList());
 
-		return RealEstateResponseDetailDTO.builder()
+		return RealEstateDetailResponseDTO.builder()
 			.id(realEstate.getId())
 			.address(realEstate.getAddress())
 			.price(realEstate.getPrice())

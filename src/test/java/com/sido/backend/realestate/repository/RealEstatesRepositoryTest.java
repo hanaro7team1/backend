@@ -1,4 +1,4 @@
-package com.sido.backend.realEstates.repository;
+package com.sido.backend.realestate.repository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -13,13 +13,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.sido.backend.RepositoryTest;
-import com.sido.backend.realEstates.entity.RealEstateImage;
-import com.sido.backend.realEstates.entity.RealEstates;
+import com.sido.backend.realestate.entity.RealEstateImage;
+import com.sido.backend.realestate.entity.RealEstates;
 
 class RealEstatesRepositoryTest extends RepositoryTest {
 
 	@Autowired
-	RealEstatesRepository realEstatesRepository;
+	RealEstateRepository realEstatesRepository;
 
 	@Autowired
 	RealEstateImageRepository realEstateImageRepository;

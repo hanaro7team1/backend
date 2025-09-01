@@ -1,4 +1,4 @@
-package com.sido.backend.realEstates.entity;
+package com.sido.backend.realestate.entity;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RealEstates extends BaseEntity {
+public class RealEstate extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
