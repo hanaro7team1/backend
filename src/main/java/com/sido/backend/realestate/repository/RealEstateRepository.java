@@ -15,8 +15,8 @@ public interface RealEstateRepository extends JpaRepository<RealEstate, Long> {
     Optional<RealEstate> findById(Long id);
 
     @Query("SELECT re FROM RealEstate re " +
-            "WHERE (:address IS NULL OR re.address LIKE %:address%) " +
-            "AND (:tradeType IS NULL OR re.tradeType = :tradeType) " +
+            "WHERE (COALESCE(:address, '') = '' OR re.address LIKE %:address%) " +
+            "AND (COALESCE(:tradeType, '') = '' OR re.tradeType = :tradeType) " +
             "AND (:minPrice IS NULL OR re.price >= :minPrice) " +
             "AND (:maxPrice IS NULL OR re.price <= :maxPrice)")
     Slice<RealEstate> findRealEstatesDynamically(
