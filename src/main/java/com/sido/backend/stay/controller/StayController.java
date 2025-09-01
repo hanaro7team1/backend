@@ -28,17 +28,17 @@ public class StayController {
 
 	@Operation(summary = "월별 예약 가능 날짜 조회")
 	@GetMapping("/{stayId}/available-dates")
-	public ResponseEntity<?> getAvailableDatesByMonth(@PathVariable("stayId") Long stayId,
+	public ResponseEntity<AvailDatesDTO> getAvailableDatesByMonth(@PathVariable("stayId") Long stayId,
 		@Schema(example = "2025-08") @DateTimeFormat(pattern = "yyyy-MM") @RequestParam(required = false)
-		YearMonth yearMonth) {
-		AvailDatesDTO availDatesDTO = stayService.getAvailableDatesByMonth(stayId, yearMonth);
+		YearMonth month) {
+		AvailDatesDTO availDatesDTO = stayService.getAvailableDatesByMonth(stayId, month);
 		return ResponseEntity.ok(availDatesDTO);
 	}
 
 	@Operation(summary = "숙소 상세 조회")
-    @GetMapping("/{stayId}")
-    public ResponseEntity<StayResponseDetailDTO> getStayDetail(@PathVariable("stayId") Long stayId) {
-        StayResponseDetailDTO stayDetail = stayService.getStayDetail(stayId);
-        return ResponseEntity.ok(stayDetail);
-    }
+	@GetMapping("/{stayId}")
+	public ResponseEntity<StayResponseDetailDTO> getStayDetail(@PathVariable("stayId") Long stayId) {
+		StayResponseDetailDTO stayDetail = stayService.getStayDetail(stayId);
+		return ResponseEntity.ok(stayDetail);
+	}
 }

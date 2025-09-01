@@ -37,6 +37,7 @@ class StayRepositoryTest {
 					.isHomestay(false)
 					.title("사랑방 " + n + "호")
 					.address("전남 해남 화산면 새꽃마을")
+					.detailAddress("127-" + n)
 					.capacity(5)
 					.areaSize(40)
 					.description("전기가 아닌 진짜 온돌집\n집근처에 맹꽁이가 아름답게 울음")
@@ -66,7 +67,20 @@ class StayRepositoryTest {
 	void stayAvailAddTest() {
 		long preCnt = stayAvailDateRepository.count();
 
-		List<StayAvailDate> fiveDays = LongStream.rangeClosed(1, 5)
+		LocalDate fiveWeekAgo = LocalDate.now().minusDays(31);
+		List<StayAvailDate> prevMonthSevenDays = LongStream.rangeClosed(1, 5)
+			.boxed()
+			.flatMap(stayId ->
+				IntStream.range(0, 7)
+					.mapToObj(d ->
+						StayAvailDate.builder()
+							.availableDate(fiveWeekAgo.plusDays(d))
+							.stay(stayRepository.findById(stayId).orElseThrow())
+							.build()
+					)
+			).toList();
+
+		List<StayAvailDate> fiveDaysFromToday = LongStream.rangeClosed(1, 5)
 			.boxed()
 			.flatMap(stayId ->
 				IntStream.range(0, 5)
@@ -78,7 +92,7 @@ class StayRepositoryTest {
 					)
 			).toList();
 
-		List<StayAvailDate> threeDays = LongStream.rangeClosed(1, 5)
+		List<StayAvailDate> threeDaysFromFuture = LongStream.rangeClosed(1, 5)
 			.boxed()
 			.flatMap(stayId ->
 				IntStream.range(0, 3)
@@ -90,9 +104,10 @@ class StayRepositoryTest {
 					)
 			).toList();
 
-		stayAvailDateRepository.saveAll(fiveDays);
-		stayAvailDateRepository.saveAll(threeDays);
+		stayAvailDateRepository.saveAll(prevMonthSevenDays);
+		stayAvailDateRepository.saveAll(fiveDaysFromToday);
+		stayAvailDateRepository.saveAll(threeDaysFromFuture);
 
-		assertEquals(preCnt + 25 + 15, stayAvailDateRepository.count());
+		assertEquals(preCnt + 35 + 25 + 15, stayAvailDateRepository.count());
 	}
 }

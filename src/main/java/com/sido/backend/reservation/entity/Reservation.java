@@ -1,13 +1,11 @@
 package com.sido.backend.reservation.entity;
 
 import java.time.LocalDate;
-
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+import java.time.LocalDateTime;
 
 import com.sido.backend.common.entity.BaseEntity;
-import com.sido.backend.stay.entity.Stay;
 import com.sido.backend.member.entity.Member;
+import com.sido.backend.stay.entity.Stay;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,7 +17,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -38,23 +35,29 @@ public class Reservation extends BaseEntity {
 	private LocalDate endDate;
 
 	@Column(nullable = false)
-	private short personCnt;
+	private Integer personCnt;
 
 	@Column(nullable = false)
 	private Boolean isFarm;
 
 	@Enumerated(EnumType.STRING)
-	private ResrvStatus resrvStatus;
+	private ResrvStatus resrvStatus; // 예약 상태
 
-	@OneToOne(optional = false)
-	@JoinColumn(name = "stay",
-		foreignKey = @ForeignKey(name = "fk_Reservation_Stay"))
-	@OnDelete(action = OnDeleteAction.SET_NULL)
+	@Enumerated(EnumType.STRING)
+	private VisitStatus visitStatus; // 방문 상태
+
+	@Column
+	private LocalDateTime reservedAt; // resrvStatus가 RESERVED가 된 순간
+
+	@ManyToOne
+	@JoinColumn(name = "stay", foreignKey = @ForeignKey(
+		name = "fk_Reservation_Stay",
+		foreignKeyDefinition = "foreign key (stay) references Stay(id) on delete set null"))
 	private Stay stay;
 
 	@ManyToOne
-	@JoinColumn(name = "member",
-		foreignKey = @ForeignKey(name = "fk_Reservation_Member"))
-	@OnDelete(action = OnDeleteAction.SET_NULL)
+	@JoinColumn(name = "member", foreignKey = @ForeignKey(
+		name = "fk_Reservation_Member",
+		foreignKeyDefinition = "foreign key (member) references Member(id) on delete set null"))
 	private Member member;
 }

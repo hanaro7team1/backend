@@ -56,7 +56,7 @@ public class SecurityConfig {
 				.requestMatchers(HttpMethod.GET, "/api/stays/**", "/api/real-estates/**", "/api/festivals/**")
 				.permitAll()
 				// 인증 필요
-				.requestMatchers(HttpMethod.POST, "/api/festivals/**")
+				.requestMatchers(HttpMethod.POST, "/api/stays/**", "/api/festivals/**")
 				.authenticated()
 				.requestMatchers(HttpMethod.PATCH, "/api/festivals/**").authenticated()
 				.requestMatchers(HttpMethod.DELETE, "/api/festivals/**").authenticated()
