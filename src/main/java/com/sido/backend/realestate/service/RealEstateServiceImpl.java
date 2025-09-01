@@ -24,9 +24,9 @@ public class RealEstateServiceImpl implements RealEstateService {
 	private final RealEstateRepository realEstatesRepository;
 
 	@Override
-	public PageResponseDTO<RealEstateResponseDTO, RealEstate> getRealEstateList(int page, int listSize) {
-		Slice<RealEstate> lists = realEstatesRepository.findAll(
-			PageRequest.of(page - 1, listSize, Sort.by(Sort.Order.desc("id"))));
+	public PageResponseDTO<RealEstateResponseDTO, RealEstate> getRealEstateList(int page, int listSize, String address, String tradeType, Integer minPrice, Integer maxPrice) {
+		Slice<RealEstate> lists = realEstatesRepository.findRealEstatesDynamically(
+				address, tradeType, minPrice, maxPrice, PageRequest.of(page - 1, listSize, Sort.by(Sort.Order.desc("id"))));
 		return new PageResponseDTO<>(lists, RealEstateServiceImpl::toDTO);
 	}
 

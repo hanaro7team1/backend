@@ -29,8 +29,13 @@ public class RealEstateController {
 	@GetMapping
 	public ResponseEntity<PageResponseDTO<RealEstateResponseDTO, RealEstate>> getRealEstateList(
 		@RequestParam(defaultValue = "1") int page,
-		@RequestParam(defaultValue = "10") int listSize) {
-		return ResponseEntity.ok(realEstateService.getRealEstateList(page, listSize));
+		@RequestParam(defaultValue = "10") int listSize,
+		@RequestParam(required = false) String address,
+		@RequestParam(required = false) String tradeType,
+		@RequestParam(required = false) Integer minPrice,
+		@RequestParam(required = false) Integer maxPrice
+	) {
+		return ResponseEntity.ok(realEstateService.getRealEstateList(page, listSize, address, tradeType, minPrice, maxPrice));
 	}
 
 	@Operation(description = "매물 상세 조회")
