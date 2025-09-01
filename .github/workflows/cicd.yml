@@ -32,14 +32,28 @@ jobs:
           ssh-keyscan ${{ secrets.WAS }} >> ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
+      #      - name: scp jar to was
+      #        run: |
+      #          scp build/libs/*.jar ec2-user@${{ secrets.WAS }}:/home/ec2-user/workspace/sido.jar
+      #
+      #
+      #      - name: restart spring
+      #        run: |
+      #          ssh ec2-user@${{ secrets.WAS }} '
+      #            cd /home/ec2-user/workspace &&
+      #            sudo systemctl restart springboot
+      #          '
       - name: scp jar to was
+        if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
         run: |
-          scp build/libs/*.jar ec2-user@${{ secrets.WAS }}:/home/ec2-user/workspace/sido.jar
+          scp -T build/libs/*.jar ec2-user@${{ secrets.WAS }}:/home/ec2-user/workspace/sido.jar.new
 
-
-      - name: restart spring
+      - name: switch & restart spring
+        if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
         run: |
           ssh ec2-user@${{ secrets.WAS }} '
-            cd /home/ec2-user/workspace &&
-            sudo systemctl restart springboot
+            set -e
+            mv -f /home/ec2-user/workspace/sido.jar.new /home/ec2-user/workspace/sido.jar &&
+            sudo systemctl restart springboot &&
+            systemctl --no-pager -l status springboot
           '
