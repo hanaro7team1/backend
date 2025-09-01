@@ -17,6 +17,7 @@ import com.sido.backend.member.dto.MemberDTO;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -47,19 +48,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
 		@NonNull FilterChain filterChain) throws ServletException, IOException {
 		System.out.println("*** [JWT} doFilterInternal path = " + request.getRequestURI());
-		String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
+		String token = null;
+
+		// 1. Authorization 헤더에서 토큰 확인
+		String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 		// 토큰이 없거나 Bearer로 시작하지 않으면 다음 필터로 넘김
 		// SecurityConfig : http.addFilterBefore(new JwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
 		// JwtAuthenticationFilter -> UsernamePasswordAuthenticationFilter (인증 필터) -> authorizeHttpRequests (인가 설정)
-		if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+		if (authHeader != null && authHeader.startsWith("Bearer ")) {
+			token = authHeader.substring(7);
+		}
+
+		// 2. 헤더에 토큰이 없으면 쿠키에서 확인
+		if (token == null && request.getCookies() != null) {
+			for (Cookie cookie : request.getCookies()) {
+				if ("accessToken".equals(cookie.getName())) {
+					token = cookie.getValue();
+					break;
+				}
+			}
+		}
+
+		// 토큰이 없으면 다음 필터로 넘김
+		if (token == null) {
 			filterChain.doFilter(request, response);
 			return;
 		}
 
 		try {
-			// 토큰이 있을 때만 검증
-			Map<String, Object> claims = JwtUtil.validateToken(authHeader.substring(7)); // Bearer 빼고 토큰 부분만
+			Map<String, Object> claims = JwtUtil.validateToken(token);
 
 			Object rawId = claims.get("memberId");
 			Long memberId = (rawId instanceof Number) ? ((Number)rawId).longValue() : null;
