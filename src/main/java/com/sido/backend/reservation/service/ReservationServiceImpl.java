@@ -151,6 +151,27 @@ public class ReservationServiceImpl implements ReservationService {
 		return toConfirmResponseDTO(reservation);
 	}
 
+	@Override
+	@Transactional
+	public void cancelReservation(Long memberId, Long reservationId) {
+		Reservation reservation = reservationRepository.findById(reservationId).orElseThrow(
+			() -> new EntityNotFoundException("해당 예약을 찾을 수 없습니다.")
+		);
+
+		reservationValidator.assertOwnedBy(reservation, memberId); // 본인 예약 검증
+
+		// 멱등성
+		if (reservation.getResrvStatus() == ResrvStatus.CANCELLED) {
+			return;
+		}
+
+		reservation.setResrvStatus(ResrvStatus.CANCELLED); // 예약 취소 상태로
+		reservation.setVisitStatus(null); // 방문 상태 null로
+		reservationRepository.save(reservation);
+
+		reservationDayRepository.deleteByReservationId(reservationId); // ReservationDay 날짜 점유 해제
+	}
+
 	private ReservationCreateResponseDTO toCreateResponseDTO(Reservation reservation) {
 		return new ReservationCreateResponseDTO(
 			reservation.getId(),
