@@ -49,7 +49,7 @@ public class SecurityConfig {
 			.authorizeHttpRequests(auth -> auth
 				// 인가 설정으로, 인증 필터인 UsernamePasswordAuthenticationFilter보다 뒷 순서
 				// 로그인, 회원가입, 문서: 공개
-				.requestMatchers("/api/users/**", "/api/members/**", "/swagger-ui/**", "/sido/api-docs/**",
+				.requestMatchers("/api/users/**", "/api/members/**", "/swagger-ui/**", "/v3/api-docs/**",
 					"/actuator/**")
 				.permitAll()
 				// 공개 API
@@ -97,6 +97,11 @@ public class SecurityConfig {
 			HttpHeaders.AUTHORIZATION,
 			HttpHeaders.CACHE_CONTROL,
 			HttpHeaders.CONTENT_TYPE));
+
+		// 쿠키 전송을 위해 credentials 허용
+		corsConfig.setAllowCredentials(true);
+		// allowCredentials가 true면 allowedOrigins를 "*"로 설정할 수 없음
+		corsConfig.setAllowedOrigins(List.of("http://localhost:3000")); // 프론트엔드 주소
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", corsConfig);
