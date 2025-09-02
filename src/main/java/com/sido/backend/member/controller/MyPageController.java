@@ -21,21 +21,21 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/mypage")
+@RequestMapping("/api/admin")
 @Tag(name = "마이페이지")
 public class MyPageController {
 
 	private final MemberService memberService;
 
 	@Operation(summary = "Host 마이페이지 정보 조회")
-	@GetMapping("/host")
+	@GetMapping("/mypage")
 	public ResponseEntity<MyPageResponseDTO> getHostMyPageInfo(@AuthenticationPrincipal MemberDTO memberDTO) {
 		MyPageResponseDTO myPageInfo = memberService.getMyPageInfo(memberDTO.getMemberId());
 		return ResponseEntity.ok(myPageInfo);
 	}
 
 	@Operation(summary = "Host 전화번호 변경")
-	@PatchMapping("/host/phone")
+	@PatchMapping("/mypage/phone")
 	public ResponseEntity<Void> updateHostPhone(
 		@AuthenticationPrincipal MemberDTO memberDTO,
 		@Valid @RequestBody PhoneUpdateRequestDTO request) {
@@ -44,7 +44,7 @@ public class MyPageController {
 	}
 
 	@Operation(summary = "Host 비밀번호 변경")
-	@PatchMapping("/host/password")
+	@PatchMapping("/mypage/password")
 	public ResponseEntity<Void> updateHostPassword(
 		@AuthenticationPrincipal MemberDTO memberDTO,
 		@Valid @RequestBody PasswordUpdateRequestDTO request) {
