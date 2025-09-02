@@ -1,6 +1,7 @@
 package com.sido.backend.reservation.dto;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.sido.backend.reservation.dto.ReservationCommonDTOs.ReservationStatusDTO;
 
 public record ReservationConfirmResponseDTO(
 	Long reservationId,
@@ -8,6 +9,6 @@ public record ReservationConfirmResponseDTO(
 	Long stayId,
 
 	@JsonUnwrapped
-	ReservationCommonDTOs.ReservationStatusDTO status // resrvStatus, visitStatus, dDay, reservedAt
+	ReservationStatusDTO status // resrvStatus, visitStatus, dDay, reservedAt
 ) {
 }
