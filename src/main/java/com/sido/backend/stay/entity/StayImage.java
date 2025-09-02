@@ -16,16 +16,7 @@ public class StayImage extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(nullable = false)
-	private String orgName;
-
-	@Column(nullable = false)
-	private String saveName;
-
-	@Column(nullable = false)
-	private String saveUrl;
-
-	@Column(nullable = false)
+	@Column(length = 512, nullable = false, unique = true)
 	private String s3Key;
 
 	@ManyToOne
