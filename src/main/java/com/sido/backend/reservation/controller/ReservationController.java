@@ -4,6 +4,8 @@ import java.net.URI;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +16,7 @@ import com.sido.backend.reservation.dto.ReservationConfirmRequestDTO;
 import com.sido.backend.reservation.dto.ReservationConfirmResponseDTO;
 import com.sido.backend.reservation.dto.ReservationCreateRequestDTO;
 import com.sido.backend.reservation.dto.ReservationCreateResponseDTO;
+import com.sido.backend.reservation.dto.ReservationDetailResponseDTO;
 import com.sido.backend.reservation.service.ReservationService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,5 +49,21 @@ public class ReservationController {
 		ReservationConfirmResponseDTO confirmResponse = reservationService.confirmReservation(memberId,
 			reservationId, confirmRequest);
 		return ResponseEntity.ok().body(confirmResponse);
+	}
+
+	@Operation(summary = "예약 상세 조회")
+	@GetMapping("/api/reservations/{reservationId}")
+	public ResponseEntity<ReservationDetailResponseDTO> getReservationDetail(
+		@AuthenticationPrincipal(expression = "memberId") Long memberId, @PathVariable Long reservationId) {
+		ReservationDetailResponseDTO detailResponse = reservationService.getReservationDetail(memberId, reservationId);
+		return ResponseEntity.ok().body(detailResponse);
+  }
+  
+	@Operation(summary = "예약 취소", description = "ResrvStatus: CANCELLED로, VisitStatus: null로")
+	@DeleteMapping("/api/reservations/{reservationId}")
+	public ResponseEntity<Void> cancelReservation(
+		@AuthenticationPrincipal(expression = "memberId") Long memberId, @PathVariable Long reservationId) {
+		reservationService.cancelReservation(memberId, reservationId);
+		return ResponseEntity.noContent().build();
 	}
 }
