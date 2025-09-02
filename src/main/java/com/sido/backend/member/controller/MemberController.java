@@ -63,9 +63,9 @@ public class MemberController {
 			refreshCookie.setMaxAge(600 * 60); // 600분
 
 			Cookie roleCookie = new Cookie("role", role);
-			refreshCookie.setHttpOnly(true);
-			refreshCookie.setSecure(false);
-			refreshCookie.setPath("/");
+			roleCookie.setHttpOnly(true);
+			roleCookie.setSecure(false);
+			roleCookie.setPath("/");
 
 			response.addCookie(accessCookie);
 			response.addCookie(refreshCookie);
@@ -102,10 +102,10 @@ public class MemberController {
 		refreshCookie.setMaxAge(0);
 
 		Cookie roleCookie = new Cookie("role", "role");
-		refreshCookie.setHttpOnly(true);
-		refreshCookie.setSecure(false);
-		refreshCookie.setPath("/");
-		refreshCookie.setMaxAge(0);
+		roleCookie.setHttpOnly(true);
+		roleCookie.setSecure(false);
+		roleCookie.setPath("/");
+		roleCookie.setMaxAge(0);
 
 		response.addCookie(accessCookie);
 		response.addCookie(refreshCookie);
