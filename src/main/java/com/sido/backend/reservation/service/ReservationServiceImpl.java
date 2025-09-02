@@ -23,7 +23,7 @@ import com.sido.backend.reservation.dto.ReservationConfirmResponseDTO;
 import com.sido.backend.reservation.dto.ReservationCreateRequestDTO;
 import com.sido.backend.reservation.dto.ReservationCreateResponseDTO;
 import com.sido.backend.reservation.dto.ReservationDetailResponseDTO;
-import com.sido.backend.reservation.dto.ReservationSummaryDTO;
+import com.sido.backend.reservation.dto.ReservationOverviewDTO;
 import com.sido.backend.reservation.entity.Reservation;
 import com.sido.backend.reservation.entity.ReservationDay;
 import com.sido.backend.reservation.entity.ResrvStatus;
@@ -193,14 +193,14 @@ public class ReservationServiceImpl implements ReservationService {
 	}
 
 	@Override
-	public ReservationSummaryDTO getReservationSummary(Long memberId) {
+	public ReservationOverviewDTO getReservationOverview(Long memberId) {
 		hostMemberRepository.findById(memberId).orElseThrow(
 			() -> new EntityNotFoundException("해당 호스트를 찾을 수 없습니다.")
 		);
 
 		ReservationCounts resrvCnt = reservationRepository.summarizeByHost(memberId);
 
-		return ReservationSummaryDTO.builder()
+		return ReservationOverviewDTO.builder()
 			.upcomingCnt(resrvCnt.getUpcomingCnt())
 			.inProgressCnt(resrvCnt.getInProgressCnt())
 			.completedCnt(resrvCnt.getCompletedCnt())
