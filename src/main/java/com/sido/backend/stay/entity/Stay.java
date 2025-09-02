@@ -49,7 +49,7 @@ public class Stay extends BaseEntity {
 	@Column(length = 64, nullable = false)
 	private String address;
 
-	@Column(length = 64, nullable = false)
+	@Column(length = 64)
 	private String detailAddress;
 
 	@Column(nullable = false)
@@ -66,10 +66,10 @@ public class Stay extends BaseEntity {
 	private Boolean isHomestay = true;
 
 	@Column(length = 9) // 독립형: 집주인 X -> nullable
-	private String ownerName;
+	private String hostName;
 
 	@Column(length = 31) // 독립형: 집주인 X -> nullable
-	private String ownerPhone;
+	private String hostPhone;
 
 	@Column(nullable = false)
 	@Builder.Default

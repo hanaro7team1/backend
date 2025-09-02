@@ -18,8 +18,7 @@ public class StayCreateDTO {
 	@Size(min = 1, max = 64)
 	private String address;
 
-	@NotBlank
-	@Size(min = 1, max = 64)
+	@Size(max = 64)
 	private String detailAddress;
 
 	@NotBlank
@@ -41,8 +40,8 @@ public class StayCreateDTO {
 			.detailAddress(detailAddress)
 			.capacity(staySpec.capacity())
 			.areaSize(staySpec.areaSize())
-			.ownerName(hostName)
-			.ownerPhone(hostPhone)
+			.hostName(hostName)
+			.hostPhone(hostPhone)
 			.description(staySpec.description())
 			.build();
 	}
