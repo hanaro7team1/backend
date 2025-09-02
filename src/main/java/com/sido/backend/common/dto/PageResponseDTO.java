@@ -9,7 +9,7 @@ import org.springframework.data.domain.Slice;
 import lombok.Getter;
 
 @Getter
-public class PageResponseDTO<DTO> {
+public class PageResponseDTO<DTO, ENTITY> {
 	private final List<DTO> dtoList;
 	private final boolean hasNext;
 
