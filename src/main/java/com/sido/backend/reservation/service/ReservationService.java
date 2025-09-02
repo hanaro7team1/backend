@@ -5,7 +5,7 @@ import com.sido.backend.reservation.dto.ReservationConfirmResponseDTO;
 import com.sido.backend.reservation.dto.ReservationCreateRequestDTO;
 import com.sido.backend.reservation.dto.ReservationCreateResponseDTO;
 import com.sido.backend.reservation.dto.ReservationDetailResponseDTO;
-import com.sido.backend.reservation.dto.ReservationSummaryDTO;
+import com.sido.backend.reservation.dto.ReservationOverviewDTO;
 
 public interface ReservationService {
 	ReservationCreateResponseDTO createReservation(Long memberId, Long stayId,
@@ -15,8 +15,8 @@ public interface ReservationService {
 		ReservationConfirmRequestDTO confirmRequest);
 
 	ReservationDetailResponseDTO getReservationDetail(Long memberId, Long reservationId);
-  
+
 	void cancelReservation(Long memberId, Long reservationId);
 
-	ReservationSummaryDTO getReservationSummary(Long memberId);
+	ReservationOverviewDTO getReservationOverview(Long memberId);
 }
