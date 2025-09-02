@@ -14,4 +14,6 @@ public interface ReservationService {
 		ReservationConfirmRequestDTO confirmRequest);
 
 	ReservationDetailResponseDTO getReservationDetail(Long memberId, Long reservationId);
+  
+	void cancelReservation(Long memberId, Long reservationId);
 }
