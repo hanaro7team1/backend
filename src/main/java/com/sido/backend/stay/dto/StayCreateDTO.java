@@ -1,10 +1,13 @@
 package com.sido.backend.stay.dto;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.sido.backend.stay.entity.Stay;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,6 +35,9 @@ public class StayCreateDTO {
 	@NotBlank
 	@Size(min = 1, max = 31)
 	private String hostPhone;
+	
+	@NotEmpty
+	private List<String> s3Keys; // ← temp 키들
 
 	public Stay toEntity() {
 		return Stay.builder()

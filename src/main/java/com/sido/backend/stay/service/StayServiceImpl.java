@@ -2,8 +2,14 @@ package com.sido.backend.stay.service;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,22 +17,37 @@ import com.sido.backend.member.entity.HostMember;
 import com.sido.backend.member.repository.HostMemberRepository;
 import com.sido.backend.stay.dto.AvailDatesDTO;
 import com.sido.backend.stay.dto.StayCreateDTO;
+import com.sido.backend.stay.dto.StayImageDTO;
 import com.sido.backend.stay.dto.StayResponseDetailDTO;
 import com.sido.backend.stay.dto.StaySpecDTO;
 import com.sido.backend.stay.dto.StayUpdateDTO;
 import com.sido.backend.stay.entity.Stay;
+import com.sido.backend.stay.entity.StayImage;
 import com.sido.backend.stay.repository.StayAvailDateRepository;
+import com.sido.backend.stay.repository.StayImageRepository;
 import com.sido.backend.stay.repository.StayRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.CopyObjectRequest;
+import software.amazon.awssdk.services.s3.model.Delete;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 
 @RequiredArgsConstructor
 @Service
 public class StayServiceImpl implements StayService {
+	private final S3Client s3;
 	private final StayRepository stayRepository;
+	private final StayImageRepository stayImageRepository;
 	private final StayAvailDateRepository stayAvailDateRepository;
 	private final HostMemberRepository hostMemberRepository;
+	@Value("${app.s3.bucket}")
+	private String bucket;
+	@Value("${app.s3.publicBaseUrl}")
+	private String publicBaseUrl;
 
 	@Override
 	@Transactional
@@ -52,6 +73,36 @@ public class StayServiceImpl implements StayService {
 
 		stayRepository.save(stay);
 
+		//s3 버킷 temp에 있던 파일들 옮기는 과정
+		List<String> tempKeys = Optional.ofNullable(stayCreateDTO.getS3Keys()).orElse(List.of());
+		List<String> copiedKeys = new ArrayList<>();
+
+		if (!tempKeys.isEmpty()) {
+			String ym = YearMonth.now(ZoneId.of("Asia/Seoul")).format(DateTimeFormatter.ofPattern("yyyyMM"));
+
+			try {
+				for (int i = 0; i < tempKeys.size(); i++) {
+					String srcKey = tempKeys.get(i);
+					validateTempKey(srcKey);
+
+					String destKey = buildFinalKey(stay.getId(), ym, srcKey);
+					copyWithinBucket(srcKey, destKey);
+					copiedKeys.add(destKey);
+
+					StayImage img = new StayImage();
+					img.setStay(stay);
+					img.setS3Key(destKey);
+					img.setSortOrder(i);
+					stayImageRepository.save(img);
+				}
+			} catch (Exception ex) {
+				// 보상(가능한 한 복구)
+				for (String k : copiedKeys)
+					safeDelete(k);
+				throw ex; // 트랜잭션 롤백 → Stay/StayImage 롤백
+			}
+			deleteMany(tempKeys);
+		}
 		return toResponseDetailDTO(stay);
 	}
 
@@ -79,17 +130,6 @@ public class StayServiceImpl implements StayService {
 	}
 
 	@Override
-	public AvailDatesDTO getOpenDatesByMonth(Long stayId, YearMonth yearMonth) {
-		stayRepository.findById(stayId).orElseThrow(
-			() -> new EntityNotFoundException("해당 사랑방을 찾을 수 없습니다.")
-		);
-
-		MonthContext monthCtx = MonthContext.of(yearMonth);
-
-		return buildOpenCalendar(stayId, monthCtx);
-	}
-
-	@Override
 	public StayResponseDetailDTO getStayDetail(Long stayId) {
 		Stay stay = stayRepository.findById(stayId).orElseThrow(
 			() -> new EntityNotFoundException("해당 사랑방을 찾을 수 없습니다.")
@@ -106,6 +146,17 @@ public class StayServiceImpl implements StayService {
 		stayRepository.save(stay);
 	}
 
+	@Override
+	public AvailDatesDTO getOpenDatesByMonth(Long stayId, YearMonth yearMonth) {
+		stayRepository.findById(stayId).orElseThrow(
+			() -> new EntityNotFoundException("해당 사랑방을 찾을 수 없습니다.")
+		);
+
+		MonthContext monthCtx = MonthContext.of(yearMonth);
+
+		return buildOpenCalendar(stayId, monthCtx);
+	}
+
 	private StayResponseDetailDTO toResponseDetailDTO(Stay stay) {
 		StayResponseDetailDTO.StayResponseDetailDTOBuilder builder = StayResponseDetailDTO.builder()
 			.id(stay.getId())
@@ -120,6 +171,17 @@ public class StayServiceImpl implements StayService {
 		if (!stay.getIsActive()) {
 			builder.isActiveMsg("해당 사랑방은 예약이 닫힌 상태입니다.");
 		}
+
+		// StayImage → DTO 변환
+		List<StayImageDTO> imageDTOs = stay.getImages().stream()
+			.sorted(Comparator.comparingInt(StayImage::getSortOrder))
+			.map(img -> new StayImageDTO(
+				publicBaseUrl + "/" + img.getS3Key(), // URL
+				img.getSortOrder()
+			))
+			.toList();
+
+		builder.images(imageDTOs);
 
 		return builder.build();
 	}
@@ -199,6 +261,50 @@ public class StayServiceImpl implements StayService {
 			.hasPrev(hasPrev)
 			.hasNext(hasNext)
 			.build();
+	}
+
+	//s3 관련 함수들
+	private void validateTempKey(String key) {
+		if (key == null || !key.startsWith("temp/") || key.contains("..")) {
+			throw new IllegalArgumentException("잘못된 이미지 키");
+		}
+	}
+
+	private void copyWithinBucket(String srcKey, String destKey) {
+		s3.copyObject(CopyObjectRequest.builder()
+			.sourceBucket(bucket)
+			.sourceKey(srcKey)
+			.destinationBucket(bucket)
+			.destinationKey(destKey)
+			// .metadataDirective(MetadataDirective.REPLACE) // 필요시 ContentType 등 지정
+			.build());
+	}
+
+	private String buildFinalKey(Long stayId, String yyyyMM, String srcKey) {
+		// srcKey 예: temp/202509/abc-uuid.jpg
+		String filename = srcKey.substring(srcKey.lastIndexOf('/') + 1); // abc-uuid.jpg
+		// 파일명을 그대로 쓰고 싶지 않다면 여기서 UUID 새로 생성해도 됨.
+		return "stays/%d/%s/%s".formatted(stayId, yyyyMM, filename);
+	}
+
+	private void safeDelete(String key) {
+		try {
+			s3.deleteObject(DeleteObjectRequest.builder().bucket(bucket).key(key).build());
+		} catch (Exception ignore) {
+		}
+	}
+
+	private void deleteMany(List<String> keys) {
+		if (keys.isEmpty())
+			return;
+		s3.deleteObjects(DeleteObjectsRequest.builder()
+			.bucket(bucket)
+			.delete(Delete.builder()
+				.objects(keys.stream()
+					.map(k -> ObjectIdentifier.builder().key(k).build())
+					.toList())
+				.build())
+			.build());
 	}
 
 	private record MonthContext(
