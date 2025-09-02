@@ -1,8 +1,26 @@
 package com.sido.backend.reservation.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import com.sido.backend.reservation.entity.Reservation;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
+	@Query("""
+		select
+		    coalesce(sum(case when r.visitStatus = com.sido.backend.reservation.entity.VisitStatus.UPCOMING then 1 else 0 end), 0) as upcomingCnt,
+		    coalesce(sum(case when r.visitStatus = com.sido.backend.reservation.entity.VisitStatus.IN_PROGRESS then 1 else 0 end), 0) as inProgressCnt,
+			coalesce(sum(case when r.visitStatus = com.sido.backend.reservation.entity.VisitStatus.COMPLETED then 1 else 0 end), 0) as completedCnt
+		from Reservation r
+			where r.stay.host.id = :hostId
+		""")
+	ReservationCounts summarizeByHost(Long hostId);
+
+	interface ReservationCounts {
+		long getUpcomingCnt();
+
+		long getInProgressCnt();
+
+		long getCompletedCnt();
+	}
 }

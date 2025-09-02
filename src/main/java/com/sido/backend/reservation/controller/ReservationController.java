@@ -26,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@Tag(name = "예약")
+@Tag(name = "예약-도시 시니어")
 public class ReservationController {
 	private final ReservationService reservationService;
 
