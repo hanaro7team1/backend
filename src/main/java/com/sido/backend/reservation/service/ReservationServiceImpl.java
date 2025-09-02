@@ -19,6 +19,7 @@ import com.sido.backend.reservation.dto.ReservationConfirmRequestDTO;
 import com.sido.backend.reservation.dto.ReservationConfirmResponseDTO;
 import com.sido.backend.reservation.dto.ReservationCreateRequestDTO;
 import com.sido.backend.reservation.dto.ReservationCreateResponseDTO;
+import com.sido.backend.reservation.dto.ReservationDetailResponseDTO;
 import com.sido.backend.reservation.entity.Reservation;
 import com.sido.backend.reservation.entity.ReservationDay;
 import com.sido.backend.reservation.entity.ResrvStatus;
@@ -150,8 +151,21 @@ public class ReservationServiceImpl implements ReservationService {
 
 		return toConfirmResponseDTO(reservation);
 	}
+  
+  @Override
+	public ReservationDetailResponseDTO getReservationDetail(Long memberId, Long reservationId) {
+		Reservation reservation = reservationRepository.findById(reservationId).orElseThrow(
+			() -> new EntityNotFoundException("해당 예약을 찾을 수 없습니다.")
+		);
 
-	@Override
+		reservationValidator.assertOwnedBy(reservation, memberId); // 본인 예약만 확인 가능
+
+		reservationValidator.assertNotPending(reservation, "예약 상세 조회");
+
+		return toDetailResponseDTO(reservation);
+	}
+  
+  @Override
 	@Transactional
 	public void cancelReservation(Long memberId, Long reservationId) {
 		Reservation reservation = reservationRepository.findById(reservationId).orElseThrow(
@@ -202,6 +216,23 @@ public class ReservationServiceImpl implements ReservationService {
 			reservation.getStay().getId(),
 			ReservationCommonDTOs.ReservationStatusDTO.detail(
 				reservation.getResrvStatus(), reservation.getVisitStatus(), dDay, reservation.getReservedAt()
+			)
+		);
+	}
+
+	private ReservationDetailResponseDTO toDetailResponseDTO(Reservation reservation) {
+		return new ReservationDetailResponseDTO(
+			reservation.getId(),
+			reservation.getResrvStatus(),
+			reservation.getMember().getName(),
+			reservation.getMember().getPhone(),
+			reservation.getStay().getIsHomestay(),
+			reservation.getStay().getOwnerName(),
+			reservation.getStay().getOwnerPhone(),
+			ReservationCommonDTOs.StaySummaryDTO.ofFull(reservation.getStay()),
+			ReservationCommonDTOs.ReservationInfoDTO.ofAll(
+				reservation.getStartDate(), reservation.getEndDate(), reservation.getPersonCnt(),
+				reservation.getIsFarm()
 			)
 		);
 	}
