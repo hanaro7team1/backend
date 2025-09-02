@@ -47,6 +47,7 @@ public class MemberController {
 			Map<String, Object> claims = JwtUtil.authenticationToClaims(authenticate);
 			String accessToken = (String) claims.get("accessToken");
 			String refreshToken = (String) claims.get("refreshToken");
+			String role = (String) claims.get("role");
 
 			// httpOnly 쿠키로 토큰 설정
 			Cookie accessCookie = new Cookie("accessToken", accessToken);
@@ -61,8 +62,14 @@ public class MemberController {
 			refreshCookie.setPath("/");
 			refreshCookie.setMaxAge(600 * 60); // 600분
 
+			Cookie roleCookie = new Cookie("role", role);
+			refreshCookie.setHttpOnly(true);
+			refreshCookie.setSecure(false);
+			refreshCookie.setPath("/");
+
 			response.addCookie(accessCookie);
 			response.addCookie(refreshCookie);
+			response.addCookie(roleCookie);
 
 			// 토큰 없이 사용자 정보만 반환
 			Map<String, Object> userInfo = new HashMap<>();
@@ -94,8 +101,15 @@ public class MemberController {
 		refreshCookie.setPath("/");
 		refreshCookie.setMaxAge(0);
 
+		Cookie roleCookie = new Cookie("role", "role");
+		refreshCookie.setHttpOnly(true);
+		refreshCookie.setSecure(false);
+		refreshCookie.setPath("/");
+		refreshCookie.setMaxAge(0);
+
 		response.addCookie(accessCookie);
 		response.addCookie(refreshCookie);
+		response.addCookie(roleCookie);
 
 		return ResponseEntity.ok("로그아웃되었습니다.");
 	}
