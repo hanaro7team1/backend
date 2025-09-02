@@ -36,7 +36,7 @@ public class MemberServiceImpl implements MemberService {
 	@Transactional
 	public void updatePhone(Long memberId, PhoneUpdateRequestDTO request) {
 		HostMember hostMember = hostMemberRepository.findById(memberId)
-			.orElseThrow(() -> new BadRequestException("해당 사용자를 찾을 수 없습니다: " + memberId));
+			.orElseThrow(() -> new EntityNotFoundException("해당 사용자를 찾을 수 없습니다: " + memberId));
 
 		if (request.getPhone().equals(hostMember.getPhone())) {
 			throw new BadRequestException("새로운 연락처는 현재 연락처와 같을 수 없습니다.");
@@ -50,7 +50,7 @@ public class MemberServiceImpl implements MemberService {
 	@Transactional
 	public void updatePassword(Long memberId, PasswordUpdateRequestDTO request) {
 		HostMember hostMember = hostMemberRepository.findById(memberId)
-			.orElseThrow(() -> new BadRequestException("해당 사용자를 찾을 수 없습니다: " + memberId));
+			.orElseThrow(() -> new EntityNotFoundException("해당 사용자를 찾을 수 없습니다: " + memberId));
 
 		if (!passwordEncoder.matches(request.getCurrentPassword(), hostMember.getPassword())) {
 			throw new BadRequestException("현재 비밀번호가 일치하지 않습니다.");
