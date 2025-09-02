@@ -3,6 +3,8 @@ package com.sido.backend.reservation.entity;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.Check;
+
 import com.sido.backend.common.entity.BaseEntity;
 import com.sido.backend.member.entity.Member;
 import com.sido.backend.stay.entity.Stay;
@@ -23,6 +25,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
+@Check(constraints = "NOT (resrvStatus = 'RESERVED' AND isFarm IS NULL)") // RESERVED일 때만 isFarm not null
 public class Reservation extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,7 +40,7 @@ public class Reservation extends BaseEntity {
 	@Column(nullable = false)
 	private Integer personCnt;
 
-	@Column(nullable = false)
+	@Column // PENDING일 때 null 허용
 	private Boolean isFarm;
 
 	@Enumerated(EnumType.STRING)
