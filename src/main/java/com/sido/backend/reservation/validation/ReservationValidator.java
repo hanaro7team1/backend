@@ -52,4 +52,10 @@ public class ReservationValidator {
 			throw new ConflictException("현재 상태에서는 예약을 확정할 수 없습니다.");
 		}
 	}
+
+	public void assertNotPending(Reservation reservation, String actionLabel) {
+		if (reservation.getResrvStatus() == ResrvStatus.PENDING) {
+			throw new ConflictException("확정 대기 중인 예약에서는 " + actionLabel + "를 진행할 수 없습니다.");
+		}
+	}
 }
