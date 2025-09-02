@@ -9,11 +9,11 @@ import org.springframework.data.domain.Slice;
 import lombok.Getter;
 
 @Getter
-public class PageResponseDTO<DTO, ENTITY> {
+public class PageResponseDTO<DTO> {
 	private final List<DTO> dtoList;
 	private final boolean hasNext;
 
-	public PageResponseDTO(Slice<ENTITY> results, Function<ENTITY, DTO> fn) {
+	public <T> PageResponseDTO(Slice<T> results, Function<T, DTO> fn) {
 		this.dtoList = results.stream().map(fn).collect(Collectors.toList());
 		this.hasNext = results.hasNext();
 	}
