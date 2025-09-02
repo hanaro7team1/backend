@@ -5,7 +5,6 @@ import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,7 +16,6 @@ import com.sido.backend.member.entity.HostMember;
 import com.sido.backend.member.repository.HostMemberRepository;
 import com.sido.backend.stay.dto.AvailDatesDTO;
 import com.sido.backend.stay.dto.StayCreateDTO;
-import com.sido.backend.stay.dto.StayImageDTO;
 import com.sido.backend.stay.dto.StayResponseDetailDTO;
 import com.sido.backend.stay.dto.StaySpecDTO;
 import com.sido.backend.stay.dto.StayUpdateDTO;
@@ -81,8 +79,7 @@ public class StayServiceImpl implements StayService {
 			String ym = YearMonth.now(ZoneId.of("Asia/Seoul")).format(DateTimeFormatter.ofPattern("yyyyMM"));
 
 			try {
-				for (int i = 0; i < tempKeys.size(); i++) {
-					String srcKey = tempKeys.get(i);
+				for (String srcKey : tempKeys) {
 					validateTempKey(srcKey);
 
 					String destKey = buildFinalKey(stay.getId(), ym, srcKey);
@@ -92,7 +89,6 @@ public class StayServiceImpl implements StayService {
 					StayImage img = new StayImage();
 					img.setStay(stay);
 					img.setS3Key(destKey);
-					img.setSortOrder(i);
 					stayImageRepository.save(img);
 				}
 			} catch (Exception ex) {
@@ -173,15 +169,13 @@ public class StayServiceImpl implements StayService {
 		}
 
 		// StayImage → DTO 변환
-		List<StayImageDTO> imageDTOs = stay.getImages().stream()
-			.sorted(Comparator.comparingInt(StayImage::getSortOrder))
-			.map(img -> new StayImageDTO(
-				publicBaseUrl + "/" + img.getS3Key(), // URL
-				img.getSortOrder()
-			))
+		List<String> imageUrls = stay.getImages().stream()
+			.map(img ->
+				publicBaseUrl + "/" + img.getS3Key() // URL
+			)
 			.toList();
 
-		builder.images(imageDTOs);
+		builder.images(imageUrls);
 
 		return builder.build();
 	}
@@ -276,14 +270,12 @@ public class StayServiceImpl implements StayService {
 			.sourceKey(srcKey)
 			.destinationBucket(bucket)
 			.destinationKey(destKey)
-			// .metadataDirective(MetadataDirective.REPLACE) // 필요시 ContentType 등 지정
 			.build());
 	}
 
 	private String buildFinalKey(Long stayId, String yyyyMM, String srcKey) {
 		// srcKey 예: temp/202509/abc-uuid.jpg
 		String filename = srcKey.substring(srcKey.lastIndexOf('/') + 1); // abc-uuid.jpg
-		// 파일명을 그대로 쓰고 싶지 않다면 여기서 UUID 새로 생성해도 됨.
 		return "stays/%d/%s/%s".formatted(stayId, yyyyMM, filename);
 	}
 

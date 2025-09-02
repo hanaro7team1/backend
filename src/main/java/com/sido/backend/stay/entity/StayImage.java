@@ -25,10 +25,6 @@ public class StayImage extends BaseEntity {
 	@Column(length = 512, nullable = false, unique = true)
 	private String s3Key;
 
-	// 이미지 순서(1번은 대표)
-	@Column(nullable = false)
-	private int sortOrder = 0;
-
 	@ManyToOne
 	@JoinColumn(name = "stay", nullable = false)
 	private Stay stay;

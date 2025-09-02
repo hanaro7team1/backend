@@ -22,5 +22,5 @@ public class StayResponseDetailDTO {
 	private String description;
 	private Boolean isHomestay;
 	private String isActiveMsg;
-	private List<StayImageDTO> images;
+	private List<String> images;
 }

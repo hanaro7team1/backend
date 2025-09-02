@@ -9,5 +9,4 @@ import lombok.Setter;
 @AllArgsConstructor
 public class StayImageDTO {
 	private String url;
-	private int SortOrder;
 }
