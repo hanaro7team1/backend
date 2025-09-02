@@ -5,9 +5,9 @@ import com.sido.backend.member.dto.PasswordUpdateRequestDTO;
 import com.sido.backend.member.dto.PhoneUpdateRequestDTO;
 
 public interface MemberService {
-	MyPageResponseDTO getMyPageInfo(String loginId);
+	MyPageResponseDTO getMyPageInfo(Long memberId);
 
-	void updatePhone(String loginId, PhoneUpdateRequestDTO request);
+	void updatePhone(Long memberId, PhoneUpdateRequestDTO request);
 
-	void updatePassword(String loginId, PasswordUpdateRequestDTO request);
+	void updatePassword(Long memberId, PasswordUpdateRequestDTO request);
 }
