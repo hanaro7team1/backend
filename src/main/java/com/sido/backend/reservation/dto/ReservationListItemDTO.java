@@ -7,7 +7,7 @@ import com.sido.backend.reservation.dto.ReservationCommonDTOs.ReservationInfoDTO
 public record ReservationListItemDTO(
 	Long reservationId,
 
-	String imageURL,
+	String imageUrl,
 
 	String title,
 

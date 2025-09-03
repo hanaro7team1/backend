@@ -16,6 +16,9 @@ import com.sido.backend.reservation.entity.Reservation;
 import com.sido.backend.reservation.service.ReservationService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
@@ -36,6 +39,21 @@ public class ReservationAdminController {
 	}
 
 	@Operation(summary = "예약 목록 조회 (시골 관리자)")
+	@ApiResponse(content = @Content(
+		examples = @ExampleObject(
+			value = """
+				{
+					"reservationId": 1,
+					"imageUrl": "https://example.com/image.jpg",
+					"title": "가람마을 사랑방 1호",
+					"viewStatus": "방문 전"
+					"dDay": 5,
+					"startDate": "2025-10-01",
+					"endDate": "2025-10-05"
+				}
+				"""
+		)
+	))
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@GetMapping
 	public ResponseEntity<PageResponseDTO<ReservationListItemDTO, Reservation>> getAdminReservationList(
