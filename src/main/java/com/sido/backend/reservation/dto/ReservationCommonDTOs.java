@@ -1,11 +1,8 @@
 package com.sido.backend.reservation.dto;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.sido.backend.reservation.entity.ResrvStatus;
-import com.sido.backend.reservation.entity.VisitStatus;
 import com.sido.backend.stay.entity.Stay;
 
 import jakarta.validation.constraints.NotNull;
@@ -42,18 +39,6 @@ public class ReservationCommonDTOs {
 
 		public static ReservationInfoDTO ofAll(LocalDate start, LocalDate end, Integer cnt, Boolean farm) {
 			return new ReservationInfoDTO(start, end, cnt, farm);
-		}
-	}
-
-	@JsonInclude(JsonInclude.Include.NON_NULL)
-	public record ReservationStatusDTO(
-		ResrvStatus resrvStatus, VisitStatus visitStatus, Long dDay, LocalDateTime reservedAt) {
-		public static ReservationStatusDTO summary(ResrvStatus resrv, VisitStatus visit, Long dDay) {
-			return new ReservationStatusDTO(resrv, visit, dDay, null);
-		}
-
-		public static ReservationStatusDTO detail(ResrvStatus resrv, VisitStatus visit, Long dDay, LocalDateTime at) {
-			return new ReservationStatusDTO(resrv, visit, dDay, at);
 		}
 	}
 }
