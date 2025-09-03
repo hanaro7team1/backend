@@ -7,28 +7,35 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sido.backend.common.dto.PageResponseDTO;
 import com.sido.backend.common.exception.BadRequestException;
 import com.sido.backend.common.exception.ConflictException;
 import com.sido.backend.member.entity.Member;
 import com.sido.backend.member.repository.HostMemberRepository;
 import com.sido.backend.member.repository.MemberRepository;
 import com.sido.backend.reservation.dto.ReservationCommonDTOs.ReservationInfoDTO;
-import com.sido.backend.reservation.dto.ReservationCommonDTOs.ReservationStatusDTO;
 import com.sido.backend.reservation.dto.ReservationCommonDTOs.StaySummaryDTO;
 import com.sido.backend.reservation.dto.ReservationConfirmRequestDTO;
 import com.sido.backend.reservation.dto.ReservationConfirmResponseDTO;
 import com.sido.backend.reservation.dto.ReservationCreateRequestDTO;
 import com.sido.backend.reservation.dto.ReservationCreateResponseDTO;
 import com.sido.backend.reservation.dto.ReservationDetailResponseDTO;
+import com.sido.backend.reservation.dto.ReservationListFilter;
+import com.sido.backend.reservation.dto.ReservationListItemDTO;
 import com.sido.backend.reservation.dto.ReservationOverviewDTO;
+import com.sido.backend.reservation.dto.ReservationViewStatus;
 import com.sido.backend.reservation.entity.Reservation;
 import com.sido.backend.reservation.entity.ReservationDay;
 import com.sido.backend.reservation.entity.ResrvStatus;
 import com.sido.backend.reservation.entity.VisitStatus;
 import com.sido.backend.reservation.repository.ReservationDayRepository;
+import com.sido.backend.reservation.repository.ReservationQDslRepository;
 import com.sido.backend.reservation.repository.ReservationRepository;
 import com.sido.backend.reservation.repository.ReservationRepository.ReservationCounts;
 import com.sido.backend.reservation.validation.AvailabilityChecker;
@@ -44,6 +51,7 @@ import lombok.RequiredArgsConstructor;
 public class ReservationServiceImpl implements ReservationService {
 	private final ReservationRepository reservationRepository;
 	private final ReservationDayRepository reservationDayRepository;
+	private final ReservationQDslRepository reservationQDslRepository;
 	private final StayRepository stayRepository;
 	private final MemberRepository memberRepository;
 	private final HostMemberRepository hostMemberRepository;
@@ -51,13 +59,14 @@ public class ReservationServiceImpl implements ReservationService {
 	private final AvailabilityChecker availabilityChecker;
 
 	@Override
+	@Transactional
 	public ReservationCreateResponseDTO createReservation(Long memberId, Long stayId,
 		ReservationCreateRequestDTO createRequest) {
 		Stay stay = stayRepository.findById(stayId).orElseThrow(
 			() -> new EntityNotFoundException("해당 사랑방을 찾을 수 없습니다.")
 		);
 		Member member = memberRepository.findById(memberId).orElseThrow(
-			() -> new EntityNotFoundException("해당 회원을 찾을 수 없습니다.")
+			() -> new EntityNotFoundException("해당 사용자를 찾을 수 없습니다.")
 		);
 
 		// 기본값
@@ -207,6 +216,34 @@ public class ReservationServiceImpl implements ReservationService {
 			.build();
 	}
 
+	@Override
+	public PageResponseDTO<ReservationListItemDTO, Reservation> getReservationList(Long memberId, int page,
+		int listSize, ReservationListFilter filter) {
+		Member member = memberRepository.findById(memberId).orElseThrow(
+			() -> new EntityNotFoundException("해당 사용자를 찾을 수 없습니다.")
+		);
+
+		Pageable pageable = PageRequest.of(page - 1, listSize);
+		Slice<Reservation> reservationSlice = reservationQDslRepository.findList(memberId, filter, pageable);
+
+		return new PageResponseDTO<>(reservationSlice, this::toListItemDTO);
+	}
+
+	@Override
+	public ReservationListItemDTO getNextReservation(Long memberId) {
+		memberRepository.findById(memberId).orElseThrow(
+			() -> new EntityNotFoundException("해당 사용자를 찾을 수 없습니다.")
+		);
+
+		Reservation reservation = reservationRepository.findNextReservation(memberId).orElse(null);
+
+		if (reservation == null) {
+			return null;
+		}
+
+		return toListItemDTO(reservation);
+	}
+
 	private ReservationCreateResponseDTO toCreateResponseDTO(Reservation reservation) {
 		return new ReservationCreateResponseDTO(
 			reservation.getId(),
@@ -235,9 +272,10 @@ public class ReservationServiceImpl implements ReservationService {
 		return new ReservationConfirmResponseDTO(
 			reservation.getId(),
 			reservation.getStay().getId(),
-			ReservationStatusDTO.detail(
-				reservation.getResrvStatus(), reservation.getVisitStatus(), dDay, reservation.getReservedAt()
-			)
+			reservation.getResrvStatus(),
+			reservation.getVisitStatus(),
+			dDay,
+			reservation.getReservedAt()
 		);
 	}
 
@@ -257,4 +295,31 @@ public class ReservationServiceImpl implements ReservationService {
 			)
 		);
 	}
+
+	private ReservationListItemDTO toListItemDTO(Reservation reservation) {
+		LocalDate today = LocalDate.now();
+		boolean inRange = !today.isBefore(reservation.getStartDate()) && !today.isAfter(reservation.getEndDate());
+		long dDay = ChronoUnit.DAYS.between(today, reservation.getStartDate());
+
+		// TODO 배치/스케줄링으로 VisitStatus 업데이트
+		if (reservation.getResrvStatus() == ResrvStatus.RESERVED) {
+			if (inRange) { // [start, end]
+				reservation.setVisitStatus(VisitStatus.IN_PROGRESS);
+			} else if (dDay > 0) {
+				reservation.setVisitStatus(VisitStatus.UPCOMING);
+			} else if (dDay < 0) {
+				reservation.setVisitStatus(VisitStatus.COMPLETED);
+			}
+		}
+		reservationRepository.save(reservation);
+
+		return new ReservationListItemDTO(
+			reservation.getId(),
+			reservation.getStay().getTitle(),
+			ReservationViewStatus.from(reservation.getResrvStatus(), reservation.getVisitStatus()),
+			dDay,
+			ReservationInfoDTO.ofDates(reservation.getStartDate(), reservation.getEndDate())
+		);
+	}
+
 }

@@ -10,13 +10,18 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sido.backend.common.dto.PageResponseDTO;
 import com.sido.backend.reservation.dto.ReservationConfirmRequestDTO;
 import com.sido.backend.reservation.dto.ReservationConfirmResponseDTO;
 import com.sido.backend.reservation.dto.ReservationCreateRequestDTO;
 import com.sido.backend.reservation.dto.ReservationCreateResponseDTO;
 import com.sido.backend.reservation.dto.ReservationDetailResponseDTO;
+import com.sido.backend.reservation.dto.ReservationListFilter;
+import com.sido.backend.reservation.dto.ReservationListItemDTO;
+import com.sido.backend.reservation.entity.Reservation;
 import com.sido.backend.reservation.service.ReservationService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -65,5 +70,25 @@ public class ReservationController {
 		@AuthenticationPrincipal(expression = "memberId") Long memberId, @PathVariable Long reservationId) {
 		reservationService.cancelReservation(memberId, reservationId);
 		return ResponseEntity.noContent().build();
+	}
+
+	@Operation(summary = "예약 목록 조회")
+	@GetMapping("/api/reservations")
+	public ResponseEntity<PageResponseDTO<ReservationListItemDTO, Reservation>> getReservationList(
+		@AuthenticationPrincipal(expression = "memberId") Long memberId,
+		@RequestParam(defaultValue = "1") int page,
+		@RequestParam(defaultValue = "10") int listSize,
+		@RequestParam(defaultValue = "ALL") ReservationListFilter filter) {
+		PageResponseDTO<ReservationListItemDTO, Reservation> reservationList =
+			reservationService.getReservationList(memberId, page, listSize, filter);
+		return ResponseEntity.ok(reservationList);
+	}
+
+	@Operation(summary = "다가오는 가장 가까운 예약 조회")
+	@GetMapping("/api/reservations/next")
+	public ResponseEntity<ReservationListItemDTO> getNextReservation(
+		@AuthenticationPrincipal(expression = "memberId") Long memberId) {
+		ReservationListItemDTO nextReservationResponse = reservationService.getNextReservation(memberId);
+		return ResponseEntity.ok(nextReservationResponse);
 	}
 }
