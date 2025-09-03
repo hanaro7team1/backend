@@ -1,11 +1,13 @@
 package com.sido.backend.stay.dto;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.sido.backend.stay.entity.Stay;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,13 +21,12 @@ public class StayCreateDTO {
 	@Size(min = 1, max = 64)
 	private String address;
 
-	@NotBlank
-	@Size(min = 1, max = 64)
+	@Size(max = 64)
 	private String detailAddress;
 
 	@NotBlank
 	@Size(min = 1, max = 9)
-	private String ownerName;
+	private String hostName;
 
 	@Valid
 	@JsonUnwrapped
@@ -33,8 +34,10 @@ public class StayCreateDTO {
 
 	@NotBlank
 	@Size(min = 1, max = 31)
-	@Pattern(regexp = "^0\\d{1,2}-\\d{3,4}-\\d{4}$", message = "전화번호 양식이 올바르지 않습니다.")
-	private String ownerPhone;
+	private String hostPhone;
+	
+	@NotEmpty
+	private List<String> s3Keys; // ← temp 키들
 
 	public Stay toEntity() {
 		return Stay.builder()
@@ -43,8 +46,8 @@ public class StayCreateDTO {
 			.detailAddress(detailAddress)
 			.capacity(staySpec.capacity())
 			.areaSize(staySpec.areaSize())
-			.ownerName(ownerName)
-			.ownerPhone(ownerPhone)
+			.hostName(hostName)
+			.hostPhone(hostPhone)
 			.description(staySpec.description())
 			.build();
 	}

@@ -248,8 +248,8 @@ public class ReservationServiceImpl implements ReservationService {
 			reservation.getMember().getName(),
 			reservation.getMember().getPhone(),
 			reservation.getStay().getIsHomestay(),
-			reservation.getStay().getOwnerName(),
-			reservation.getStay().getOwnerPhone(),
+			reservation.getStay().getHostName(),
+			reservation.getStay().getHostPhone(),
 			StaySummaryDTO.ofFull(reservation.getStay()),
 			ReservationInfoDTO.ofAll(
 				reservation.getStartDate(), reservation.getEndDate(), reservation.getPersonCnt(),
