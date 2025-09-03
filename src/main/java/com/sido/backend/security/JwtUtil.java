@@ -69,7 +69,7 @@ public class JwtUtil {
 
 		Map<String, Object> claims = memberDTO.getClaims();
 
-		claims.put("accessToken", JwtUtil.generateToken(claims, 10));
+		claims.put("accessToken", JwtUtil.generateToken(claims, 180));
 		claims.put("refreshToken", JwtUtil.generateToken(claims, 600));
 		return claims;
 	}
