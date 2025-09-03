@@ -21,7 +21,7 @@ public record ReservationDetailResponseDTO(
 	String ownerPhone,
 
 	@JsonUnwrapped
-	StaySummaryDTO staySummary, // stayId, title, address(상세주소 포함)
+	StaySummaryDTO staySummary, // stayId, imageUrl, title, address(상세주소 포함)
 
 	@JsonUnwrapped
 	ReservationInfoDTO reservationInfo // startDate, endDate, personCnt, isFarm

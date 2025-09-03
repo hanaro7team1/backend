@@ -15,13 +15,15 @@ public class ReservationCommonDTOs {
 	}
 
 	@JsonInclude(JsonInclude.Include.NON_NULL)
-	public record StaySummaryDTO(Long stayId, String title, String address) {
-		public static StaySummaryDTO ofBase(Stay stay) {
-			return new StaySummaryDTO(stay.getId(), stay.getTitle(), stay.getAddress());
+	public record StaySummaryDTO(Long stayId, String imageUrl, String title, String address) {
+		public static StaySummaryDTO ofBase(Stay stay, String publicBaseUrl) {
+			String imageUrl = publicBaseUrl + "/" + stay.getImages().getFirst().getS3Key();
+			return new StaySummaryDTO(stay.getId(), imageUrl, stay.getTitle(), stay.getAddress());
 		}
 
-		public static StaySummaryDTO ofFull(Stay stay) {
-			return new StaySummaryDTO(stay.getId(), stay.getTitle(),
+		public static StaySummaryDTO ofFull(Stay stay, String publicBaseUrl) {
+			String imageUrl = publicBaseUrl + "/" + stay.getImages().getFirst().getS3Key();
+			return new StaySummaryDTO(stay.getId(), imageUrl, stay.getTitle(),
 				combineAddress(stay.getAddress(), stay.getDetailAddress()));
 		}
 	}
