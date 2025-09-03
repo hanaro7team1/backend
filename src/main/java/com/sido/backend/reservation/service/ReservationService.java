@@ -8,6 +8,7 @@ import com.sido.backend.reservation.dto.ReservationCreateResponseDTO;
 import com.sido.backend.reservation.dto.ReservationDetailResponseDTO;
 import com.sido.backend.reservation.dto.ReservationListFilter;
 import com.sido.backend.reservation.dto.ReservationListItemDTO;
+import com.sido.backend.reservation.dto.ReservationNextDTO;
 import com.sido.backend.reservation.dto.ReservationOverviewDTO;
 import com.sido.backend.reservation.entity.Reservation;
 
@@ -27,7 +28,7 @@ public interface ReservationService {
 	PageResponseDTO<ReservationListItemDTO, Reservation> getReservationList(Long memberId, int page, int listSize,
 		ReservationListFilter filter);
 
-	ReservationListItemDTO getNextReservation(Long memberId);
+	ReservationNextDTO getNextReservation(Long memberId);
 
 	PageResponseDTO<ReservationListItemDTO, Reservation> getAdminReservationList(Long memberId, int page, int listSize,
 		ReservationListFilter filter);

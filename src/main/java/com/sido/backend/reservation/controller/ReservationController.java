@@ -21,6 +21,7 @@ import com.sido.backend.reservation.dto.ReservationCreateResponseDTO;
 import com.sido.backend.reservation.dto.ReservationDetailResponseDTO;
 import com.sido.backend.reservation.dto.ReservationListFilter;
 import com.sido.backend.reservation.dto.ReservationListItemDTO;
+import com.sido.backend.reservation.dto.ReservationNextDTO;
 import com.sido.backend.reservation.entity.Reservation;
 import com.sido.backend.reservation.service.ReservationService;
 
@@ -86,9 +87,9 @@ public class ReservationController {
 
 	@Operation(summary = "다가오는 가장 가까운 예약 조회")
 	@GetMapping("/api/reservations/next")
-	public ResponseEntity<ReservationListItemDTO> getNextReservation(
+	public ResponseEntity<ReservationNextDTO> getNextReservation(
 		@AuthenticationPrincipal(expression = "memberId") Long memberId) {
-		ReservationListItemDTO nextReservationResponse = reservationService.getNextReservation(memberId);
+		ReservationNextDTO nextReservationResponse = reservationService.getNextReservation(memberId);
 		return ResponseEntity.ok(nextReservationResponse);
 	}
 }

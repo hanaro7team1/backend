@@ -29,6 +29,7 @@ import com.sido.backend.reservation.dto.ReservationCreateResponseDTO;
 import com.sido.backend.reservation.dto.ReservationDetailResponseDTO;
 import com.sido.backend.reservation.dto.ReservationListFilter;
 import com.sido.backend.reservation.dto.ReservationListItemDTO;
+import com.sido.backend.reservation.dto.ReservationNextDTO;
 import com.sido.backend.reservation.dto.ReservationOverviewDTO;
 import com.sido.backend.reservation.dto.ReservationViewStatus;
 import com.sido.backend.reservation.entity.Reservation;
@@ -91,8 +92,6 @@ public class ReservationServiceImpl implements ReservationService {
 		reservation.setPersonCnt(personCnt);
 
 		reservationRepository.save(reservation);
-
-		// TODO 배치/스케줄링-> PENDING 5분 or 10분 후 예약 삭제 or CANCELLED
 
 		return toCreateResponseDTO(reservation);
 	}
@@ -232,8 +231,8 @@ public class ReservationServiceImpl implements ReservationService {
 	}
 
 	@Override
-	public ReservationListItemDTO getNextReservation(Long memberId) {
-		memberRepository.findById(memberId).orElseThrow(
+	public ReservationNextDTO getNextReservation(Long memberId) {
+		Member member = memberRepository.findById(memberId).orElseThrow(
 			() -> new EntityNotFoundException("해당 사용자를 찾을 수 없습니다.")
 		);
 
@@ -250,7 +249,10 @@ public class ReservationServiceImpl implements ReservationService {
 			return null;
 		}
 
-		return toListItemDTO(nextReservation);
+		return new ReservationNextDTO(
+			member.getName(),
+			toListItemDTO(nextReservation)
+		);
 	}
 
 	@Override
@@ -281,7 +283,6 @@ public class ReservationServiceImpl implements ReservationService {
 		boolean inRange = !today.isBefore(reservation.getStartDate()) && !today.isAfter(reservation.getEndDate());
 		long dDay = ChronoUnit.DAYS.between(today, reservation.getStartDate());
 
-		// TODO 배치/스케줄링으로 VisitStatus 업데이트
 		if (inRange) { // [start, end]
 			reservation.setVisitStatus(VisitStatus.IN_PROGRESS);
 		} else if (dDay > 0) {
@@ -320,20 +321,7 @@ public class ReservationServiceImpl implements ReservationService {
 
 	private ReservationListItemDTO toListItemDTO(Reservation reservation) {
 		LocalDate today = LocalDate.now();
-		boolean inRange = !today.isBefore(reservation.getStartDate()) && !today.isAfter(reservation.getEndDate());
 		long dDay = ChronoUnit.DAYS.between(today, reservation.getStartDate());
-
-		// TODO 배치/스케줄링으로 VisitStatus 업데이트
-		if (reservation.getResrvStatus() == ResrvStatus.RESERVED) {
-			if (inRange) { // [start, end]
-				reservation.setVisitStatus(VisitStatus.IN_PROGRESS);
-			} else if (dDay > 0) {
-				reservation.setVisitStatus(VisitStatus.UPCOMING);
-			} else if (dDay < 0) {
-				reservation.setVisitStatus(VisitStatus.COMPLETED);
-			}
-		}
-		reservationRepository.save(reservation);
 
 		return new ReservationListItemDTO(
 			reservation.getId(),
