@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/members")
-@Tag(name = "회원")
+@Tag(name = "사용자")
 public class MemberController {
 	private final AuthenticationManager authenticationManager;
 
