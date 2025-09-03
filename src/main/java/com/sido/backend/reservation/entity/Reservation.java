@@ -25,7 +25,11 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Check(constraints = "NOT (resrvStatus = 'RESERVED' AND isFarm IS NULL)") // RESERVED일 때만 isFarm not null
+@Check(constraints = """
+	    (resrvStatus = 'PENDING' AND isFarm IS NULL AND visitStatus IS NULL)
+	OR (resrvStatus = 'RESERVED' AND isFarm IS NOT NULL AND visitStatus IS NOT NULL)
+	OR (resrvStatus = 'CANCELLED' AND visitStatus IS NULL)
+	""")
 public class Reservation extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

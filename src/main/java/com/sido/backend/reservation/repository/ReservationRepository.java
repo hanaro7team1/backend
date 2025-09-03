@@ -2,6 +2,7 @@ package com.sido.backend.reservation.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.sido.backend.reservation.entity.Reservation;
 
@@ -14,7 +15,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 		from Reservation r
 			where r.stay.host.id = :hostId
 		""")
-	ReservationCounts summarizeByHost(Long hostId);
+	ReservationCounts summarizeByHost(@Param("hostId") Long hostId);
 
 	interface ReservationCounts {
 		long getUpcomingCnt();
