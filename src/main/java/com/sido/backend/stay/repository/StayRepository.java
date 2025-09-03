@@ -22,14 +22,14 @@ public interface StayRepository extends JpaRepository<Stay, Long> {
                    where sa.stay.id = s.id
                       and (:startDate IS NULL OR sa.availableDate >= :startDate)
                       and (:endDate IS NULL OR sa.availableDate < :endDate)
-               ) THEN com.sido.backend.stay.dto.StayResrvStatus.예약_마감
+               ) THEN com.sido.backend.stay.dto.StayResrvStatus.SOLD_OUT
                WHEN EXISTS (
                    select 1 from ReservationDay rd
                    where rd.stay.id = s.id
                       and (:startDate IS NULL OR rd.date >= :startDate)
                       and (:endDate IS NULL OR rd.date < :endDate)
-               ) THEN com.sido.backend.stay.dto.StayResrvStatus.예약_닫힘
-               ELSE com.sido.backend.stay.dto.StayResrvStatus.예약_가능
+               ) THEN com.sido.backend.stay.dto.StayResrvStatus.CLOSED
+               ELSE com.sido.backend.stay.dto.StayResrvStatus.AVAILABLE
            END as status
     FROM Stay s
     WHERE s.isActive = true
