@@ -50,14 +50,15 @@ public class StayServiceImpl implements StayService {
 	private final StayImageRepository stayImageRepository;
 	private final StayAvailDateRepository stayAvailDateRepository;
 	private final HostMemberRepository hostMemberRepository;
-	@Value("${app.s3.bucket}")
-	private String bucket;
 	@Value("${app.s3.publicBaseUrl}")
 	private String publicBaseUrl;
+	@Value("${app.s3.bucket}")
+	private String bucket;
 
-	private static StayResponseDTO toResponseDTO(Object[] tuple) {
+	private StayResponseDTO toResponseDTO(Object[] tuple) {
 		Stay stay = (Stay)tuple[0];
 		StayResrvStatus status = (StayResrvStatus)tuple[1];
+		String firstImageURL = publicBaseUrl + "/" + stay.getImages().getFirst().getS3Key();
 
 		return StayResponseDTO.builder()
 			.id(stay.getId())
@@ -65,6 +66,7 @@ public class StayServiceImpl implements StayService {
 			.address(stay.getAddress())
 			.isHomestay(stay.getIsHomestay())
 			.stayResrvStatus(status)
+			.imageURL(firstImageURL)
 			.build();
 	}
 
@@ -77,7 +79,7 @@ public class StayServiceImpl implements StayService {
 			PageRequest.of(page - 1, listSize, Sort.by(Sort.Order.desc("id")))
 		);
 
-		return new PageResponseDTO<>(stays, StayServiceImpl::toResponseDTO);
+		return new PageResponseDTO<>(stays, this::toResponseDTO);
 	}
 
 	@Override

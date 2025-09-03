@@ -22,7 +22,7 @@ public class StayImage extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(length = 512, nullable = false, unique = true)
+	@Column(length = 512, nullable = false)
 	private String s3Key;
 
 	@ManyToOne

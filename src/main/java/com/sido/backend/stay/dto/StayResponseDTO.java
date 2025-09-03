@@ -17,4 +17,6 @@ public class StayResponseDTO {
 	private Boolean isHomestay;
 
 	private StayResrvStatus stayResrvStatus;
+
+	private String imageURL;
 }

@@ -34,13 +34,13 @@ public class StayController {
 	@Operation(summary = "숙소 전체 조회")
 	@GetMapping
 	public ResponseEntity<PageResponseDTO<StayResponseDTO, Stay>> getStays(
-		@RequestParam(required = false) String roomType,
+		@RequestParam(required = false, defaultValue = "하숙형") String roomType,
 		@RequestParam(required = false) String location,
 		@RequestParam(required = false) String schedule,
 		@RequestParam(required = false) Integer peopleCount,
 		@RequestParam(defaultValue = "1") int page,
 		@RequestParam(defaultValue = "15") int listSize) {
-		boolean isHomestay = !"독립형".equals(roomType); // 기본값 = 하숙형
+		boolean isHomestay = "하숙형".equals(roomType);
 
 		LocalDate startDate = null;
 		LocalDate endDate = null;
