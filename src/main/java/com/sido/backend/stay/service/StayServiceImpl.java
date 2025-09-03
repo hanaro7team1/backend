@@ -9,14 +9,20 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sido.backend.common.dto.PageResponseDTO;
 import com.sido.backend.member.entity.HostMember;
 import com.sido.backend.member.repository.HostMemberRepository;
 import com.sido.backend.stay.dto.AvailDatesDTO;
 import com.sido.backend.stay.dto.StayCreateDTO;
+import com.sido.backend.stay.dto.StayResponseDTO;
 import com.sido.backend.stay.dto.StayResponseDetailDTO;
+import com.sido.backend.stay.dto.StayResrvStatus;
 import com.sido.backend.stay.dto.StaySpecDTO;
 import com.sido.backend.stay.dto.StayUpdateDTO;
 import com.sido.backend.stay.entity.Stay;
@@ -27,6 +33,7 @@ import com.sido.backend.stay.repository.StayRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.CopyObjectRequest;
 import software.amazon.awssdk.services.s3.model.Delete;
@@ -34,6 +41,7 @@ import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
 import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class StayServiceImpl implements StayService {
@@ -46,6 +54,31 @@ public class StayServiceImpl implements StayService {
 	private String bucket;
 	@Value("${app.s3.publicBaseUrl}")
 	private String publicBaseUrl;
+
+	private static StayResponseDTO toResponseDTO(Object[] tuple) {
+		Stay stay = (Stay)tuple[0];
+		StayResrvStatus status = (StayResrvStatus)tuple[1];
+
+		return StayResponseDTO.builder()
+			.id(stay.getId())
+			.title(stay.getTitle())
+			.address(stay.getAddress())
+			.isHomestay(stay.getIsHomestay())
+			.stayResrvStatus(status)
+			.build();
+	}
+
+	@Override
+	public PageResponseDTO<StayResponseDTO, Stay> getStays(int page, int listSize,
+		boolean isHomestay, String address, LocalDate startDate, LocalDate endDate, Integer capacity) {
+
+		Slice<Object[]> stays = stayRepository.findStaysDynamically(
+			isHomestay, address, startDate, endDate, capacity,
+			PageRequest.of(page - 1, listSize, Sort.by(Sort.Order.desc("id")))
+		);
+
+		return new PageResponseDTO<>(stays, StayServiceImpl::toResponseDTO);
+	}
 
 	@Override
 	@Transactional
