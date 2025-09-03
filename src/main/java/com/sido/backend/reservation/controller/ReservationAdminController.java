@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/admin/reservations")
-@Tag(name = "예약-시골 관리자")
+@Tag(name = "예약-Admin")
 public class ReservationAdminController {
 	private final ReservationService reservationService;
 
