@@ -1,10 +1,16 @@
 package com.sido.backend.stay.dto;
 
+import java.util.List;
+
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class StayResponseDetailDTO {
 	private Long id;
 	private String title;
@@ -15,6 +21,6 @@ public class StayResponseDetailDTO {
 	private Integer areaSize;
 	private String description;
 	private Boolean isHomestay;
-
 	private String isActiveMsg;
+	private List<String> images;
 }

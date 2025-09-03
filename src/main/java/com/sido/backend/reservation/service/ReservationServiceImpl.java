@@ -151,8 +151,8 @@ public class ReservationServiceImpl implements ReservationService {
 
 		return toConfirmResponseDTO(reservation);
 	}
-  
-  @Override
+
+	@Override
 	public ReservationDetailResponseDTO getReservationDetail(Long memberId, Long reservationId) {
 		Reservation reservation = reservationRepository.findById(reservationId).orElseThrow(
 			() -> new EntityNotFoundException("해당 예약을 찾을 수 없습니다.")
@@ -164,8 +164,8 @@ public class ReservationServiceImpl implements ReservationService {
 
 		return toDetailResponseDTO(reservation);
 	}
-  
-  @Override
+
+	@Override
 	@Transactional
 	public void cancelReservation(Long memberId, Long reservationId) {
 		Reservation reservation = reservationRepository.findById(reservationId).orElseThrow(
@@ -227,8 +227,8 @@ public class ReservationServiceImpl implements ReservationService {
 			reservation.getMember().getName(),
 			reservation.getMember().getPhone(),
 			reservation.getStay().getIsHomestay(),
-			reservation.getStay().getOwnerName(),
-			reservation.getStay().getOwnerPhone(),
+			reservation.getStay().getHostName(),
+			reservation.getStay().getHostPhone(),
 			ReservationCommonDTOs.StaySummaryDTO.ofFull(reservation.getStay()),
 			ReservationCommonDTOs.ReservationInfoDTO.ofAll(
 				reservation.getStartDate(), reservation.getEndDate(), reservation.getPersonCnt(),

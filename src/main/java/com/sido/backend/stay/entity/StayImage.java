@@ -9,23 +9,20 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Entity
+@NoArgsConstructor
 public class StayImage extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(nullable = false)
-	private String orgName;
-
-	@Column(nullable = false)
-	private String saveName;
-
-	@Column(nullable = false)
-	private String saveUrl;
-
-	@Column(nullable = false)
+	@Column(length = 512, nullable = false, unique = true)
 	private String s3Key;
 
 	@ManyToOne

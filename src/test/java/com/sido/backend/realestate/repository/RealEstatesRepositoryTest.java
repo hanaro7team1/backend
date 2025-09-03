@@ -13,8 +13,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.sido.backend.RepositoryTest;
+import com.sido.backend.realestate.entity.RealEstate;
 import com.sido.backend.realestate.entity.RealEstateImage;
-import com.sido.backend.realestate.entity.RealEstates;
 
 class RealEstatesRepositoryTest extends RepositoryTest {
 
@@ -27,7 +27,7 @@ class RealEstatesRepositoryTest extends RepositoryTest {
 	@Test
 	@Order(1)
 	void saveRealEstatesTest() {
-		RealEstates realEstate = RealEstates.builder()
+		RealEstate realEstate = RealEstate.builder()
 			.address("서울시 강남구 테헤란로 123")
 			.price(1000000000)
 			.capacity(6)
@@ -52,8 +52,8 @@ class RealEstatesRepositoryTest extends RepositoryTest {
 		}
 		realEstate.setImages(images);
 
-		RealEstates savedRealEstate = realEstatesRepository.save(realEstate);
-		RealEstates fetchedRealEstate = realEstatesRepository.findById(savedRealEstate.getId()).orElseThrow();
+		RealEstate savedRealEstate = realEstatesRepository.save(realEstate);
+		RealEstate fetchedRealEstate = realEstatesRepository.findById(savedRealEstate.getId()).orElseThrow();
 
 		assertEquals(savedRealEstate.getAddress(), fetchedRealEstate.getAddress());
 		assertNotNull(fetchedRealEstate.getId());
@@ -67,10 +67,10 @@ class RealEstatesRepositoryTest extends RepositoryTest {
 		long initialCount = realEstatesRepository.count();
 
 		Random random = new Random();
-		List<RealEstates> realEstatesList = IntStream.range(0, 5)
+		List<RealEstate> realEstatesList = IntStream.range(0, 5)
 			.mapToObj(i -> {
 				int num = random.nextInt(1000) + 1;
-				RealEstates realEstate = RealEstates.builder()
+				RealEstate realEstate = RealEstate.builder()
 					.address("서울시 송파구 올림픽로 " + num)
 					.price(500000000 + num * 10000000)
 					.capacity(2 + num)
