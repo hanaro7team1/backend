@@ -13,19 +13,24 @@ import org.springframework.transaction.annotation.Transactional;
 import com.sido.backend.common.exception.BadRequestException;
 import com.sido.backend.common.exception.ConflictException;
 import com.sido.backend.member.entity.Member;
+import com.sido.backend.member.repository.HostMemberRepository;
 import com.sido.backend.member.repository.MemberRepository;
-import com.sido.backend.reservation.dto.ReservationCommonDTOs;
+import com.sido.backend.reservation.dto.ReservationCommonDTOs.ReservationInfoDTO;
+import com.sido.backend.reservation.dto.ReservationCommonDTOs.ReservationStatusDTO;
+import com.sido.backend.reservation.dto.ReservationCommonDTOs.StaySummaryDTO;
 import com.sido.backend.reservation.dto.ReservationConfirmRequestDTO;
 import com.sido.backend.reservation.dto.ReservationConfirmResponseDTO;
 import com.sido.backend.reservation.dto.ReservationCreateRequestDTO;
 import com.sido.backend.reservation.dto.ReservationCreateResponseDTO;
 import com.sido.backend.reservation.dto.ReservationDetailResponseDTO;
+import com.sido.backend.reservation.dto.ReservationOverviewDTO;
 import com.sido.backend.reservation.entity.Reservation;
 import com.sido.backend.reservation.entity.ReservationDay;
 import com.sido.backend.reservation.entity.ResrvStatus;
 import com.sido.backend.reservation.entity.VisitStatus;
 import com.sido.backend.reservation.repository.ReservationDayRepository;
 import com.sido.backend.reservation.repository.ReservationRepository;
+import com.sido.backend.reservation.repository.ReservationRepository.ReservationCounts;
 import com.sido.backend.reservation.validation.AvailabilityChecker;
 import com.sido.backend.reservation.validation.ReservationValidator;
 import com.sido.backend.stay.entity.Stay;
@@ -41,6 +46,7 @@ public class ReservationServiceImpl implements ReservationService {
 	private final ReservationDayRepository reservationDayRepository;
 	private final StayRepository stayRepository;
 	private final MemberRepository memberRepository;
+	private final HostMemberRepository hostMemberRepository;
 	private final ReservationValidator reservationValidator;
 	private final AvailabilityChecker availabilityChecker;
 
@@ -186,11 +192,26 @@ public class ReservationServiceImpl implements ReservationService {
 		reservationDayRepository.deleteByReservationId(reservationId); // ReservationDay 날짜 점유 해제
 	}
 
+	@Override
+	public ReservationOverviewDTO getReservationOverview(Long memberId) {
+		hostMemberRepository.findById(memberId).orElseThrow(
+			() -> new EntityNotFoundException("해당 호스트를 찾을 수 없습니다.")
+		);
+
+		ReservationCounts resrvCnt = reservationRepository.summarizeByHost(memberId);
+
+		return ReservationOverviewDTO.builder()
+			.upcomingCnt(resrvCnt.getUpcomingCnt())
+			.inProgressCnt(resrvCnt.getInProgressCnt())
+			.completedCnt(resrvCnt.getCompletedCnt())
+			.build();
+	}
+
 	private ReservationCreateResponseDTO toCreateResponseDTO(Reservation reservation) {
 		return new ReservationCreateResponseDTO(
 			reservation.getId(),
-			ReservationCommonDTOs.StaySummaryDTO.ofBase(reservation.getStay()),
-			ReservationCommonDTOs.ReservationInfoDTO.ofDatesGuest(reservation.getStartDate(), reservation.getEndDate(),
+			StaySummaryDTO.ofBase(reservation.getStay()),
+			ReservationInfoDTO.ofDatesGuest(reservation.getStartDate(), reservation.getEndDate(),
 				reservation.getPersonCnt()),
 			reservation.getResrvStatus()
 		);
@@ -214,7 +235,7 @@ public class ReservationServiceImpl implements ReservationService {
 		return new ReservationConfirmResponseDTO(
 			reservation.getId(),
 			reservation.getStay().getId(),
-			ReservationCommonDTOs.ReservationStatusDTO.detail(
+			ReservationStatusDTO.detail(
 				reservation.getResrvStatus(), reservation.getVisitStatus(), dDay, reservation.getReservedAt()
 			)
 		);
@@ -229,8 +250,8 @@ public class ReservationServiceImpl implements ReservationService {
 			reservation.getStay().getIsHomestay(),
 			reservation.getStay().getHostName(),
 			reservation.getStay().getHostPhone(),
-			ReservationCommonDTOs.StaySummaryDTO.ofFull(reservation.getStay()),
-			ReservationCommonDTOs.ReservationInfoDTO.ofAll(
+			StaySummaryDTO.ofFull(reservation.getStay()),
+			ReservationInfoDTO.ofAll(
 				reservation.getStartDate(), reservation.getEndDate(), reservation.getPersonCnt(),
 				reservation.getIsFarm()
 			)
