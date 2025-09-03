@@ -27,7 +27,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
 		// claim을 access 토큰에 담아서 클라이언트에게 전송
 		Map<String, Object> claims = memberDTO.getClaims();
-		claims.put("accessToken", JwtUtil.generateToken(claims, 10)); // 10분 이내에 서버에 요청해야 access token 발급
+		claims.put("accessToken", JwtUtil.generateToken(claims, 180)); // 180분 이내에 서버에 요청해야 access token 발급
 		claims.put("refreshToken",
 			JwtUtil.generateToken(claims, 60 * 24)); // 24시간 동안 refresh token으로 access token 재발급 가능
 
