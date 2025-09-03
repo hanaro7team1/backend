@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.sido.backend.common.dto.PageResponseDTO;
 import com.sido.backend.common.exception.BadRequestException;
 import com.sido.backend.common.exception.ConflictException;
+import com.sido.backend.member.entity.HostMember;
 import com.sido.backend.member.entity.Member;
 import com.sido.backend.member.repository.HostMemberRepository;
 import com.sido.backend.member.repository.MemberRepository;
@@ -203,13 +204,14 @@ public class ReservationServiceImpl implements ReservationService {
 
 	@Override
 	public ReservationOverviewDTO getReservationOverview(Long memberId) {
-		hostMemberRepository.findById(memberId).orElseThrow(
+		HostMember hostMember = hostMemberRepository.findById(memberId).orElseThrow(
 			() -> new EntityNotFoundException("해당 호스트를 찾을 수 없습니다.")
 		);
 
 		ReservationCounts resrvCnt = reservationRepository.summarizeByHost(memberId);
 
 		return ReservationOverviewDTO.builder()
+			.villageName(hostMember.getVillageName())
 			.upcomingCnt(resrvCnt.getUpcomingCnt())
 			.inProgressCnt(resrvCnt.getInProgressCnt())
 			.completedCnt(resrvCnt.getCompletedCnt())
