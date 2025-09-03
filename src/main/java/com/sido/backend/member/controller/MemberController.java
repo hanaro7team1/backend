@@ -66,6 +66,7 @@ public class MemberController {
 			roleCookie.setHttpOnly(true);
 			roleCookie.setSecure(false);
 			roleCookie.setPath("/");
+			roleCookie.setMaxAge(60 * 60 * 3); // 3시간
 
 			response.addCookie(accessCookie);
 			response.addCookie(refreshCookie);
