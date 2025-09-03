@@ -32,6 +32,21 @@ public class ReservationQDslRepositoryImpl implements ReservationQDslRepository 
 
 		BooleanBuilder where = new BooleanBuilder().and(qr.member.id.eq(memberId));
 
+		return findCommon(where, filter, pageable);
+	}
+
+	@Override
+	public Slice<Reservation> findAdminList(Long memberId, ReservationListFilter filter, Pageable pageable) {
+		QReservation qr = QReservation.reservation;
+
+		BooleanBuilder where = new BooleanBuilder().and(qr.stay.host.id.eq(memberId));
+
+		return findCommon(where, filter, pageable);
+	}
+
+	private Slice<Reservation> findCommon(BooleanBuilder where, ReservationListFilter filter, Pageable pageable) {
+		QReservation qr = QReservation.reservation;
+
 		// 필터: 전체 / 예약 됨(방문 전, 방문 중) / 방문 완료 / 취소 됨
 		switch (filter) {
 			case ReservationListFilter.RESERVED -> where.and(qr.resrvStatus.eq(ResrvStatus.RESERVED)
