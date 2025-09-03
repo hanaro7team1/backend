@@ -6,6 +6,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -59,6 +60,9 @@ public class ReservationServiceImpl implements ReservationService {
 	private final HostMemberRepository hostMemberRepository;
 	private final ReservationValidator reservationValidator;
 	private final AvailabilityChecker availabilityChecker;
+
+	@Value("${app.s3.publicBaseUrl}")
+	private String publicBaseUrl;
 
 	@Override
 	@Transactional
@@ -271,7 +275,7 @@ public class ReservationServiceImpl implements ReservationService {
 	private ReservationCreateResponseDTO toCreateResponseDTO(Reservation reservation) {
 		return new ReservationCreateResponseDTO(
 			reservation.getId(),
-			StaySummaryDTO.ofBase(reservation.getStay()),
+			StaySummaryDTO.ofBase(reservation.getStay(), publicBaseUrl),
 			ReservationInfoDTO.ofDatesGuest(reservation.getStartDate(), reservation.getEndDate(),
 				reservation.getPersonCnt()),
 			reservation.getResrvStatus()
@@ -311,7 +315,7 @@ public class ReservationServiceImpl implements ReservationService {
 			reservation.getStay().getIsHomestay(),
 			reservation.getStay().getHostName(),
 			reservation.getStay().getHostPhone(),
-			StaySummaryDTO.ofFull(reservation.getStay()),
+			StaySummaryDTO.ofFull(reservation.getStay(), publicBaseUrl),
 			ReservationInfoDTO.ofAll(
 				reservation.getStartDate(), reservation.getEndDate(), reservation.getPersonCnt(),
 				reservation.getIsFarm()
@@ -325,6 +329,7 @@ public class ReservationServiceImpl implements ReservationService {
 
 		return new ReservationListItemDTO(
 			reservation.getId(),
+			publicBaseUrl + "/" + reservation.getStay().getImages().getFirst().getS3Key(),
 			reservation.getStay().getTitle(),
 			ReservationViewStatus.from(reservation.getResrvStatus(), reservation.getVisitStatus()),
 			dDay,
