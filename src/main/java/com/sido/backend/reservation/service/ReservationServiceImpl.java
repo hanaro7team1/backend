@@ -235,13 +235,20 @@ public class ReservationServiceImpl implements ReservationService {
 			() -> new EntityNotFoundException("해당 사용자를 찾을 수 없습니다.")
 		);
 
-		Reservation reservation = reservationRepository.findNextReservation(memberId).orElse(null);
+		Pageable pageable = PageRequest.of(0, 1);
 
-		if (reservation == null) {
+		Slice<Reservation> reservationSlice = reservationQDslRepository.findList(memberId,
+			ReservationListFilter.RESERVED, pageable);
+
+		Reservation nextReservation = reservationSlice.getContent().isEmpty()
+			? null
+			: reservationSlice.getContent().getFirst();
+
+		if (nextReservation == null) {
 			return null;
 		}
 
-		return toListItemDTO(reservation);
+		return toListItemDTO(nextReservation);
 	}
 
 	private ReservationCreateResponseDTO toCreateResponseDTO(Reservation reservation) {

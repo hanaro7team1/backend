@@ -72,7 +72,7 @@ public class ReservationController {
 		return ResponseEntity.noContent().build();
 	}
 
-	@Operation(summary = "예약 목록 조회")
+	@Operation(summary = "예약 목록 조회 (도시 시니어)")
 	@GetMapping("/api/reservations")
 	public ResponseEntity<PageResponseDTO<ReservationListItemDTO, Reservation>> getReservationList(
 		@AuthenticationPrincipal(expression = "memberId") Long memberId,
