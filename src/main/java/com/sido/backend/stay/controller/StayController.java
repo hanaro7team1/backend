@@ -49,7 +49,7 @@ public class StayController {
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy.MM.dd");
 			String[] parts = schedule.split("-");
 			startDate = LocalDate.parse(parts[0].trim(), formatter);
-			endDate   = LocalDate.parse(parts[1].trim(), formatter);
+			endDate = LocalDate.parse(parts[1].trim(), formatter);
 		}
 		PageResponseDTO<StayResponseDTO, Stay> pagedStaysDTO = stayService.getStays(page, listSize,
 			isHomestay, location, startDate, endDate, peopleCount);
@@ -60,7 +60,7 @@ public class StayController {
 	@Operation(summary = "월별 예약 가능 날짜 조회")
 	@GetMapping("/{stayId}/available-dates")
 	public ResponseEntity<AvailDatesDTO> getAvailableDatesByMonth(@PathVariable("stayId") Long stayId,
-		@Schema(example = "2025-08") @DateTimeFormat(pattern = "yyyy-MM") @RequestParam(required = false)
+		@Schema(example = "2025-09") @DateTimeFormat(pattern = "yyyy-MM") @RequestParam(required = false)
 		YearMonth month) {
 		AvailDatesDTO availDatesDTO = stayService.getAvailableDatesByMonth(stayId, month);
 		return ResponseEntity.ok(availDatesDTO);

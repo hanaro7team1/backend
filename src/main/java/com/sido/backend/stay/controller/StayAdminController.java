@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sido.backend.stay.dto.AvailDatesDTO;
+import com.sido.backend.stay.dto.OpenAndReservedDatesDTO;
 import com.sido.backend.stay.dto.StayCreateDTO;
 import com.sido.backend.stay.dto.StayResponseDetailDTO;
 import com.sido.backend.stay.dto.StayUpdateDTO;
@@ -60,12 +60,12 @@ public class StayAdminController {
 		return ResponseEntity.noContent().build();
 	}
 
-	@Operation(summary = "월별 오픈한 날짜 조회", description = "시골 관리자: 사랑방 목록 관리- 예약 가능 날짜 변경하기")
+	@Operation(summary = "월별 오픈한 날짜 & 예약된 날짜 조회", description = "시골 관리자: 사랑방 목록 관리- 예약 가능 날짜 변경하기")
 	@GetMapping("/{stayId}/open-dates")
-	public ResponseEntity<AvailDatesDTO> getOpenDatesByMonth(@PathVariable Long stayId,
-		@Schema(example = "2025-08") @DateTimeFormat(pattern = "yyyy-MM") @RequestParam(required = false)
+	public ResponseEntity<OpenAndReservedDatesDTO> getOpenAndReservedDatesByMonth(@PathVariable Long stayId,
+		@Schema(example = "2025-09") @DateTimeFormat(pattern = "yyyy-MM") @RequestParam(required = false)
 		YearMonth month) {
-		AvailDatesDTO availDatesDTO = stayService.getOpenDatesByMonth(stayId, month);
-		return ResponseEntity.ok(availDatesDTO);
+		OpenAndReservedDatesDTO openAndReservedDates = stayService.getOpenAndReservedDatesByMonth(stayId, month);
+		return ResponseEntity.ok(openAndReservedDates);
 	}
 }
