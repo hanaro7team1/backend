@@ -8,6 +8,7 @@ import com.sido.backend.common.exception.BadRequestException;
 import com.sido.backend.member.dto.MyPageResponseDTO;
 import com.sido.backend.member.dto.PasswordUpdateRequestDTO;
 import com.sido.backend.member.dto.PhoneUpdateRequestDTO;
+import com.sido.backend.member.dto.WithdrawRequestDTO;
 import com.sido.backend.member.entity.HostMember;
 import com.sido.backend.member.repository.HostMemberRepository;
 
@@ -62,5 +63,18 @@ public class MemberServiceImpl implements MemberService {
 
 		hostMember.setPassword(passwordEncoder.encode(request.getNewPassword()));
 		hostMemberRepository.save(hostMember);
+	}
+
+	@Override
+	@Transactional
+	public void withdraw(Long memberId, WithdrawRequestDTO request) {
+		HostMember hostMember = hostMemberRepository.findById(memberId)
+			.orElseThrow(() -> new EntityNotFoundException("해당 사용자를 찾을 수 없습니다: " + memberId));
+
+		if (!passwordEncoder.matches(request.getCheckPassword(), hostMember.getPassword())) {
+			throw new BadRequestException("비밀번호가 일치하지 않습니다.");
+		}
+
+		hostMemberRepository.deleteById(memberId);
 	}
 }

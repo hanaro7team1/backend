@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sido.backend.member.dto.MemberDTO;
 import com.sido.backend.member.dto.MyPageResponseDTO;
-import com.sido.backend.member.dto.PasswordUpdateRequestDTO;
 import com.sido.backend.member.dto.PhoneUpdateRequestDTO;
+import com.sido.backend.member.dto.WithdrawRequestDTO;
 import com.sido.backend.member.service.MemberService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -43,12 +43,13 @@ public class MyPageController {
 		return ResponseEntity.ok().build();
 	}
 
-	@Operation(summary = "Host 비밀번호 변경")
-	@PatchMapping("/mypage/password")
-	public ResponseEntity<Void> updateHostPassword(
+	@Operation(summary = "Host 탈퇴")
+	@PatchMapping("/mypage/quit")
+	public ResponseEntity<Void> updateHostQuit(
 		@AuthenticationPrincipal MemberDTO memberDTO,
-		@Valid @RequestBody PasswordUpdateRequestDTO request) {
-		memberService.updatePassword(memberDTO.getMemberId(), request);
+		@Valid @RequestBody WithdrawRequestDTO request) {
+		memberService.withdraw(memberDTO.getMemberId(), request);
 		return ResponseEntity.ok().build();
 	}
+
 }
