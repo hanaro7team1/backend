@@ -31,7 +31,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		"/swagger-ui/**",
 		"/v3/api-docs/**",
 		"/api/members/signin",
-		"/api/members/signup"
+		"/api/members/signup",
+		"/api/host-members/signup",
+		"/api/host-members/check-id"
 	};
 
 	@Override
@@ -98,6 +100,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
 			System.out.println("*** [JWT] setAuthentication principal = " + dto.getClass().getName());
+
+			filterChain.doFilter(request, response);
 
 		} catch (Exception e) {
 			response.setContentType("application/json");
