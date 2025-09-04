@@ -44,8 +44,31 @@ public interface StayRepository extends JpaRepository<Stay, Long> {
 		@Param("startDate") LocalDate startDate,
 		@Param("endDate") LocalDate endDate,
 		@Param("capacity") Integer capacity,
+		Pageable pageable
+	);
+
+	@Query("""
+		select s,
+		       case
+		           when (select count(sa) from StayAvailDate sa
+		                 where sa.stay.id = s.id and sa.availableDate >= CURRENT_DATE) = 0
+		               then com.sido.backend.stay.dto.StayResrvStatus.CLOSED
+		           when (select count(sa) from StayAvailDate sa
+		                 where sa.stay.id = s.id and sa.availableDate >= CURRENT_DATE)
+		                = (select count(rd) + 1 from ReservationDay rd
+		                   where rd.stay.id = s.id and rd.date >= CURRENT_DATE)
+		               then com.sido.backend.stay.dto.StayResrvStatus.SOLD_OUT
+		           else com.sido.backend.stay.dto.StayResrvStatus.AVAILABLE
+		       end as status
+		from Stay s
+		where s.host.id = :memberId
+		"""
+	)
+	Slice<Object[]> findByHostWithStatus(
+		@Param("memberId") Long memberId,
 		Pageable pageable);
 
 	boolean existsByAddressAndDetailAddress(@NotBlank @Size(min = 1, max = 64) String address,
 		@NotBlank @Size(min = 1, max = 64) String detailAddress);
+
 }
