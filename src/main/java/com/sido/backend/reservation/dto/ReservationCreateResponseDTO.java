@@ -10,7 +10,7 @@ public record ReservationCreateResponseDTO(
 	Long reservationId,
 
 	@JsonUnwrapped
-	StaySummaryDTO staySummary, // stayId, title, address (상세 주소 X)
+	StaySummaryDTO staySummary, // stayId, imageUrl, title, address (상세 주소 X)
 
 	@JsonUnwrapped
 	@JsonIncludeProperties({"startDate", "endDate", "personCnt"})

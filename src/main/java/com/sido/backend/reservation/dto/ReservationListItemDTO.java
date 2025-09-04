@@ -7,6 +7,8 @@ import com.sido.backend.reservation.dto.ReservationCommonDTOs.ReservationInfoDTO
 public record ReservationListItemDTO(
 	Long reservationId,
 
+	String imageUrl,
+
 	String title,
 
 	ReservationViewStatus viewStatus, // UPCOMING(방문 전), IN_PROGRESS(방문 중), COMPLETED(방문 완료), CANCELLED(예약 취소)

@@ -1,5 +1,7 @@
 package com.sido.backend.reservation.repository;
 
+import java.time.LocalDate;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
@@ -10,4 +12,6 @@ public interface ReservationQDslRepository {
 	Slice<Reservation> findList(Long memberId, ReservationListFilter filter, Pageable pageable);
 
 	Slice<Reservation> findAdminList(Long memberId, ReservationListFilter filter, Pageable pageable);
+
+	long bulkUpdateVisitStatus(LocalDate today);
 }
