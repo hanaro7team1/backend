@@ -101,8 +101,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 			System.out.println("*** [JWT] setAuthentication principal = " + dto.getClass().getName());
 
-			filterChain.doFilter(request, response);
-
 		} catch (Exception e) {
 			response.setContentType("application/json");
 			ObjectMapper objectMapper = new ObjectMapper();
