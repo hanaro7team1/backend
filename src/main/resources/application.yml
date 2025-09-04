@@ -1,9 +1,0 @@
-# src/main/resources/application.yml
-app:
-  s3:
-    bucket: sido-upload
-    publicBaseUrl: https://sido-upload.s3.ap-northeast-2.amazonaws.com
-  aws:
-    region: ap-northeast-2
-
-logging.level.org.springframework.security: DEBUG
