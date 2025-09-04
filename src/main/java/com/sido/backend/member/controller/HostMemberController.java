@@ -27,6 +27,7 @@ public class HostMemberController {
 	private final HostMemberService hostMemberService;
 
 	//아이디 중복 체크 api -> 다음 스텝으로 넘어가기 전에 한 번 호출하기
+	@Operation(summary = "아이디 중복 체크")
 	@GetMapping("/check-id")
 	public ResponseEntity<Map<String, Object>> checkLoginId(@RequestParam String loginId) {
 		boolean exists = hostMemberService.isLoginIdTaken(loginId);
