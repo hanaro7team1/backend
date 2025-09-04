@@ -51,8 +51,7 @@ public class SecurityConfig {
 				// 로그인, 회원가입, 문서: 공개
                              
 				.requestMatchers("/api/users/**", "/api/members/**", "/api/host-members/**", "/swagger-ui/**",
-					"/v3/api-docs/**", "/actuator/**", "/error")
-                             
+                         "/v3/api-docs/**", "/actuator/**", "/error", "/ws/**")
 				.permitAll()
 				// 공개 API
 				.requestMatchers(HttpMethod.GET, "/api/stays/**", "/api/real-estates/**", "/api/festivals/**")
