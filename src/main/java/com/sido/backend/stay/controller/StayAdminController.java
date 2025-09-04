@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,9 +21,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sido.backend.stay.dto.OpenAndReservedDatesDTO;
+import com.sido.backend.common.dto.PageResponseDTO;
+import com.sido.backend.stay.dto.AvailDatesDTO;
 import com.sido.backend.stay.dto.StayCreateDTO;
+import com.sido.backend.stay.dto.StayResponseDTO;
 import com.sido.backend.stay.dto.StayResponseDetailDTO;
+import com.sido.backend.stay.dto.StayResrvStatus;
 import com.sido.backend.stay.dto.StayUpdateDTO;
+import com.sido.backend.stay.entity.Stay;
 import com.sido.backend.stay.service.StayService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,6 +43,24 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class StayAdminController {
 	private final StayService stayService;
+
+	@Operation(summary = "우리 동네 사랑방 전체 조회")
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@GetMapping
+	public ResponseEntity<PageResponseDTO<StayResponseDTO, Stay>> getAdminStays(
+		@AuthenticationPrincipal(expression = "memberId") Long memberId,
+		@RequestParam(required = false) String roomStatus,
+		@RequestParam(defaultValue = "1") int page,
+		@RequestParam(defaultValue = "15") int listSize) {
+
+		StayResrvStatus statusFilter = mapRoomStatus(roomStatus);
+
+		PageRequest pageable = PageRequest.of(page - 1, listSize);
+		PageResponseDTO<StayResponseDTO, Stay> result =
+			stayService.getStaysByHost(memberId, pageable, statusFilter);
+
+		return ResponseEntity.ok(result);
+	}
 
 	@Operation(description = "등록")
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -81,4 +105,17 @@ public class StayAdminController {
 		OpenAndReservedDatesDTO openAndReservedDates = stayService.updateOpenDates(stayId, dates);
 		return ResponseEntity.ok(openAndReservedDates);
 	}
+
+	private StayResrvStatus mapRoomStatus(String roomStatus) {
+		if (roomStatus == null || roomStatus.equals("전체")) {
+			return null; // 전체 조회
+		}
+		return switch (roomStatus) {
+			case "예약 가능" -> StayResrvStatus.AVAILABLE;
+			case "예약 마감" -> StayResrvStatus.SOLD_OUT;
+			case "예약 닫힘" -> StayResrvStatus.CLOSED;
+			default -> throw new IllegalArgumentException("Unknown status: " + roomStatus);
+		};
+	}
+
 }

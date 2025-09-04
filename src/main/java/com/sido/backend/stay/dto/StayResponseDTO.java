@@ -19,4 +19,6 @@ public class StayResponseDTO {
 	private StayResrvStatus stayResrvStatus;
 
 	private String imageURL;
+
+	private String hostName;
 }

@@ -11,7 +11,9 @@ import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,6 +78,27 @@ public class StayServiceImpl implements StayService {
 
 		return new PageResponseDTO<>(stays, this::toResponseDTO);
 	}
+
+	@Override
+	public PageResponseDTO<StayResponseDTO, Stay> getStaysByHost(
+		Long memberId,
+		Pageable pageable,
+		StayResrvStatus statusFilter
+	) {
+		Slice<Object[]> rawSlice = stayRepository.findByHostWithStatus(memberId, pageable);
+
+		// 예약 상태 필터 (예약 가능, 예약 마감, 예약 닫힘)
+		Slice<Object[]> filteredSlice = new SliceImpl<>(
+			rawSlice.stream()
+				.filter(tuple -> statusFilter == null || tuple[1] == statusFilter)
+				.toList(),
+			rawSlice.getPageable(),
+			rawSlice.hasNext()
+		);
+
+		return new PageResponseDTO<>(filteredSlice, this::toResponseDTO);
+	}
+
 
 	@Override
 	@Transactional
