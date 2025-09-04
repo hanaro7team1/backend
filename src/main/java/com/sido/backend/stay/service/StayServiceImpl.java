@@ -7,6 +7,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
@@ -16,8 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sido.backend.common.dto.PageResponseDTO;
+import com.sido.backend.common.exception.ConflictException;
 import com.sido.backend.member.entity.HostMember;
 import com.sido.backend.member.repository.HostMemberRepository;
+import com.sido.backend.reservation.repository.ReservationDayRepository;
 import com.sido.backend.stay.dto.AvailDatesDTO;
 import com.sido.backend.stay.dto.OpenAndReservedDatesDTO;
 import com.sido.backend.stay.dto.StayCreateDTO;
@@ -27,13 +30,16 @@ import com.sido.backend.stay.dto.StayResrvStatus;
 import com.sido.backend.stay.dto.StaySpecDTO;
 import com.sido.backend.stay.dto.StayUpdateDTO;
 import com.sido.backend.stay.entity.Stay;
+import com.sido.backend.stay.entity.StayAvailDate;
 import com.sido.backend.stay.entity.StayImage;
 import com.sido.backend.stay.repository.StayAvailDateRepository;
 import com.sido.backend.stay.repository.StayImageRepository;
 import com.sido.backend.stay.repository.StayRepository;
 
+import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.CopyObjectRequest;
@@ -45,12 +51,15 @@ import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 @Slf4j
 @RequiredArgsConstructor
 @Service
+@Log4j2
 public class StayServiceImpl implements StayService {
 	private final S3Client s3;
 	private final StayRepository stayRepository;
 	private final StayImageRepository stayImageRepository;
 	private final StayAvailDateRepository stayAvailDateRepository;
+	private final ReservationDayRepository reservationDayRepository;
 	private final HostMemberRepository hostMemberRepository;
+	private final EntityManagerFactory entityManagerFactory;
 	@Value("${app.s3.publicBaseUrl}")
 	private String publicBaseUrl;
 	@Value("${app.s3.bucket}")
@@ -170,6 +179,60 @@ public class StayServiceImpl implements StayService {
 		);
 
 		MonthContext monthCtx = MonthContext.of(yearMonth);
+
+		return buildOpenAndReservedCalendar(stayId, monthCtx);
+	}
+
+	@Override
+	@Transactional
+	public OpenAndReservedDatesDTO updateOpenDates(Long stayId, List<LocalDate> dates) {
+		Stay stay = stayRepository.findById(stayId).orElseThrow(
+			() -> new EntityNotFoundException("해당 사랑방을 찾을 수 없습니다.")
+		);
+
+		// 오늘 이전은 변경 불가
+		List<LocalDate> openDatesBeforeToday = stayAvailDateRepository.findOpenOnBefore(stayId, LocalDate.now());
+		log.debug("openDatesBeforeToday = {}", openDatesBeforeToday);
+		// 오늘 이후만 가져오기
+		List<LocalDate> openDatesAfterToday = dates.stream()
+			.filter(d -> d.isAfter(LocalDate.now()))
+			.toList();
+		log.debug("openDatesAfterToday = {}", openDatesAfterToday);
+
+		List<LocalDate> updateDates = Stream.concat(openDatesBeforeToday.stream(), openDatesAfterToday.stream())
+			.toList();
+		log.debug("updateDates = {}", updateDates);
+
+		// 예약된 날짜 삭제 불가 검증
+		// 현재 오픈일 전체
+		List<LocalDate> current = stayAvailDateRepository.findAllDatesByStayId(stayId);
+
+		// 삭제될 날짜 = 현재 - 요청
+		List<LocalDate> toDelete = current.stream()
+			.filter(d -> !updateDates.contains(d))
+			.toList();
+
+		List<LocalDate> reservedWillBeDeleted =
+			toDelete.isEmpty() ? List.of()
+				: reservationDayRepository.findReservedDatesIn(stayId, toDelete);
+
+		if (!reservedWillBeDeleted.isEmpty()) {
+			throw new ConflictException("이미 예약된 날짜는 삭제할 수 없습니다: " + reservedWillBeDeleted);
+		}
+
+		int deletedCnt = stayAvailDateRepository.deleteAllByStayId(stayId);
+		log.info("updateOpenDates: deletedCnt = {}", deletedCnt);
+
+		List<StayAvailDate> stayAvailDates = updateDates.stream()
+			.map(d -> StayAvailDate.builder()
+				.availableDate(d)
+				.stay(stay)
+				.build()
+			).toList();
+
+		stayAvailDateRepository.saveAll(stayAvailDates);
+
+		MonthContext monthCtx = MonthContext.of(YearMonth.now());
 
 		return buildOpenAndReservedCalendar(stayId, monthCtx);
 	}

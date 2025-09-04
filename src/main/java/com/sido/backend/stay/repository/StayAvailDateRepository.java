@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -13,6 +14,10 @@ public interface StayAvailDateRepository extends JpaRepository<StayAvailDate, Lo
 	/**
 	 * 오픈
 	 */
+	// 오픈일 전체 조회
+	@Query("select sa.availableDate from StayAvailDate sa where sa.id = :stayId")
+	List<LocalDate> findAllDatesByStayId(@Param("stayId") Long stayId);
+
 	// [start, end) 기간 내 오픈한 날짜 목록 조회
 	@Query("""
 		select sa.availableDate from StayAvailDate sa
@@ -23,6 +28,15 @@ public interface StayAvailDateRepository extends JpaRepository<StayAvailDate, Lo
 		""")
 	List<LocalDate> findOpenInRange(@Param("stayId") Long stayId, @Param("start") LocalDate start,
 		@Param("endExclusive") LocalDate endExclusive);
+
+	// before (포함) 이전에 오픈한 날짜 목록 조회
+	@Query("""
+		select sa.availableDate from StayAvailDate sa
+			where sa.stay.id = :stayId
+				and sa.availableDate <= :before
+			order by sa.availableDate asc
+		""")
+	List<LocalDate> findOpenOnBefore(@Param("stayId") Long stayId, @Param("before") LocalDate before);
 
 	// [start, end) 기간 내 오픈한 날짜 있는지
 	boolean existsByStayIdAndAvailableDateGreaterThanEqualAndAvailableDateLessThan(Long stayId, LocalDate start,
@@ -136,4 +150,7 @@ public interface StayAvailDateRepository extends JpaRepository<StayAvailDate, Lo
 		""")
 	long countOpenAndReservedOnOrAfter(@Param("stayId") Long stayId, @Param("end") LocalDate end);
 
+	@Modifying
+	@Query("delete from StayAvailDate sa where sa.stay.id = :stayId")
+	int deleteAllByStayId(@Param("stayId") Long stayId);
 }
