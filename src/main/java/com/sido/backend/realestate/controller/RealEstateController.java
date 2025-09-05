@@ -30,7 +30,7 @@ public class RealEstateController {
 	public ResponseEntity<PageResponseDTO<RealEstateResponseDTO, RealEstate>> getRealEstateList(
 		@RequestParam(defaultValue = "1") int page,
 		@RequestParam(defaultValue = "10") int listSize,
-		@RequestParam(required = false) String address,
+		@RequestParam(required = false) String location,
 		@RequestParam(required = false) String tradeType,
 		@RequestParam(required = false) String price
 	) {
@@ -59,7 +59,7 @@ public class RealEstateController {
 		}
 
 		return ResponseEntity.ok(
-			realEstateService.getRealEstateList(page, listSize, address, tradeType, minPrice, maxPrice));
+			realEstateService.getRealEstateList(page, listSize, location, tradeType, minPrice, maxPrice));
 	}
 
 	@Operation(description = "매물 상세 조회")

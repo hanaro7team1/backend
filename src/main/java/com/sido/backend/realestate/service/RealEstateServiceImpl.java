@@ -98,7 +98,8 @@ public class RealEstateServiceImpl implements RealEstateService {
 			if (remainder == 0) {
 				return new DecimalFormat("#,###").format(eok) + "억원";
 			} else {
-				return new DecimalFormat("#,###").format(eok) + "억 " + new DecimalFormat("#,###").format(remainder) + "만원";
+				return new DecimalFormat("#,###").format(eok) + "억 " + new DecimalFormat("#,###").format(remainder)
+					+ "만원";
 			}
 		}
 	}
