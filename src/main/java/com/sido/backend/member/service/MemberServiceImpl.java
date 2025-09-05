@@ -80,7 +80,7 @@ public class MemberServiceImpl implements MemberService {
 			throw new BadRequestException("비밀번호가 일치하지 않습니다.");
 		}
 
-		boolean hasReserv = reservationRepository.isExistResrv(
+		boolean hasReserv = reservationRepository.existsByStay_Host_IdAndVisitStatusIn(
 			memberId, List.of(VisitStatus.UPCOMING, VisitStatus.IN_PROGRESS)
 		);
 		if (hasReserv) {

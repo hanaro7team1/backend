@@ -21,7 +21,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 	ReservationCounts summarizeByHost(@Param("hostId") Long hostId);
 
 	// 호스트 탈퇴 전 예약 확인용
-	boolean isExistResrv(Long hostId, Collection<VisitStatus> statuses);
+	boolean existsByStay_Host_IdAndVisitStatusIn(Long hostId, Collection<VisitStatus> statuses);
 
 	interface ReservationCounts {
 		long getUpcomingCnt();
