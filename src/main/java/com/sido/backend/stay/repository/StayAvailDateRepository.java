@@ -15,7 +15,7 @@ public interface StayAvailDateRepository extends JpaRepository<StayAvailDate, Lo
 	 * 오픈
 	 */
 	// 오픈일 전체 조회
-	@Query("select sa.availableDate from StayAvailDate sa where sa.id = :stayId")
+	@Query("select sa.availableDate from StayAvailDate sa where sa.stay.id = :stayId")
 	List<LocalDate> findAllDatesByStayId(@Param("stayId") Long stayId);
 
 	// [start, end) 기간 내 오픈한 날짜 목록 조회

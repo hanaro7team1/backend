@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.sido.backend.stay.dto.StayResrvStatus;
 import com.sido.backend.stay.entity.Stay;
 
 import jakarta.validation.constraints.NotBlank;
@@ -70,4 +71,26 @@ public interface StayRepository extends JpaRepository<Stay, Long> {
 	boolean existsByAddressAndDetailAddress(@NotBlank @Size(min = 1, max = 64) String address,
 		@NotBlank @Size(min = 1, max = 64) String detailAddress);
 
+	@Query("""
+			SELECT
+				CASE
+					WHEN (
+						SELECT COUNT(sa) FROM StayAvailDate sa
+							WHERE sa.stay.id = s.id
+					) = 0
+						THEN com.sido.backend.stay.dto.StayResrvStatus.CLOSED
+					WHEN (
+						SELECT COUNT(rd) FROM ReservationDay rd
+							WHERE rd.stay.id = s.id
+					) = (
+						SELECT COUNT(sa) FROM StayAvailDate sa
+							WHERE sa.stay.id = s.id
+					)
+						THEN com.sido.backend.stay.dto.StayResrvStatus.SOLD_OUT
+					ELSE com.sido.backend.stay.dto.StayResrvStatus.AVAILABLE
+				END AS status
+			FROM Stay s
+			WHERE s.id = :stayId
+		""")
+	StayResrvStatus findResrvStatusByStayId(@Param("stayId") Long stayId);
 }

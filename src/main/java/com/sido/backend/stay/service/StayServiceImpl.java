@@ -276,9 +276,12 @@ public class StayServiceImpl implements StayService {
 	}
 
 	private StayResponseDetailDTO toResponseDetailDTO(Stay stay) {
+		StayResrvStatus status = stayRepository.findResrvStatusByStayId(stay.getId());
+
 		StayResponseDetailDTO.StayResponseDetailDTOBuilder builder = StayResponseDetailDTO.builder()
 			.id(stay.getId())
 			.title(stay.getTitle())
+			.stayResrvStatus(status)
 			.address(stay.getAddress())
 			.detailAddress(stay.getDetailAddress())
 			.capacity(stay.getCapacity())
