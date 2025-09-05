@@ -9,6 +9,6 @@ import lombok.Setter;
 @Setter
 public class PhoneUpdateRequestDTO {
 	@NotBlank
-	@Pattern(regexp = "^0\\d{1,2}-\\d{3,4}-\\d{4}$", message = "전화번호 양식이 올바르지 않습니다.")
+	@Pattern(regexp = "^(0\\d{1,3}-\\d{3,4}-\\d{4}|0\\d{9,10})$", message = "전화번호 양식이 올바르지 않습니다.")
 	private String phone;
 }

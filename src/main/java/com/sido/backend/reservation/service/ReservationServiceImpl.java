@@ -2,6 +2,7 @@ package com.sido.backend.reservation.service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +12,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +33,7 @@ import com.sido.backend.reservation.dto.ReservationDetailResponseDTO;
 import com.sido.backend.reservation.dto.ReservationListFilter;
 import com.sido.backend.reservation.dto.ReservationListItemDTO;
 import com.sido.backend.reservation.dto.ReservationNextDTO;
+import com.sido.backend.reservation.dto.ReservationNotificationDTO;
 import com.sido.backend.reservation.dto.ReservationOverviewDTO;
 import com.sido.backend.reservation.dto.ReservationViewStatus;
 import com.sido.backend.reservation.entity.Reservation;
@@ -49,8 +52,11 @@ import com.sido.backend.stay.repository.StayRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ReservationServiceImpl implements ReservationService {
 	private final ReservationRepository reservationRepository;
 	private final ReservationDayRepository reservationDayRepository;
@@ -60,6 +66,7 @@ public class ReservationServiceImpl implements ReservationService {
 	private final HostMemberRepository hostMemberRepository;
 	private final ReservationValidator reservationValidator;
 	private final AvailabilityChecker availabilityChecker;
+	private final SimpMessagingTemplate messagingTemplate;
 
 	@Value("${app.s3.publicBaseUrl}")
 	private String publicBaseUrl;
@@ -97,6 +104,8 @@ public class ReservationServiceImpl implements ReservationService {
 
 		reservationRepository.save(reservation);
 
+		// TODO 배치/스케줄링-> PENDING 5분 or 10분 후 예약 삭제 or CANCELLED
+
 		return toCreateResponseDTO(reservation);
 	}
 
@@ -104,6 +113,7 @@ public class ReservationServiceImpl implements ReservationService {
 	@Transactional
 	public ReservationConfirmResponseDTO confirmReservation(Long memberId, Long reservationId,
 		ReservationConfirmRequestDTO confirmRequest) {
+		log.info("예약 확정 프로세스 시작: reservationId={}", reservationId);
 		Reservation reservation = reservationRepository.findById(reservationId).orElseThrow(
 			() -> new EntityNotFoundException("해당 예약을 찾을 수 없습니다.")
 		);
@@ -112,6 +122,7 @@ public class ReservationServiceImpl implements ReservationService {
 
 		// 멱등성: 이미 예약됐으면 현재 상태 그대로 반환
 		if (reservation.getResrvStatus() == ResrvStatus.RESERVED) {
+			log.info("이미 확정된 예약입니다: reservationId={}", reservationId);
 			return toConfirmResponseDTO(reservation);
 		}
 
@@ -167,6 +178,39 @@ public class ReservationServiceImpl implements ReservationService {
 		reservation.setReservedAt(LocalDateTime.now());
 
 		reservationRepository.save(reservation);
+		log.info("예약이 성공적으로 확정되었습니다: reservationId={}", reservationId);
+
+
+		// 관리자에게 예약 확정 알림 보내기
+		log.info("관리자 알림 전송 로직 시작");
+		Stay stay = reservation.getStay();
+		if (stay == null) {
+			log.error("Reservation에 Stay 객체가 없습니다! reservationId={}", reservationId);
+			return toConfirmResponseDTO(reservation);
+		}
+		log.info("Stay 객체 확인: stayId={}", stay.getId());
+
+
+		HostMember admin = stay.getHost();
+		if (admin != null) {
+			log.info("HostMember(관리자) 객체 확인: adminId={}", admin.getId());
+			String topic = "/topic/reservations/" + admin.getId();
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+			String reservationDate =
+				reservation.getStartDate().format(formatter) + " ~ " + reservation.getEndDate().format(formatter);
+			ReservationNotificationDTO notification = new ReservationNotificationDTO(
+				reservation.getId(),
+				stay.getTitle(),
+				reservationDate,
+				stay.getHostName()
+			);
+
+			log.info("관리자에게 알림 전송: topic={}, payload={}", topic, notification);
+			messagingTemplate.convertAndSend(topic, notification);
+			log.info("관리자 알림 전송 완료");
+		} else {
+			log.warn("HostMember(관리자)가 존재하지 않습니다. stayId={}", stay.getId());
+		}
 
 		return toConfirmResponseDTO(reservation);
 	}
@@ -325,7 +369,20 @@ public class ReservationServiceImpl implements ReservationService {
 
 	private ReservationListItemDTO toListItemDTO(Reservation reservation) {
 		LocalDate today = LocalDate.now();
+		boolean inRange = !today.isBefore(reservation.getStartDate()) && !today.isAfter(reservation.getEndDate());
 		long dDay = ChronoUnit.DAYS.between(today, reservation.getStartDate());
+
+		// TODO 배치/스케줄링으로 VisitStatus 업데이트
+		if (reservation.getResrvStatus() == ResrvStatus.RESERVED) {
+			if (inRange) { // [start, end]
+				reservation.setVisitStatus(VisitStatus.IN_PROGRESS);
+			} else if (dDay > 0) {
+				reservation.setVisitStatus(VisitStatus.UPCOMING);
+			} else if (dDay < 0) {
+				reservation.setVisitStatus(VisitStatus.COMPLETED);
+			}
+		}
+		reservationRepository.save(reservation);
 
 		return new ReservationListItemDTO(
 			reservation.getId(),

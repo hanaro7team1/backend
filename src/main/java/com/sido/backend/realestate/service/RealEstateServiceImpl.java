@@ -1,8 +1,10 @@
 package com.sido.backend.realestate.service;
 
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
@@ -23,11 +25,15 @@ public class RealEstateServiceImpl implements RealEstateService {
 
 	private final RealEstateRepository realEstatesRepository;
 
+	@Value("${app.s3.publicBaseUrl}")
+	private String publicBaseUrl;
+
 	@Override
-	public PageResponseDTO<RealEstateResponseDTO, RealEstate> getRealEstateList(int page, int listSize, String address, String tradeType, Integer minPrice, Integer maxPrice) {
+	public PageResponseDTO<RealEstateResponseDTO, RealEstate> getRealEstateList(int page, int listSize, String address,
+		String tradeType, Integer minPrice, Integer maxPrice) {
 		Slice<RealEstate> lists = realEstatesRepository.findRealEstatesDynamically(
-				address, tradeType, minPrice, maxPrice, PageRequest.of(page - 1, listSize, Sort.by(Sort.Order.desc("id"))));
-		return new PageResponseDTO<>(lists, RealEstateServiceImpl::toDTO);
+			address, tradeType, minPrice, maxPrice, PageRequest.of(page - 1, listSize, Sort.by(Sort.Order.desc("id"))));
+		return new PageResponseDTO<>(lists, this::toDTO);
 	}
 
 	@Override
@@ -38,24 +44,30 @@ public class RealEstateServiceImpl implements RealEstateService {
 		return toDetailDTO(realEstate);
 	}
 
-	public static RealEstateResponseDTO toDTO(RealEstate realEstate) {
+	public RealEstateResponseDTO toDTO(RealEstate realEstate) {
+		String imageUrl = null;
+		if (realEstate.getImages() != null && !realEstate.getImages().isEmpty()) {
+			imageUrl = publicBaseUrl + "/" + realEstate.getImages().getFirst().getS3Key();
+		}
+
 		return RealEstateResponseDTO.builder()
 			.id(realEstate.getId())
-			.address(realEstate.getAddress())
-			.price(realEstate.getPrice())
+			.location(realEstate.getLocation())
+			.price(formatPrice(realEstate.getPrice()))
 			.tradeType(realEstate.getTradeType())
+			.imageUrl(imageUrl)
 			.build();
 	}
 
-	public static RealEstateDetailResponseDTO toDetailDTO(RealEstate realEstate) {
+	public RealEstateDetailResponseDTO toDetailDTO(RealEstate realEstate) {
 		List<String> imageUrls = realEstate.getImages().stream()
-			.map(image -> image.getSavedir())
+			.map(image -> publicBaseUrl + "/" + image.getS3Key())
 			.collect(Collectors.toList());
 
 		return RealEstateDetailResponseDTO.builder()
 			.id(realEstate.getId())
-			.address(realEstate.getAddress())
-			.price(realEstate.getPrice())
+			.location(realEstate.getLocation())
+			.price(formatPrice(realEstate.getPrice()))
 			.capacity(realEstate.getCapacity())
 			.area(realEstate.getArea())
 			.tradeType(realEstate.getTradeType())
@@ -65,5 +77,30 @@ public class RealEstateServiceImpl implements RealEstateService {
 			.house(realEstate.getHouse())
 			.imageUrls(imageUrls)
 			.build();
+	}
+
+	private String formatPrice(Integer price) {
+		if (price == null) {
+			return null;
+		}
+
+		long p = price.longValue();
+		if (p < 10000) {
+			return new DecimalFormat("#,###").format(p) + "원";
+		}
+
+		long man = p / 10000;
+		if (man < 10000) {
+			return new DecimalFormat("#,###").format(man) + "만원";
+		} else {
+			long eok = man / 10000;
+			long remainder = man % 10000;
+			if (remainder == 0) {
+				return new DecimalFormat("#,###").format(eok) + "억원";
+			} else {
+				return new DecimalFormat("#,###").format(eok) + "억 " + new DecimalFormat("#,###").format(remainder)
+					+ "만원";
+			}
+		}
 	}
 }

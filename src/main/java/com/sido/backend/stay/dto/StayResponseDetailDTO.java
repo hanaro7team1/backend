@@ -15,6 +15,8 @@ public class StayResponseDetailDTO {
 	private Long id;
 	private String title;
 
+	private StayResrvStatus stayResrvStatus;
+
 	private String address;
 	private String detailAddress;
 	private Integer capacity;

@@ -1,4 +1,4 @@
-package com.sido.backend.realestate.entity;
+package com.sido.backend.festival.entity;
 
 import com.sido.backend.common.entity.BaseEntity;
 
@@ -9,8 +9,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,9 +17,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class RealEstateImage extends BaseEntity {
+public class FestivalImage extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -30,6 +26,6 @@ public class RealEstateImage extends BaseEntity {
 	private String s3Key;
 
 	@ManyToOne
-	@JoinColumn(name = "realEstate", nullable = false)
-	private RealEstate realEstate;
+	@JoinColumn(name = "festival", nullable = false)
+	private Festival festival;
 }
