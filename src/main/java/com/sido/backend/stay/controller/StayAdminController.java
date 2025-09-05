@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sido.backend.stay.dto.OpenAndReservedDatesDTO;
 import com.sido.backend.common.dto.PageResponseDTO;
-import com.sido.backend.stay.dto.AvailDatesDTO;
 import com.sido.backend.stay.dto.StayCreateDTO;
 import com.sido.backend.stay.dto.StayResponseDTO;
 import com.sido.backend.stay.dto.StayResponseDetailDTO;
@@ -99,9 +97,9 @@ public class StayAdminController {
 
 	@Operation(summary = "예약 가능 날짜(오픈 날짜) 추가 및 변경")
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
-	@PutMapping("/{stayId}/open-dates")
+	@PostMapping("/{stayId}/open-dates")
 	public ResponseEntity<OpenAndReservedDatesDTO> updateOpenDates(@PathVariable @Schema(example = "13") Long stayId,
-		@RequestParam("dates") List<LocalDate> dates) {
+		@RequestBody List<LocalDate> dates) {
 		OpenAndReservedDatesDTO openAndReservedDates = stayService.updateOpenDates(stayId, dates);
 		return ResponseEntity.ok(openAndReservedDates);
 	}
