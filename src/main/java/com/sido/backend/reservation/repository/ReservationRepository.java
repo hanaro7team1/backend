@@ -1,13 +1,10 @@
 package com.sido.backend.reservation.repository;
 
-import java.util.Collection;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.sido.backend.reservation.entity.Reservation;
-import com.sido.backend.reservation.entity.VisitStatus;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 	@Query("""
@@ -19,9 +16,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 			where r.stay.host.id = :hostId
 		""")
 	ReservationCounts summarizeByHost(@Param("hostId") Long hostId);
-
-	// 호스트 탈퇴 전 예약 확인용
-	boolean isExistResrv(Long hostId, Collection<VisitStatus> statuses);
 
 	interface ReservationCounts {
 		long getUpcomingCnt();

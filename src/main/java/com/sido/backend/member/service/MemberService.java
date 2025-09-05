@@ -3,7 +3,6 @@ package com.sido.backend.member.service;
 import com.sido.backend.member.dto.MyPageResponseDTO;
 import com.sido.backend.member.dto.PasswordUpdateRequestDTO;
 import com.sido.backend.member.dto.PhoneUpdateRequestDTO;
-import com.sido.backend.member.dto.WithdrawRequestDTO;
 
 public interface MemberService {
 	MyPageResponseDTO getMyPageInfo(Long memberId);
@@ -12,5 +11,4 @@ public interface MemberService {
 
 	void updatePassword(Long memberId, PasswordUpdateRequestDTO request);
 
-	void withdraw(Long memberId, WithdrawRequestDTO request);
 }

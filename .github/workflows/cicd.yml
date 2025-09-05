@@ -18,6 +18,9 @@ jobs:
       - name: set props
         run: echo "${{ secrets.APPLICATION }}" > ./src/main/resources/application.properties
 
+      - name: set env
+        run: echo "${{ secrets.ENV }}" > .env
+
       - name: grant exe to gradlew
         run: chmod +x gradlew
 
