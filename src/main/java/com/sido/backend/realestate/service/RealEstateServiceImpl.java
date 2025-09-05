@@ -24,9 +24,10 @@ public class RealEstateServiceImpl implements RealEstateService {
 	private final RealEstateRepository realEstatesRepository;
 
 	@Override
-	public PageResponseDTO<RealEstateResponseDTO, RealEstate> getRealEstateList(int page, int listSize, String address, String tradeType, Integer minPrice, Integer maxPrice) {
+	public PageResponseDTO<RealEstateResponseDTO, RealEstate> getRealEstateList(int page, int listSize, String address,
+		String tradeType, Integer minPrice, Integer maxPrice) {
 		Slice<RealEstate> lists = realEstatesRepository.findRealEstatesDynamically(
-				address, tradeType, minPrice, maxPrice, PageRequest.of(page - 1, listSize, Sort.by(Sort.Order.desc("id"))));
+			address, tradeType, minPrice, maxPrice, PageRequest.of(page - 1, listSize, Sort.by(Sort.Order.desc("id"))));
 		return new PageResponseDTO<>(lists, RealEstateServiceImpl::toDTO);
 	}
 
@@ -41,7 +42,7 @@ public class RealEstateServiceImpl implements RealEstateService {
 	public static RealEstateResponseDTO toDTO(RealEstate realEstate) {
 		return RealEstateResponseDTO.builder()
 			.id(realEstate.getId())
-			.address(realEstate.getAddress())
+			.address(realEstate.getLocation())
 			.price(realEstate.getPrice())
 			.tradeType(realEstate.getTradeType())
 			.build();
@@ -54,7 +55,7 @@ public class RealEstateServiceImpl implements RealEstateService {
 
 		return RealEstateDetailResponseDTO.builder()
 			.id(realEstate.getId())
-			.address(realEstate.getAddress())
+			.address(realEstate.getLocation())
 			.price(realEstate.getPrice())
 			.capacity(realEstate.getCapacity())
 			.area(realEstate.getArea())
