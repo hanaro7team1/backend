@@ -24,6 +24,10 @@ jobs:
           ${{ secrets.ENV }}
           EOF
 
+      - name: scp env to was
+        run: |
+          scp .env ec2-user@${{ secrets.WAS }}:/home/ec2-user/workspace/.env
+          
       - name: grant exe to gradlew
         run: chmod +x gradlew
 
