@@ -28,7 +28,7 @@ class RealEstatesRepositoryTest extends RepositoryTest {
 	@Order(1)
 	void saveRealEstatesTest() {
 		RealEstate realEstate = RealEstate.builder()
-			.address("서울시 강남구 테헤란로 123")
+			.location("서울시 강남구 테헤란로 123")
 			.price(1000000000)
 			.capacity(6)
 			.area(100)
@@ -43,9 +43,6 @@ class RealEstatesRepositoryTest extends RepositoryTest {
 		List<RealEstateImage> images = new ArrayList<>();
 		for (int i = 0; i < 2; i++) {
 			RealEstateImage image = RealEstateImage.builder()
-				.orgname("original_image_" + i + ".jpg")
-				.savename("saved_image_" + i + ".jpg")
-				.savedir("/images/realEstate/test/" + i + ".jpg")
 				.realEstate(realEstate)
 				.build();
 			images.add(image);
@@ -55,7 +52,7 @@ class RealEstatesRepositoryTest extends RepositoryTest {
 		RealEstate savedRealEstate = realEstatesRepository.save(realEstate);
 		RealEstate fetchedRealEstate = realEstatesRepository.findById(savedRealEstate.getId()).orElseThrow();
 
-		assertEquals(savedRealEstate.getAddress(), fetchedRealEstate.getAddress());
+		assertEquals(savedRealEstate.getLocation(), fetchedRealEstate.getLocation());
 		assertNotNull(fetchedRealEstate.getId());
 		assertEquals(2, fetchedRealEstate.getImages().size());
 		assertNotNull(fetchedRealEstate.getImages().get(0).getId());
@@ -71,7 +68,7 @@ class RealEstatesRepositoryTest extends RepositoryTest {
 			.mapToObj(i -> {
 				int num = random.nextInt(1000) + 1;
 				RealEstate realEstate = RealEstate.builder()
-					.address("서울시 송파구 올림픽로 " + num)
+					.location("서울시 송파구 올림픽로 " + num)
 					.price(500000000 + num * 10000000)
 					.capacity(2 + num)
 					.area(50 + num * 5)
@@ -84,9 +81,6 @@ class RealEstatesRepositoryTest extends RepositoryTest {
 
 				List<RealEstateImage> images = IntStream.range(0, 3)
 					.mapToObj(j -> RealEstateImage.builder()
-						.orgname("multi_image_" + num + "_" + j + ".jpg")
-						.savename("multi_saved_" + num + "_" + j + ".jpg")
-						.savedir("/images/realEstate/multi/" + num + "_" + j + ".jpg")
 						.realEstate(realEstate)
 						.build())
 					.collect(Collectors.toList());
