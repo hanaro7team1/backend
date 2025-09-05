@@ -21,7 +21,7 @@ public class RealEstateRegionServiceImpl implements RegionService {
 	@Override
 	public List<RegionResponseDTO> groupByProvince() {
 		var addresses = realEstateRepository.findAll()
-			.stream().map(RealEstate::getAddress).toList();
+			.stream().map(RealEstate::getLocation).toList();
 		return grouper.groupByProvinceFromAddresses(addresses);
 	}
 }
