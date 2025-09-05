@@ -1,5 +1,6 @@
 package com.sido.backend.realestate.service;
 
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,7 +53,7 @@ public class RealEstateServiceImpl implements RealEstateService {
 		return RealEstateResponseDTO.builder()
 			.id(realEstate.getId())
 			.location(realEstate.getLocation())
-			.price(realEstate.getPrice())
+			.price(formatPrice(realEstate.getPrice()))
 			.tradeType(realEstate.getTradeType())
 			.imageUrl(imageUrl)
 			.build();
@@ -66,7 +67,7 @@ public class RealEstateServiceImpl implements RealEstateService {
 		return RealEstateDetailResponseDTO.builder()
 			.id(realEstate.getId())
 			.location(realEstate.getLocation())
-			.price(realEstate.getPrice())
+			.price(formatPrice(realEstate.getPrice()))
 			.capacity(realEstate.getCapacity())
 			.area(realEstate.getArea())
 			.tradeType(realEstate.getTradeType())
@@ -76,5 +77,29 @@ public class RealEstateServiceImpl implements RealEstateService {
 			.house(realEstate.getHouse())
 			.imageUrls(imageUrls)
 			.build();
+	}
+
+	private String formatPrice(Integer price) {
+		if (price == null) {
+			return null;
+		}
+
+		long p = price.longValue();
+		if (p < 10000) {
+			return new DecimalFormat("#,###").format(p) + "원";
+		}
+
+		long man = p / 10000;
+		if (man < 10000) {
+			return new DecimalFormat("#,###").format(man) + "만원";
+		} else {
+			long eok = man / 10000;
+			long remainder = man % 10000;
+			if (remainder == 0) {
+				return new DecimalFormat("#,###").format(eok) + "억원";
+			} else {
+				return new DecimalFormat("#,###").format(eok) + "억 " + new DecimalFormat("#,###").format(remainder) + "만원";
+			}
+		}
 	}
 }

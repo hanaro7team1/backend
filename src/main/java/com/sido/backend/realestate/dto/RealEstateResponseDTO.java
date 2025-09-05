@@ -10,7 +10,7 @@ import lombok.experimental.SuperBuilder;
 public class RealEstateResponseDTO {
 	private Long id;
 	private String location;
-	private Integer price;
+	private String price;
 	private String tradeType;
 	private String imageUrl;
 }
