@@ -28,4 +28,6 @@ public class FestivalDTO {
 	@NotBlank
 	@Size(min = 1, max = 31)
 	private String city;
+	
+	private String imageUrl;
 }

@@ -99,7 +99,6 @@ public class StayServiceImpl implements StayService {
 		return new PageResponseDTO<>(filteredSlice, this::toResponseDTO);
 	}
 
-
 	@Override
 	@Transactional
 	public StayResponseDetailDTO addStay(long memberId, StayCreateDTO stayCreateDTO) {
@@ -272,13 +271,17 @@ public class StayServiceImpl implements StayService {
 			.isHomestay(stay.getIsHomestay())
 			.stayResrvStatus(status)
 			.imageURL(firstImageURL)
+			.hostName(stay.getHostName())
 			.build();
 	}
 
 	private StayResponseDetailDTO toResponseDetailDTO(Stay stay) {
+		StayResrvStatus status = stayRepository.findResrvStatusByStayId(stay.getId());
+
 		StayResponseDetailDTO.StayResponseDetailDTOBuilder builder = StayResponseDetailDTO.builder()
 			.id(stay.getId())
 			.title(stay.getTitle())
+			.stayResrvStatus(status)
 			.address(stay.getAddress())
 			.detailAddress(stay.getDetailAddress())
 			.capacity(stay.getCapacity())

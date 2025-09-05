@@ -1,16 +1,20 @@
 package com.sido.backend.festival.entity;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.hibernate.annotations.DynamicInsert;
 
 import com.sido.backend.common.entity.BaseEntity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -45,15 +49,19 @@ public class Festival extends BaseEntity {
 	private String city;
 
 	@NotBlank
-	@Size(min = 1, max = 31)
-	private String street;
+	@Size(min = 1, max = 100)
+	private String location;
 
 	@Column(nullable = false)
 	private int price;
 
-	@Column(length = 125, nullable = false)
+	@Column(length = 2000, nullable = false)
 	private String url;
 
-	@Column(length = 512, nullable = false)
+	@Column(length = 1000, nullable = false)
 	private String description;
+
+	@Builder.Default
+	@OneToMany(mappedBy = "festival", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<FestivalImage> images = new ArrayList<>();
 }

@@ -11,18 +11,18 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class FestivalRequestDTO extends FestivalDTO {
 	@NotBlank
-	@Size(min = 1, max = 31)
-	private String street;
+	@Size(min = 1, max = 100)
+	private String location;
 
 	@NotBlank
 	@Size(min = 1, max = 16)
 	private int price;
 
 	@NotBlank
-	@Size(min = 1, max = 125)
+	@Size(min = 1, max = 2000)
 	private String url;
 
 	@NotBlank
-	@Size(min = 1, max = 512)
+	@Size(min = 1, max = 1000)
 	private String description;
 }
