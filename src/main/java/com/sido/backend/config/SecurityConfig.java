@@ -52,7 +52,7 @@ public class SecurityConfig {
 				.requestMatchers("/api/users/**", "/api/regions/**", "/api/members/**", "/api/host-members/**",
 					"/swagger-ui/**",
 					"/v3/api-docs/**",
-					"/actuator/**")
+					"/actuator/**", "/error", "/ws/**")
 				.permitAll()
 				// 공개 API
 				.requestMatchers(HttpMethod.GET, "/api/stays/**", "/api/real-estates/**", "/api/festivals/**")
