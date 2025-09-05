@@ -1,5 +1,7 @@
 package com.sido.backend.member.service;
 
+import java.util.List;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -8,8 +10,10 @@ import com.sido.backend.common.exception.BadRequestException;
 import com.sido.backend.member.dto.MyPageResponseDTO;
 import com.sido.backend.member.dto.PasswordUpdateRequestDTO;
 import com.sido.backend.member.dto.PhoneUpdateRequestDTO;
+import com.sido.backend.member.dto.WithdrawRequestDTO;
 import com.sido.backend.member.entity.HostMember;
 import com.sido.backend.member.repository.HostMemberRepository;
+import com.sido.backend.reservation.entity.VisitStatus;
 import com.sido.backend.reservation.repository.ReservationRepository;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -66,4 +70,23 @@ public class MemberServiceImpl implements MemberService {
 		hostMemberRepository.save(hostMember);
 	}
 
+	@Override
+	@Transactional
+	public void withdraw(Long memberId, WithdrawRequestDTO request) {
+		HostMember hostMember = hostMemberRepository.findById(memberId)
+			.orElseThrow(() -> new EntityNotFoundException("해당 사용자를 찾을 수 없습니다: " + memberId));
+
+		if (!passwordEncoder.matches(request.getCheckPassword(), hostMember.getPassword())) {
+			throw new BadRequestException("비밀번호가 일치하지 않습니다.");
+		}
+
+		boolean hasReserv = reservationRepository.existsByStay_Host_IdAndVisitStatusIn(
+			memberId, List.of(VisitStatus.UPCOMING, VisitStatus.IN_PROGRESS)
+		);
+		if (hasReserv) {
+			throw new BadRequestException("진행 중인 예약이 있어 탈퇴할 수 없습니다.");
+		}
+
+		hostMemberRepository.deleteById(memberId);
+	}
 }
