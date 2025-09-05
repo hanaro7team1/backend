@@ -28,7 +28,7 @@ public class RealEstate extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	private String address;  // 주소
+	private String location;  // 지역
 	private Integer price;  // 가격
 	private Integer capacity;  // 수용인원
 	private Integer area;  // 면적
