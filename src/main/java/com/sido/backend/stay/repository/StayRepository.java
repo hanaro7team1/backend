@@ -62,7 +62,7 @@ public interface StayRepository extends JpaRepository<Stay, Long> {
 		           else com.sido.backend.stay.dto.StayResrvStatus.AVAILABLE
 		       end as status
 		from Stay s
-		where s.host.id = :memberId and s.isHomestay = true
+		where s.host.id = :memberId and s.isHomestay = true and s.isActive = true
 		"""
 	)
 	Slice<Object[]> findByHostWithStatus(
