@@ -19,15 +19,8 @@ jobs:
         run: echo "${{ secrets.APPLICATION }}" > ./src/main/resources/application.properties
 
       - name: set env
-        run: |
-          cat > .env <<'EOF'
-          ${{ secrets.ENV }}
-          EOF
+        run: echo "${{ secrets.ENV }}" > .env
 
-      - name: scp env to was
-        run: |
-          scp .env ec2-user@${{ secrets.WAS }}:/home/ec2-user/workspace/.env
-          
       - name: grant exe to gradlew
         run: chmod +x gradlew
 
@@ -41,6 +34,10 @@ jobs:
           chmod 400 ~/.ssh/id_rsa
           ssh-keyscan ${{ secrets.WAS }} >> ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
+
+      - name: scp env to was
+        run: |
+          scp .env ec2-user@${{ secrets.WAS }}:/home/ec2-user/workspace/.env
 
       #      - name: scp jar to was
       #        run: |
