@@ -80,7 +80,7 @@ public class Stay extends BaseEntity {
 		name = "fk_Stay_Member_host",
 		foreignKeyDefinition = """
 			foreign key (host) references Member(id)
-			on delete set null
+			on delete cascade
 			on update cascade
 			"""
 	))
