@@ -19,7 +19,10 @@ jobs:
         run: echo "${{ secrets.APPLICATION }}" > ./src/main/resources/application.properties
 
       - name: set env
-        run: echo "${{ secrets.ENV }}" > .env
+        run: |
+          cat > .env <<'EOF'
+          ${{ secrets.ENV }}
+          EOF
 
       - name: grant exe to gradlew
         run: chmod +x gradlew
