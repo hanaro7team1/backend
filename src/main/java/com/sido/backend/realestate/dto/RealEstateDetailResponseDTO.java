@@ -1,5 +1,7 @@
 package com.sido.backend.realestate.dto;
 
+import java.util.List;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -14,4 +16,5 @@ public class RealEstateDetailResponseDTO extends RealEstateResponseDTO {
 	private Double areaSize;
 	private Integer roomCount;
 	private String house;
+	private List<String> imageUrls;
 }

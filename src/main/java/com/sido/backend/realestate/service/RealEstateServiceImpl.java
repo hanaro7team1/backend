@@ -3,6 +3,7 @@ package com.sido.backend.realestate.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
@@ -23,12 +24,15 @@ public class RealEstateServiceImpl implements RealEstateService {
 
 	private final RealEstateRepository realEstatesRepository;
 
+	@Value("${app.s3.publicBaseUrl}")
+	private String publicBaseUrl;
+
 	@Override
 	public PageResponseDTO<RealEstateResponseDTO, RealEstate> getRealEstateList(int page, int listSize, String address,
 		String tradeType, Integer minPrice, Integer maxPrice) {
 		Slice<RealEstate> lists = realEstatesRepository.findRealEstatesDynamically(
 			address, tradeType, minPrice, maxPrice, PageRequest.of(page - 1, listSize, Sort.by(Sort.Order.desc("id"))));
-		return new PageResponseDTO<>(lists, RealEstateServiceImpl::toDTO);
+		return new PageResponseDTO<>(lists, this::toDTO);
 	}
 
 	@Override
@@ -39,23 +43,29 @@ public class RealEstateServiceImpl implements RealEstateService {
 		return toDetailDTO(realEstate);
 	}
 
-	public static RealEstateResponseDTO toDTO(RealEstate realEstate) {
+	public RealEstateResponseDTO toDTO(RealEstate realEstate) {
+		String imageUrl = null;
+		if (realEstate.getImages() != null && !realEstate.getImages().isEmpty()) {
+			imageUrl = publicBaseUrl + "/" + realEstate.getImages().getFirst().getS3Key();
+		}
+
 		return RealEstateResponseDTO.builder()
 			.id(realEstate.getId())
-			.address(realEstate.getLocation())
+			.location(realEstate.getLocation())
 			.price(realEstate.getPrice())
 			.tradeType(realEstate.getTradeType())
+			.imageUrl(imageUrl)
 			.build();
 	}
 
-	public static RealEstateDetailResponseDTO toDetailDTO(RealEstate realEstate) {
+	public RealEstateDetailResponseDTO toDetailDTO(RealEstate realEstate) {
 		List<String> imageUrls = realEstate.getImages().stream()
-			.map(image -> image.getSavedir())
+			.map(image -> publicBaseUrl + "/" + image.getS3Key())
 			.collect(Collectors.toList());
 
 		return RealEstateDetailResponseDTO.builder()
 			.id(realEstate.getId())
-			.address(realEstate.getLocation())
+			.location(realEstate.getLocation())
 			.price(realEstate.getPrice())
 			.capacity(realEstate.getCapacity())
 			.area(realEstate.getArea())
