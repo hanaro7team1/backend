@@ -17,28 +17,44 @@ import jakarta.validation.constraints.Size;
 public interface StayRepository extends JpaRepository<Stay, Long> {
 	@Query("""
 		SELECT s,
-		       CASE
-		           WHEN NOT EXISTS (
-		               select 1 from StayAvailDate sa
-		               where sa.stay.id = s.id
-		                  and (:startDate IS NULL OR sa.availableDate >= :startDate)
-		                  and (:endDate IS NULL OR sa.availableDate < :endDate)
-		           ) THEN com.sido.backend.stay.dto.StayResrvStatus.SOLD_OUT
-		           WHEN EXISTS (
-		               select 1 from ReservationDay rd
-		               where rd.stay.id = s.id
-		                  and (:startDate IS NULL OR rd.date >= :startDate)
-		                  and (:endDate IS NULL OR rd.date < :endDate)
-		           ) THEN com.sido.backend.stay.dto.StayResrvStatus.CLOSED
-		           ELSE com.sido.backend.stay.dto.StayResrvStatus.AVAILABLE
-		       END as status
+			CASE
+				WHEN NOT EXISTS (
+					SELECT 1 FROM StayAvailDate sa
+						WHERE sa.stay.id = s.id
+							AND (:startDate IS NULL OR sa.availableDate >= :startDate)
+							AND (:endDate IS NULL OR sa.availableDate < :endDate)
+				) THEN com.sido.backend.stay.dto.StayResrvStatus.CLOSED
+				WHEN EXISTS (
+					SELECT 1 FROM ReservationDay rd
+						WHERE rd.stay.id = s.id
+							AND (:startDate IS NULL OR rd.date >= :startDate)
+							AND (:endDate IS NULL OR rd.date < :endDate)
+				) THEN com.sido.backend.stay.dto.StayResrvStatus.SOLD_OUT
+				ELSE com.sido.backend.stay.dto.StayResrvStatus.AVAILABLE
+			END AS status
 		FROM Stay s
-		WHERE s.isActive = true
-		AND (s.isHomestay = :isHomestay)
-		AND (:address IS NULL OR s.address LIKE %:address%)
-		AND (:capacity IS NULL OR s.capacity >= :capacity)
-		"""
-	)
+			WHERE s.isActive = true
+				AND (s.isHomestay = :isHomestay)
+				AND (:address IS NULL OR s.address LIKE %:address%)
+				AND (:capacity IS NULL OR s.capacity >= :capacity)
+		ORDER BY
+			CASE
+				WHEN NOT EXISTS (
+					SELECT 1 FROM StayAvailDate sa
+						WHERE sa.stay.id = s.id
+							AND (:startDate IS NULL OR sa.availableDate >= :startDate)
+							AND (:endDate IS NULL OR sa.availableDate < :endDate)
+				) THEN 3
+				WHEN EXISTS (
+					SELECT 1 FROM ReservationDay rd
+						WHERE rd.stay.id = s.id
+							AND (:startDate IS NULL OR rd.date >= :startDate)
+							AND (:endDate IS NULL OR rd.date < :endDate)
+				) THEN 2
+				ELSE 1
+			END ASC,
+			s.id DESC
+		""")
 	Slice<Object[]> findStaysDynamically(
 		@Param("isHomestay") Boolean isHomestay,
 		@Param("address") String address,
@@ -49,22 +65,48 @@ public interface StayRepository extends JpaRepository<Stay, Long> {
 	);
 
 	@Query("""
-		select s,
-		       case
-		           when (select count(sa) from StayAvailDate sa
-		                 where sa.stay.id = s.id and sa.availableDate >= CURRENT_DATE) = 0
-		               then com.sido.backend.stay.dto.StayResrvStatus.CLOSED
-		           when (select count(sa) from StayAvailDate sa
-		                 where sa.stay.id = s.id and sa.availableDate >= CURRENT_DATE)
-		                = (select count(rd) + 1 from ReservationDay rd
-		                   where rd.stay.id = s.id and rd.date >= CURRENT_DATE)
-		               then com.sido.backend.stay.dto.StayResrvStatus.SOLD_OUT
-		           else com.sido.backend.stay.dto.StayResrvStatus.AVAILABLE
-		       end as status
-		from Stay s
-		where s.host.id = :memberId and s.isHomestay = true and s.isActive = true
-		"""
-	)
+		SELECT s,
+			CASE
+				WHEN (
+					SELECT COUNT(sa) FROM StayAvailDate sa
+						WHERE sa.stay.id = s.id
+							AND sa.availableDate >= CURRENT_DATE
+				) = 0
+					THEN com.sido.backend.stay.dto.StayResrvStatus.CLOSED
+				WHEN (
+					SELECT COUNT(sa) FROM StayAvailDate sa
+						WHERE sa.stay.id = s.id
+							AND sa.availableDate >= CURRENT_DATE
+				) = (
+					SELECT COUNT(rd) FROM ReservationDay rd
+						WHERE rd.stay.id = s.id
+							AND rd.date >= CURRENT_DATE
+				)
+					THEN com.sido.backend.stay.dto.StayResrvStatus.SOLD_OUT
+				ELSE com.sido.backend.stay.dto.StayResrvStatus.AVAILABLE
+			END AS status
+		FROM Stay s
+			WHERE s.host.id = :memberId
+				AND s.isHomestay = true
+				AND s.isActive = true
+		ORDER BY
+			CASE
+				WHEN NOT EXISTS (
+					SELECT 1 FROM StayAvailDate sa
+						WHERE sa.stay.id = s.id
+							AND (:startDate IS NULL OR sa.availableDate >= :startDate)
+							AND (:endDate IS NULL OR sa.availableDate < :endDate)
+				) THEN 3
+				WHEN EXISTS (
+					SELECT 1 FROM ReservationDay rd
+						WHERE rd.stay.id = s.id
+							AND (:startDate IS NULL OR rd.date >= :startDate)
+							AND (:endDate IS NULL OR rd.date < :endDate)
+				) THEN 2
+				ELSE 1
+			END ASC,
+			s.id DESC
+		""")
 	Slice<Object[]> findByHostWithStatus(
 		@Param("memberId") Long memberId, Pageable pageable);
 
@@ -72,25 +114,51 @@ public interface StayRepository extends JpaRepository<Stay, Long> {
 		@NotBlank @Size(min = 1, max = 64) String detailAddress);
 
 	@Query("""
-			SELECT
-				CASE
-					WHEN (
-						SELECT COUNT(sa) FROM StayAvailDate sa
-							WHERE sa.stay.id = s.id
-					) = 0
-						THEN com.sido.backend.stay.dto.StayResrvStatus.CLOSED
-					WHEN (
-						SELECT COUNT(rd) FROM ReservationDay rd
-							WHERE rd.stay.id = s.id
-					) = (
-						SELECT COUNT(sa) FROM StayAvailDate sa
-							WHERE sa.stay.id = s.id
-					)
-						THEN com.sido.backend.stay.dto.StayResrvStatus.SOLD_OUT
-					ELSE com.sido.backend.stay.dto.StayResrvStatus.AVAILABLE
-				END AS status
-			FROM Stay s
+		SELECT
+			CASE
+				WHEN (
+					SELECT COUNT(sa) FROM StayAvailDate sa
+						WHERE sa.stay.id = s.id
+							AND sa.availableDate >= CURRENT_DATE
+				) = 0
+					THEN com.sido.backend.stay.dto.StayResrvStatus.CLOSED
+				WHEN (
+					SELECT COUNT(sa) FROM StayAvailDate sa
+						WHERE sa.stay.id = s.id
+							AND sa.availableDate >= CURRENT_DATE
+				) = (
+					SELECT COUNT(rd) FROM ReservationDay rd
+						WHERE rd.stay.id = s.id
+							AND rd.date >= CURRENT_DATE
+				)
+					THEN com.sido.backend.stay.dto.StayResrvStatus.SOLD_OUT
+				ELSE com.sido.backend.stay.dto.StayResrvStatus.AVAILABLE
+			END AS status
+		FROM Stay s
 			WHERE s.id = :stayId
 		""")
-	StayResrvStatus findResrvStatusByStayId(@Param("stayId") Long stayId);
+	StayResrvStatus findResrvStatusByStayIdForHost(@Param("stayId") Long stayId);
+
+	@Query("""
+		SELECT
+			CASE
+				WHEN NOT EXISTS (
+					SELECT 1 FROM StayAvailDate sa
+						WHERE sa.stay.id = s.id
+							AND (:startDate IS NULL OR sa.availableDate >= :startDate)
+							AND (:endDate IS NULL OR sa.availableDate < :endDate)
+				) THEN com.sido.backend.stay.dto.StayResrvStatus.CLOSED
+				WHEN EXISTS (
+					SELECT 1 FROM ReservationDay rd
+						WHERE rd.stay.id = s.id
+							AND (:startDate IS NULL OR rd.date >= :startDate)
+							AND (:endDate IS NULL OR rd.date < :endDate)
+				) THEN com.sido.backend.stay.dto.StayResrvStatus.SOLD_OUT
+				ELSE com.sido.backend.stay.dto.StayResrvStatus.AVAILABLE
+			END AS status
+		FROM Stay s
+			WHERE s.id = :stayId
+		""")
+	StayResrvStatus findResrvStatusInRangeByStayId(@Param("stayId") Long stayId,
+		@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 }

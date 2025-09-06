@@ -32,7 +32,7 @@ public interface StayService {
 
 	AvailDatesDTO getAvailableDatesByMonth(Long stayId, YearMonth yearMonth);
 
-	StayResponseDetailDTO getStayDetail(Long stayId);
+	StayResponseDetailDTO getStayDetail(Long stayId, LocalDate startDate, LocalDate endDate);
 
 	void deleteStay(Long stayId);
 
