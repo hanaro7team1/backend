@@ -7,7 +7,7 @@ import com.sido.backend.realestate.entity.RealEstate;
 
 public interface RealEstateService {
 	PageResponseDTO<RealEstateResponseDTO, RealEstate> getRealEstateList(int page, int listSize, String location,
-		String tradeType, Integer minPrice, Integer maxPrice);
+		String tradeType, Long minPrice, Long maxPrice);
 
 	RealEstateDetailResponseDTO getRealEstateDetail(Long id);
 }
