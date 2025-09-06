@@ -81,6 +81,8 @@ public class ReservationServiceImpl implements ReservationService {
 			() -> new EntityNotFoundException("해당 사용자를 찾을 수 없습니다.")
 		);
 
+		availabilityChecker.assertStayIsActive(stay); // 삭제된 사랑방인지 검증
+
 		// 기본값
 		LocalDate today = LocalDate.now();
 		LocalDate startDate =
@@ -115,6 +117,7 @@ public class ReservationServiceImpl implements ReservationService {
 			() -> new EntityNotFoundException("해당 예약을 찾을 수 없습니다.")
 		);
 
+		availabilityChecker.assertStayIsActive(reservation.getStay()); // 삭제된 사랑방인지 검증
 		reservationValidator.assertOwnedBy(reservation, memberId); // 본인 예약 검증
 
 		// 멱등성: 이미 예약됐으면 현재 상태 그대로 반환
