@@ -216,7 +216,11 @@ public class ReservationServiceImpl implements ReservationService {
 			() -> new EntityNotFoundException("해당 예약을 찾을 수 없습니다.")
 		);
 
-		reservationValidator.assertOwnedBy(reservation, memberId); // 본인 예약만 확인 가능
+		HostMember hostMember = hostMemberRepository.findById(memberId).orElse(null);
+
+		if (!reservation.getStay().getHost().equals(hostMember)) { // 해당 사랑방 가진 마을 이장님은 허용
+			reservationValidator.assertOwnedBy(reservation, memberId); // 본인 예약만 확인 가능
+		}
 
 		reservationValidator.assertNotPending(reservation, "예약 상세 조회");
 
