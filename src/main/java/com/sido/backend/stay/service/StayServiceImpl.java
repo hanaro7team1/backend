@@ -15,6 +15,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -176,11 +178,28 @@ public class StayServiceImpl implements StayService {
 	}
 
 	@Override
-	public StayResponseDetailDTO getStayDetail(Long stayId) {
+	public StayResponseDetailDTO getStayDetail(Long stayId, LocalDate startDate, LocalDate endDate) {
 		Stay stay = stayRepository.findById(stayId).orElseThrow(
 			() -> new EntityNotFoundException("해당 사랑방을 찾을 수 없습니다.")
 		);
-		return toResponseDetailDTO(stay);
+
+		StayResrvStatus status;
+
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+		boolean isAdmin = authentication.getAuthorities().stream()
+			.anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+
+		if (isAdmin) {
+			status = stayRepository.findResrvStatusByStayIdForHost(stay.getId());
+		} else {
+			status = stayRepository.findResrvStatusInRangeByStayId(stayId, startDate, endDate);
+		}
+
+		StayResponseDetailDTO stayResponseDetailDTO = toResponseDetailDTO(stay);
+		stayResponseDetailDTO.setStayResrvStatus(status);
+
+		return stayResponseDetailDTO;
 	}
 
 	@Override
@@ -274,12 +293,9 @@ public class StayServiceImpl implements StayService {
 	}
 
 	private StayResponseDetailDTO toResponseDetailDTO(Stay stay) {
-		StayResrvStatus status = stayRepository.findResrvStatusByStayId(stay.getId());
-
 		StayResponseDetailDTO.StayResponseDetailDTOBuilder builder = StayResponseDetailDTO.builder()
 			.id(stay.getId())
 			.title(stay.getTitle())
-			.stayResrvStatus(status)
 			.address(stay.getAddress())
 			.detailAddress(stay.getDetailAddress())
 			.capacity(stay.getCapacity())

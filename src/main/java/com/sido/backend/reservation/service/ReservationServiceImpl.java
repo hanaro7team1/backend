@@ -51,7 +51,6 @@ import com.sido.backend.stay.repository.StayRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -82,6 +81,8 @@ public class ReservationServiceImpl implements ReservationService {
 			() -> new EntityNotFoundException("해당 사용자를 찾을 수 없습니다.")
 		);
 
+		availabilityChecker.assertStayIsActive(stay); // 삭제된 사랑방인지 검증
+
 		// 기본값
 		LocalDate today = LocalDate.now();
 		LocalDate startDate =
@@ -104,8 +105,6 @@ public class ReservationServiceImpl implements ReservationService {
 
 		reservationRepository.save(reservation);
 
-		// TODO 배치/스케줄링-> PENDING 5분 or 10분 후 예약 삭제 or CANCELLED
-
 		return toCreateResponseDTO(reservation);
 	}
 
@@ -118,6 +117,7 @@ public class ReservationServiceImpl implements ReservationService {
 			() -> new EntityNotFoundException("해당 예약을 찾을 수 없습니다.")
 		);
 
+		availabilityChecker.assertStayIsActive(reservation.getStay()); // 삭제된 사랑방인지 검증
 		reservationValidator.assertOwnedBy(reservation, memberId); // 본인 예약 검증
 
 		// 멱등성: 이미 예약됐으면 현재 상태 그대로 반환
@@ -180,7 +180,6 @@ public class ReservationServiceImpl implements ReservationService {
 		reservationRepository.save(reservation);
 		log.info("예약이 성공적으로 확정되었습니다: reservationId={}", reservationId);
 
-
 		// 관리자에게 예약 확정 알림 보내기
 		log.info("관리자 알림 전송 로직 시작");
 		Stay stay = reservation.getStay();
@@ -189,7 +188,6 @@ public class ReservationServiceImpl implements ReservationService {
 			return toConfirmResponseDTO(reservation);
 		}
 		log.info("Stay 객체 확인: stayId={}", stay.getId());
-
 
 		HostMember admin = stay.getHost();
 		if (admin != null) {
@@ -221,7 +219,11 @@ public class ReservationServiceImpl implements ReservationService {
 			() -> new EntityNotFoundException("해당 예약을 찾을 수 없습니다.")
 		);
 
-		reservationValidator.assertOwnedBy(reservation, memberId); // 본인 예약만 확인 가능
+		HostMember hostMember = hostMemberRepository.findById(memberId).orElse(null);
+
+		if (!reservation.getStay().getHost().equals(hostMember)) { // 해당 사랑방 가진 마을 이장님은 허용
+			reservationValidator.assertOwnedBy(reservation, memberId); // 본인 예약만 확인 가능
+		}
 
 		reservationValidator.assertNotPending(reservation, "예약 상세 조회");
 
@@ -369,20 +371,7 @@ public class ReservationServiceImpl implements ReservationService {
 
 	private ReservationListItemDTO toListItemDTO(Reservation reservation) {
 		LocalDate today = LocalDate.now();
-		boolean inRange = !today.isBefore(reservation.getStartDate()) && !today.isAfter(reservation.getEndDate());
 		long dDay = ChronoUnit.DAYS.between(today, reservation.getStartDate());
-
-		// TODO 배치/스케줄링으로 VisitStatus 업데이트
-		if (reservation.getResrvStatus() == ResrvStatus.RESERVED) {
-			if (inRange) { // [start, end]
-				reservation.setVisitStatus(VisitStatus.IN_PROGRESS);
-			} else if (dDay > 0) {
-				reservation.setVisitStatus(VisitStatus.UPCOMING);
-			} else if (dDay < 0) {
-				reservation.setVisitStatus(VisitStatus.COMPLETED);
-			}
-		}
-		reservationRepository.save(reservation);
 
 		return new ReservationListItemDTO(
 			reservation.getId(),

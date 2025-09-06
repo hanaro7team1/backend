@@ -42,15 +42,9 @@ public class StayController {
 		@RequestParam(defaultValue = "15") int listSize) {
 		boolean isHomestay = "하숙형".equals(roomType);
 
-		LocalDate startDate = null;
-		LocalDate endDate = null;
+		LocalDate startDate = parseSchedule(schedule).startDate;
+		LocalDate endDate = parseSchedule(schedule).endDate;
 
-		if (schedule != null && !schedule.isBlank()) {
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy.MM.dd");
-			String[] parts = schedule.split("-");
-			startDate = LocalDate.parse(parts[0].trim(), formatter);
-			endDate = LocalDate.parse(parts[1].trim(), formatter);
-		}
 		PageResponseDTO<StayResponseDTO, Stay> pagedStaysDTO = stayService.getStays(page, listSize,
 			isHomestay, location, startDate, endDate, peopleCount);
 
@@ -68,8 +62,29 @@ public class StayController {
 
 	@Operation(summary = "숙소 상세 조회")
 	@GetMapping("/{stayId}")
-	public ResponseEntity<StayResponseDetailDTO> getStayDetail(@PathVariable("stayId") Long stayId) {
-		StayResponseDetailDTO stayDetail = stayService.getStayDetail(stayId);
+	public ResponseEntity<StayResponseDetailDTO> getStayDetail(@PathVariable("stayId") Long stayId,
+		@RequestParam(required = false) String schedule) {
+		LocalDate startDate = parseSchedule(schedule).startDate;
+		LocalDate endDate = parseSchedule(schedule).endDate;
+
+		StayResponseDetailDTO stayDetail = stayService.getStayDetail(stayId, startDate, endDate);
 		return ResponseEntity.ok(stayDetail);
+	}
+
+	private DateRange parseSchedule(String schedule) {
+		LocalDate startDate = null;
+		LocalDate endDate = null;
+
+		if (schedule != null && !schedule.isBlank()) {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy.MM.dd");
+			String[] parts = schedule.split("-");
+			startDate = LocalDate.parse(parts[0].trim(), formatter);
+			endDate = LocalDate.parse(parts[1].trim(), formatter);
+		}
+
+		return new DateRange(startDate, endDate);
+	}
+
+	private record DateRange(LocalDate startDate, LocalDate endDate) {
 	}
 }

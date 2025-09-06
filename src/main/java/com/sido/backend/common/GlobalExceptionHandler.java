@@ -14,6 +14,7 @@ import com.sido.backend.common.dto.ErrorResponseDTO;
 import com.sido.backend.common.exception.BadRequestException;
 import com.sido.backend.common.exception.ConflictException;
 import com.sido.backend.common.exception.ForbiddenException;
+import com.sido.backend.common.exception.ResourceGoneException;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -58,6 +59,12 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<ErrorResponseDTO> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
 		return ResponseEntity.status(HttpStatus.CONFLICT)
 			.body(new ErrorResponseDTO("데이터 충돌이 발생했습니다.", "CONFLICT"));
+	}
+
+	@ExceptionHandler(ResourceGoneException.class)
+	public ResponseEntity<ErrorResponseDTO> handleResourceGoneException(Exception ex) {
+		return ResponseEntity.status(HttpStatus.GONE)
+			.body(new ErrorResponseDTO(ex.getMessage(), "RESOURCE_GONE"));
 	}
 
 	@ExceptionHandler(IllegalArgumentException.class)

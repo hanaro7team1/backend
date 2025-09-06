@@ -6,6 +6,8 @@ import java.time.temporal.ChronoUnit;
 import org.springframework.stereotype.Component;
 
 import com.sido.backend.common.exception.ConflictException;
+import com.sido.backend.common.exception.ResourceGoneException;
+import com.sido.backend.stay.entity.Stay;
 import com.sido.backend.stay.repository.StayAvailDateRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,12 @@ public class AvailabilityChecker {
 		System.out.println("availableDays = " + availableDays);
 		if (requestDays != availableDays) {
 			throw new ConflictException("선택한 기간에 예약 불가 날짜가 포함되어 있습니다.");
+		}
+	}
+
+	public void assertStayIsActive(Stay stay) {
+		if (!Boolean.TRUE.equals(stay.getIsActive())) {
+			throw new ResourceGoneException("해당 사랑방은 삭제되어 더 이상 예약할 수 없습니다.");
 		}
 	}
 }
