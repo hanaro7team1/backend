@@ -30,36 +30,25 @@ public class RealEstateController {
 	public ResponseEntity<PageResponseDTO<RealEstateResponseDTO, RealEstate>> getRealEstateList(
 		@RequestParam(defaultValue = "1") int page,
 		@RequestParam(defaultValue = "10") int listSize,
-		@RequestParam(required = false) String address,
+		@RequestParam(required = false) String location,
 		@RequestParam(required = false) String tradeType,
-		@RequestParam(required = false) String price
+		@RequestParam(required = false, name = "priceRange") String priceRange
 	) {
-		Integer minPrice = null;
-		Integer maxPrice = null;
+		Long minPrice = null;
+		Long maxPrice = null;
 
-		if (price != null && !price.isBlank()) {
-			String processedPrice = price.replace("만원", "").replaceAll("\\s", "");
-
-			String[] parts = processedPrice.split("~|-"); // "~" 또는 "-"로 분리
-
+		if (priceRange != null && !priceRange.isBlank()) {
+			String[] parts = priceRange.split("-");
 			if (parts.length > 0 && !parts[0].isEmpty()) {
-				try {
-					minPrice = Integer.parseInt(parts[0]) * 10000;
-				} catch (NumberFormatException e) {
-					// 숫자가 아닌 경우 무시
-				}
+				minPrice = Long.parseLong(parts[0].trim());
 			}
 			if (parts.length > 1 && !parts[1].isEmpty()) {
-				try {
-					maxPrice = Integer.parseInt(parts[1]) * 10000;
-				} catch (NumberFormatException e) {
-					// 숫자가 아닌 경우 무시
-				}
+				maxPrice = Long.parseLong(parts[1].trim());
 			}
 		}
 
 		return ResponseEntity.ok(
-			realEstateService.getRealEstateList(page, listSize, address, tradeType, minPrice, maxPrice));
+			realEstateService.getRealEstateList(page, listSize, location, tradeType, minPrice, maxPrice));
 	}
 
 	@Operation(description = "매물 상세 조회")

@@ -17,15 +17,15 @@ public interface RealEstateRepository extends JpaRepository<RealEstate, Long> {
 
 	@EntityGraph(attributePaths = {"images"})
 	@Query("SELECT re FROM RealEstate re " +
-		"WHERE (COALESCE(:address, '''') = '''' OR re.location LIKE %:address%) " +
-		"AND (COALESCE(:tradeType, '''') = '''' OR re.tradeType = :tradeType) " +
+		"WHERE (:location IS NULL OR :location = '' OR re.location LIKE CONCAT('%', :location, '%'))\n " +
+		"AND (:tradeType IS NULL OR :tradeType = '''' OR re.tradeType = :tradeType) " +
 		"AND (:minPrice IS NULL OR re.price >= :minPrice) " +
 		"AND (:maxPrice IS NULL OR re.price <= :maxPrice)")
 	Slice<RealEstate> findRealEstatesDynamically(
-		@Param("address") String address,
+		@Param("location") String location,
 		@Param("tradeType") String tradeType,
-		@Param("minPrice") Integer minPrice,
-		@Param("maxPrice") Integer maxPrice,
+		@Param("minPrice") Long minPrice,
+		@Param("maxPrice") Long maxPrice,
 		Pageable pageable
 	);
 }

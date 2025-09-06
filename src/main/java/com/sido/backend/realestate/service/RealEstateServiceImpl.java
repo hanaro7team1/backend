@@ -30,7 +30,7 @@ public class RealEstateServiceImpl implements RealEstateService {
 
 	@Override
 	public PageResponseDTO<RealEstateResponseDTO, RealEstate> getRealEstateList(int page, int listSize, String address,
-		String tradeType, Integer minPrice, Integer maxPrice) {
+		String tradeType, Long minPrice, Long maxPrice) {
 		Slice<RealEstate> lists = realEstatesRepository.findRealEstatesDynamically(
 			address, tradeType, minPrice, maxPrice, PageRequest.of(page - 1, listSize, Sort.by(Sort.Order.desc("id"))));
 		return new PageResponseDTO<>(lists, this::toDTO);
@@ -98,7 +98,8 @@ public class RealEstateServiceImpl implements RealEstateService {
 			if (remainder == 0) {
 				return new DecimalFormat("#,###").format(eok) + "억원";
 			} else {
-				return new DecimalFormat("#,###").format(eok) + "억 " + new DecimalFormat("#,###").format(remainder) + "만원";
+				return new DecimalFormat("#,###").format(eok) + "억 " + new DecimalFormat("#,###").format(remainder)
+					+ "만원";
 			}
 		}
 	}

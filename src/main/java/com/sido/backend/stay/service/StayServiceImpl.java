@@ -43,7 +43,6 @@ import com.sido.backend.stay.repository.StayRepository;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.CopyObjectRequest;
@@ -55,7 +54,6 @@ import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-@Log4j2
 public class StayServiceImpl implements StayService {
 	private final S3Client s3;
 	private final StayRepository stayRepository;
