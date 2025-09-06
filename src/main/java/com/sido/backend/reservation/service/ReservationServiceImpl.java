@@ -51,7 +51,6 @@ import com.sido.backend.stay.repository.StayRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -103,8 +102,6 @@ public class ReservationServiceImpl implements ReservationService {
 		reservation.setPersonCnt(personCnt);
 
 		reservationRepository.save(reservation);
-
-		// TODO 배치/스케줄링-> PENDING 5분 or 10분 후 예약 삭제 or CANCELLED
 
 		return toCreateResponseDTO(reservation);
 	}
@@ -180,7 +177,6 @@ public class ReservationServiceImpl implements ReservationService {
 		reservationRepository.save(reservation);
 		log.info("예약이 성공적으로 확정되었습니다: reservationId={}", reservationId);
 
-
 		// 관리자에게 예약 확정 알림 보내기
 		log.info("관리자 알림 전송 로직 시작");
 		Stay stay = reservation.getStay();
@@ -189,7 +185,6 @@ public class ReservationServiceImpl implements ReservationService {
 			return toConfirmResponseDTO(reservation);
 		}
 		log.info("Stay 객체 확인: stayId={}", stay.getId());
-
 
 		HostMember admin = stay.getHost();
 		if (admin != null) {
@@ -369,20 +364,7 @@ public class ReservationServiceImpl implements ReservationService {
 
 	private ReservationListItemDTO toListItemDTO(Reservation reservation) {
 		LocalDate today = LocalDate.now();
-		boolean inRange = !today.isBefore(reservation.getStartDate()) && !today.isAfter(reservation.getEndDate());
 		long dDay = ChronoUnit.DAYS.between(today, reservation.getStartDate());
-
-		// TODO 배치/스케줄링으로 VisitStatus 업데이트
-		if (reservation.getResrvStatus() == ResrvStatus.RESERVED) {
-			if (inRange) { // [start, end]
-				reservation.setVisitStatus(VisitStatus.IN_PROGRESS);
-			} else if (dDay > 0) {
-				reservation.setVisitStatus(VisitStatus.UPCOMING);
-			} else if (dDay < 0) {
-				reservation.setVisitStatus(VisitStatus.COMPLETED);
-			}
-		}
-		reservationRepository.save(reservation);
 
 		return new ReservationListItemDTO(
 			reservation.getId(),

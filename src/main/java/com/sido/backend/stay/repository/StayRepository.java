@@ -91,18 +91,22 @@ public interface StayRepository extends JpaRepository<Stay, Long> {
 				AND s.isActive = true
 		ORDER BY
 			CASE
-				WHEN NOT EXISTS (
-					SELECT 1 FROM StayAvailDate sa
+				WHEN (
+					SELECT COUNT(sa) FROM StayAvailDate sa
 						WHERE sa.stay.id = s.id
-							AND (:startDate IS NULL OR sa.availableDate >= :startDate)
-							AND (:endDate IS NULL OR sa.availableDate < :endDate)
-				) THEN 3
-				WHEN EXISTS (
-					SELECT 1 FROM ReservationDay rd
+							AND sa.availableDate >= CURRENT_DATE
+				) = 0
+					THEN 3
+				WHEN (
+					SELECT COUNT(sa) FROM StayAvailDate sa
+						WHERE sa.stay.id = s.id
+							AND sa.availableDate >= CURRENT_DATE
+				) = (
+					SELECT COUNT(rd) FROM ReservationDay rd
 						WHERE rd.stay.id = s.id
-							AND (:startDate IS NULL OR rd.date >= :startDate)
-							AND (:endDate IS NULL OR rd.date < :endDate)
-				) THEN 2
+							AND rd.date >= CURRENT_DATE
+				)
+					THEN 2
 				ELSE 1
 			END ASC,
 			s.id DESC
