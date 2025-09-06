@@ -28,7 +28,7 @@ public class AvailabilityChecker {
 	}
 
 	public void assertStayIsActive(Stay stay) {
-		if (stay.getIsActive().equals(false)) {
+		if (!Boolean.TRUE.equals(stay.getIsActive())) {
 			throw new ResourceGoneException("해당 사랑방은 삭제되어 더 이상 예약할 수 없습니다.");
 		}
 	}
