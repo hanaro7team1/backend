@@ -38,10 +38,16 @@ public class ReservationQDslRepositoryImpl implements ReservationQDslRepository 
 	}
 
 	@Override
-	public Slice<Reservation> findAdminList(Long memberId, ReservationListFilter filter, Pageable pageable) {
+	public Slice<Reservation> findAdminList(Long memberId, ReservationListFilter filter, Long stayId,
+		Pageable pageable) {
 		QReservation qr = QReservation.reservation;
 
 		BooleanBuilder where = new BooleanBuilder().and(qr.stay.host.id.eq(memberId));
+
+		// stayId가 있으면 필터링 추가
+		if (stayId != null) {
+			where.and(qr.stay.id.eq(stayId));
+		}
 
 		return findCommon(where, filter, pageable);
 	}
