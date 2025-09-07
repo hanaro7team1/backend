@@ -13,9 +13,16 @@ public interface ReservationDayRepository extends JpaRepository<ReservationDay, 
 	void deleteByReservationId(Long reservationId);
 
 	@Query("""
-			select rd.date from ReservationDay rd
-				where rd.stay.id = :stayId
-					and rd.date in :dates
+			SELECT rd.date FROM ReservationDay rd
+				WHERE rd.stay.id = :stayId
+					AND rd.date IN :dates
 		""")
 	List<LocalDate> findReservedDatesIn(@Param("stayId") Long stayId, @Param("dates") List<LocalDate> dates);
+
+	@Query("""
+			SELECT rd.date FROM ReservationDay rd
+				WHERE rd.stay.id = :stayId
+				ORDER BY rd.date ASC
+		""")
+	List<LocalDate> findAllReserved(Long stayId);
 }
