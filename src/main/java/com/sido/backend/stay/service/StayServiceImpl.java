@@ -220,15 +220,19 @@ public class StayServiceImpl implements StayService {
 			throw new ForbiddenException("사랑방을 등록한 시골 관리자만 사랑방을 삭제할 수 있습니다.");
 		}
 
-		if (!Boolean.TRUE.equals(stay.getIsActive())) {
+		if (!Boolean.TRUE.equals(stay.getIsActive())) { // 이미 삭제된 사랑방
 			return new StayDeleteDTO(false, false);
 		}
 
+		boolean hasUpcoming = reservationRepository.existsUpcomingByStay(stayId);
+		if (hasUpcoming) {
+			return new StayDeleteDTO(false, true);
+		}
+		
 		stay.setIsActive(false);
 		stayRepository.save(stay);
 
-		boolean hasUpcoming = reservationRepository.existsUpcomingByStay(stayId);
-		return new StayDeleteDTO(true, hasUpcoming);
+		return new StayDeleteDTO(true, false);
 	}
 
 	@Override
