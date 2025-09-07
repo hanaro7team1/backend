@@ -228,8 +228,9 @@ public class StayServiceImpl implements StayService {
 		if (hasUpcoming) {
 			return new StayDeleteDTO(false, true);
 		}
-		
+
 		stay.setIsActive(false);
+		
 		stayRepository.save(stay);
 
 		return new StayDeleteDTO(true, false);
@@ -325,11 +326,8 @@ public class StayServiceImpl implements StayService {
 			.capacity(stay.getCapacity())
 			.areaSize(stay.getAreaSize())
 			.description(stay.getDescription())
-			.isHomestay(stay.getIsHomestay());
-
-		if (!stay.getIsActive()) {
-			builder.isActiveMsg("해당 사랑방은 예약이 닫힌 상태입니다.");
-		}
+			.isHomestay(stay.getIsHomestay())
+			.isDeleted(!stay.getIsActive());
 
 		// StayImage → DTO 변환
 		List<String> imageUrls = stay.getImages().stream()
