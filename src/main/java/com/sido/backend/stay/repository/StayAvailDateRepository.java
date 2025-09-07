@@ -153,4 +153,8 @@ public interface StayAvailDateRepository extends JpaRepository<StayAvailDate, Lo
 	@Modifying
 	@Query("delete from StayAvailDate sa where sa.stay.id = :stayId")
 	int deleteAllByStayId(@Param("stayId") Long stayId);
+
+	@Modifying
+	@Query("delete from StayAvailDate sa where sa.stay.id = :stayId and sa.availableDate >= :after")
+	int deleteStayAvailDatesOnAfter(@Param("stayId") Long stayId, @Param("after") LocalDate after);
 }

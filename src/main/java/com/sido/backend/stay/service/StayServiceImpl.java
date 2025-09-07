@@ -230,8 +230,9 @@ public class StayServiceImpl implements StayService {
 		}
 
 		stay.setIsActive(false);
-		
 		stayRepository.save(stay);
+		int deletedAvailDatesCnt = stayAvailDateRepository.deleteStayAvailDatesOnAfter(stayId, LocalDate.now());
+		log.info("deletedAvailDatesCnt = {}", deletedAvailDatesCnt);
 
 		return new StayDeleteDTO(true, false);
 	}
