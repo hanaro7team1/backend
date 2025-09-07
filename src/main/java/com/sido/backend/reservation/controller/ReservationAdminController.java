@@ -60,9 +60,10 @@ public class ReservationAdminController {
 		@AuthenticationPrincipal(expression = "memberId") Long memberId,
 		@RequestParam(defaultValue = "1") int page,
 		@RequestParam(defaultValue = "10") int listSize,
-		@RequestParam(defaultValue = "ALL") ReservationListFilter filter) {
+		@RequestParam(defaultValue = "ALL") ReservationListFilter filter,
+		@RequestParam(required = false) Long stayId) {
 		PageResponseDTO<ReservationListItemDTO, Reservation> reservationList =
-			reservationService.getAdminReservationList(memberId, page, listSize, filter);
+			reservationService.getAdminReservationList(memberId, page, listSize, filter, stayId);
 		return ResponseEntity.ok(reservationList);
 	}
 }

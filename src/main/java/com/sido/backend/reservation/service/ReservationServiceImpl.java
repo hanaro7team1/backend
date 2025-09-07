@@ -307,13 +307,14 @@ public class ReservationServiceImpl implements ReservationService {
 
 	@Override
 	public PageResponseDTO<ReservationListItemDTO, Reservation> getAdminReservationList(Long memberId, int page,
-		int listSize, ReservationListFilter filter) {
+		int listSize, ReservationListFilter filter, Long stayId) {
 		hostMemberRepository.findById(memberId).orElseThrow(
 			() -> new EntityNotFoundException("해당 호스트를 찾을 수 없습니다.")
 		);
 
 		Pageable pageable = PageRequest.of(page - 1, listSize);
-		Slice<Reservation> reservationSlice = reservationQDslRepository.findAdminList(memberId, filter, pageable);
+		Slice<Reservation> reservationSlice = reservationQDslRepository.findAdminList(memberId, filter, stayId,
+			pageable);
 
 		return new PageResponseDTO<>(reservationSlice, this::toListItemDTO);
 	}

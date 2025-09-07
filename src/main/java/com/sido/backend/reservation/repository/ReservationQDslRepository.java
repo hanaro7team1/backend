@@ -11,7 +11,7 @@ import com.sido.backend.reservation.entity.Reservation;
 public interface ReservationQDslRepository {
 	Slice<Reservation> findList(Long memberId, ReservationListFilter filter, Pageable pageable);
 
-	Slice<Reservation> findAdminList(Long memberId, ReservationListFilter filter, Pageable pageable);
+	Slice<Reservation> findAdminList(Long memberId, ReservationListFilter filter, Long stayId, Pageable pageable);
 
 	long bulkUpdateVisitStatus(LocalDate today);
 }

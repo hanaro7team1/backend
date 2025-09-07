@@ -31,5 +31,5 @@ public interface ReservationService {
 	ReservationNextDTO getNextReservation(Long memberId);
 
 	PageResponseDTO<ReservationListItemDTO, Reservation> getAdminReservationList(Long memberId, int page, int listSize,
-		ReservationListFilter filter);
+		ReservationListFilter filter, Long stayId);
 }
