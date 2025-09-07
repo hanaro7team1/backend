@@ -16,6 +16,7 @@ import com.sido.backend.stay.dto.RegionResponseDTO;
 
 @Component
 public class AddressRegionGrouper {
+	//한국어 정렬 규칙(사전식 비교)
 	private static final Collator KO = Collator.getInstance(Locale.KOREAN);
 
 	public List<RegionResponseDTO> groupByProvinceFromAddresses(List<String> addresses) {
@@ -24,17 +25,18 @@ public class AddressRegionGrouper {
 		for (String addr : addresses) {
 			String province = KoreanAddressParser.extractProvince(addr).orElse(null);
 			String city = KoreanAddressParser.extractCity(addr).orElse(null);
-			if (province == null)
+			if (province == null || city == null)
 				continue;
-			if (city == null)
-				city = "기타";
 			map.computeIfAbsent(province, k -> new HashSet<>()).add(city);
 		}
 
 		return map.entrySet().stream()
 			.map(e -> new RegionResponseDTO(
-				e.getKey(),
-				e.getValue().stream().sorted(KO).collect(Collectors.toList())
+				KoreanAddressParser.extractProvinceShort(e.getKey()).orElse(e.getKey()), // provinceShort
+				e.getValue().stream()
+					.map(c -> KoreanAddressParser.extractCityShort(c).orElse(c)) // cityShorts
+					.sorted(KO)
+					.collect(Collectors.toList())
 			))
 			.sorted(Comparator.comparing(RegionResponseDTO::getRegion, KO))
 			.collect(Collectors.toList());
