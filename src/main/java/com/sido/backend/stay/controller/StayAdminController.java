@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sido.backend.common.dto.PageResponseDTO;
 import com.sido.backend.stay.dto.OpenAndReservedDatesDTO;
 import com.sido.backend.stay.dto.StayCreateDTO;
+import com.sido.backend.stay.dto.StayDeleteDTO;
 import com.sido.backend.stay.dto.StayResponseDTO;
 import com.sido.backend.stay.dto.StayResponseDetailDTO;
 import com.sido.backend.stay.dto.StayResrvStatus;
@@ -78,9 +79,10 @@ public class StayAdminController {
 	@Operation(description = "삭제")
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@DeleteMapping("/{stayId}")
-	public ResponseEntity<Void> deleteStay(@PathVariable Long stayId) {
-		stayService.deleteStay(stayId);
-		return ResponseEntity.noContent().build();
+	public ResponseEntity<StayDeleteDTO> deleteStay(@AuthenticationPrincipal(expression = "memberId") Long memberId,
+		@PathVariable Long stayId) {
+		StayDeleteDTO stayDeleteDTO = stayService.deleteStay(memberId, stayId);
+		return ResponseEntity.ok(stayDeleteDTO);
 	}
 
 	@Operation(summary = "오픈한 날짜 & 예약된 날짜 조회", description = "시골 관리자: 사랑방 목록 관리- 예약 가능 날짜 변경하기")

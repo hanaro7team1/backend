@@ -22,12 +22,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sido.backend.common.dto.PageResponseDTO;
 import com.sido.backend.common.exception.ConflictException;
+import com.sido.backend.common.exception.ForbiddenException;
 import com.sido.backend.member.entity.HostMember;
 import com.sido.backend.member.repository.HostMemberRepository;
 import com.sido.backend.reservation.repository.ReservationDayRepository;
+import com.sido.backend.reservation.repository.ReservationRepository;
 import com.sido.backend.stay.dto.AvailDatesDTO;
 import com.sido.backend.stay.dto.OpenAndReservedDatesDTO;
 import com.sido.backend.stay.dto.StayCreateDTO;
+import com.sido.backend.stay.dto.StayDeleteDTO;
 import com.sido.backend.stay.dto.StayResponseDTO;
 import com.sido.backend.stay.dto.StayResponseDetailDTO;
 import com.sido.backend.stay.dto.StayResrvStatus;
@@ -59,6 +62,7 @@ public class StayServiceImpl implements StayService {
 	private final StayImageRepository stayImageRepository;
 	private final StayAvailDateRepository stayAvailDateRepository;
 	private final ReservationDayRepository reservationDayRepository;
+	private final ReservationRepository reservationRepository;
 	private final HostMemberRepository hostMemberRepository;
 	@Value("${app.s3.publicBaseUrl}")
 	private String publicBaseUrl;
@@ -201,12 +205,34 @@ public class StayServiceImpl implements StayService {
 	}
 
 	@Override
-	public void deleteStay(Long stayId) {
+	@Transactional
+	public StayDeleteDTO deleteStay(Long memberId, Long stayId) {
 		Stay stay = stayRepository.findById(stayId).orElseThrow(
 			() -> new EntityNotFoundException("해당 사랑방을 찾을 수 없습니다.")
 		);
+		HostMember hostMember = hostMemberRepository.findById(memberId).orElseThrow(
+			() -> new EntityNotFoundException("해당 호스트를 찾을 수 없습니다.")
+		);
+
+		if (!stay.getHost().equals(hostMember)) {
+			throw new ForbiddenException("사랑방을 등록한 시골 관리자만 사랑방을 삭제할 수 있습니다.");
+		}
+
+		if (!Boolean.TRUE.equals(stay.getIsActive())) { // 이미 삭제된 사랑방
+			return new StayDeleteDTO(false, false);
+		}
+
+		boolean hasUpcoming = reservationRepository.existsUpcomingByStay(stayId);
+		if (hasUpcoming) {
+			return new StayDeleteDTO(false, true);
+		}
+
 		stay.setIsActive(false);
 		stayRepository.save(stay);
+		int deletedAvailDatesCnt = stayAvailDateRepository.deleteStayAvailDatesOnAfter(stayId, LocalDate.now());
+		log.info("deletedAvailDatesCnt = {}", deletedAvailDatesCnt);
+
+		return new StayDeleteDTO(true, false);
 	}
 
 	@Override
@@ -305,11 +331,8 @@ public class StayServiceImpl implements StayService {
 			.capacity(stay.getCapacity())
 			.areaSize(stay.getAreaSize())
 			.description(stay.getDescription())
-			.isHomestay(stay.getIsHomestay());
-
-		if (!stay.getIsActive()) {
-			builder.isActiveMsg("해당 사랑방은 예약이 닫힌 상태입니다.");
-		}
+			.isHomestay(stay.getIsHomestay())
+			.isDeleted(!stay.getIsActive());
 
 		// StayImage → DTO 변환
 		List<String> imageUrls = stay.getImages().stream()

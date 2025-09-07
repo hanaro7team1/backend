@@ -23,6 +23,16 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 	// 호스트 탈퇴 전 예약 확인용
 	boolean existsByStay_Host_IdAndVisitStatusIn(Long hostId, Collection<VisitStatus> statuses);
 
+	@Query("""
+		select
+			case when count(r) > 0 then true else false end
+		from Reservation r
+			where r.stay.id = :stayId
+				and r.resrvStatus = com.sido.backend.reservation.entity.ResrvStatus.RESERVED
+				and r.visitStatus = com.sido.backend.reservation.entity.VisitStatus.UPCOMING
+		""")
+	boolean existsUpcomingByStay(@Param("stayId") Long stayId);
+
 	interface ReservationCounts {
 		long getUpcomingCnt();
 

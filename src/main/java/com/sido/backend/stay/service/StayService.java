@@ -9,6 +9,7 @@ import com.sido.backend.common.dto.PageResponseDTO;
 import com.sido.backend.stay.dto.AvailDatesDTO;
 import com.sido.backend.stay.dto.OpenAndReservedDatesDTO;
 import com.sido.backend.stay.dto.StayCreateDTO;
+import com.sido.backend.stay.dto.StayDeleteDTO;
 import com.sido.backend.stay.dto.StayResponseDTO;
 import com.sido.backend.stay.dto.StayResponseDetailDTO;
 import com.sido.backend.stay.dto.StayResrvStatus;
@@ -33,7 +34,7 @@ public interface StayService {
 
 	StayResponseDetailDTO getStayDetail(Long stayId, LocalDate startDate, LocalDate endDate);
 
-	void deleteStay(Long stayId);
+	StayDeleteDTO deleteStay(Long memberId, Long stayId);
 
 	OpenAndReservedDatesDTO getOpenAndReservedDates(Long stayId);
 

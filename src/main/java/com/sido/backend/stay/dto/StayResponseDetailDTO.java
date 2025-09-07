@@ -25,6 +25,6 @@ public class StayResponseDetailDTO {
 	private Integer areaSize;
 	private String description;
 	private Boolean isHomestay;
-	private String isActiveMsg;
+	private Boolean isDeleted;
 	private List<String> images;
 }
