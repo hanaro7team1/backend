@@ -43,7 +43,6 @@ import com.sido.backend.stay.repository.StayAvailDateRepository;
 import com.sido.backend.stay.repository.StayImageRepository;
 import com.sido.backend.stay.repository.StayRepository;
 
-import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -63,9 +62,8 @@ public class StayServiceImpl implements StayService {
 	private final StayImageRepository stayImageRepository;
 	private final StayAvailDateRepository stayAvailDateRepository;
 	private final ReservationDayRepository reservationDayRepository;
-	private final HostMemberRepository hostMemberRepository;
-	private final EntityManagerFactory entityManagerFactory;
 	private final ReservationRepository reservationRepository;
+	private final HostMemberRepository hostMemberRepository;
 	@Value("${app.s3.publicBaseUrl}")
 	private String publicBaseUrl;
 	@Value("${app.s3.bucket}")
@@ -171,14 +169,14 @@ public class StayServiceImpl implements StayService {
 	}
 
 	@Override
-	public AvailDatesDTO getAvailableDatesByMonth(Long stayId, YearMonth yearMonth) {
+	public AvailDatesDTO getAvailableDates(Long stayId) {
 		stayRepository.findById(stayId).orElseThrow(
 			() -> new EntityNotFoundException("해당 사랑방을 찾을 수 없습니다.")
 		);
 
-		MonthContext monthCtx = MonthContext.of(yearMonth);
+		List<LocalDate> availableDates = stayAvailDateRepository.findOpenAndUnreservedOnAfter(stayId, LocalDate.now());
 
-		return buildAvailableCalendar(stayId, monthCtx);
+		return new AvailDatesDTO(availableDates);
 	}
 
 	@Override
@@ -238,14 +236,15 @@ public class StayServiceImpl implements StayService {
 	}
 
 	@Override
-	public OpenAndReservedDatesDTO getOpenAndReservedDatesByMonth(Long stayId, YearMonth yearMonth) {
+	public OpenAndReservedDatesDTO getOpenAndReservedDates(Long stayId) {
 		stayRepository.findById(stayId).orElseThrow(
 			() -> new EntityNotFoundException("해당 사랑방을 찾을 수 없습니다.")
 		);
 
-		MonthContext monthCtx = MonthContext.of(yearMonth);
+		List<LocalDate> openDates = stayAvailDateRepository.findOpenOnAfter(stayId, LocalDate.now()); // 오픈된 날짜들(오늘 이후만)
+		List<LocalDate> reservedDates = reservationDayRepository.findAllReserved(stayId); // 예약된 날짜들 (과거 포함 전체)
 
-		return buildOpenAndReservedCalendar(stayId, monthCtx);
+		return new OpenAndReservedDatesDTO(openDates, reservedDates);
 	}
 
 	@Override
@@ -255,6 +254,7 @@ public class StayServiceImpl implements StayService {
 			() -> new EntityNotFoundException("해당 사랑방을 찾을 수 없습니다.")
 		);
 
+		// 1) 업데이트할 날짜들 가공
 		// 오늘 이전은 변경 불가
 		List<LocalDate> openDatesBeforeToday = stayAvailDateRepository.findOpenOnBefore(stayId, LocalDate.now());
 		log.debug("openDatesBeforeToday = {}", openDatesBeforeToday);
@@ -268,7 +268,7 @@ public class StayServiceImpl implements StayService {
 			.toList();
 		log.debug("updateDates = {}", updateDates);
 
-		// 예약된 날짜 삭제 불가 검증
+		// 2) 예약된 날짜 삭제 불가 검증
 		// 현재 오픈일 전체
 		List<LocalDate> current = stayAvailDateRepository.findAllDatesByStayId(stayId);
 
@@ -285,9 +285,11 @@ public class StayServiceImpl implements StayService {
 			throw new ConflictException("이미 예약된 날짜는 삭제할 수 없습니다: " + reservedWillBeDeleted);
 		}
 
+		// 3) 현재 오픈 날짜 전체 삭제
 		int deletedCnt = stayAvailDateRepository.deleteAllByStayId(stayId);
 		log.info("updateOpenDates: deletedCnt = {}", deletedCnt);
 
+		// 4) 가공된 업데이트 날짜들 insert
 		List<StayAvailDate> stayAvailDates = updateDates.stream()
 			.map(d -> StayAvailDate.builder()
 				.availableDate(d)
@@ -297,9 +299,11 @@ public class StayServiceImpl implements StayService {
 
 		stayAvailDateRepository.saveAll(stayAvailDates);
 
-		MonthContext monthCtx = MonthContext.of(YearMonth.now());
+		List<LocalDate> openDates = stayAvailDateRepository.findOpenOnAfter(stayId,
+			LocalDate.now()); // 오픈된 날짜들 (오늘 이후만)
+		List<LocalDate> reserveDates = reservationDayRepository.findAllReserved(stayId); // 예약된 날짜들 (과거 포함 전체)
 
-		return buildOpenAndReservedCalendar(stayId, monthCtx);
+		return new OpenAndReservedDatesDTO(openDates, reserveDates);
 	}
 
 	private StayResponseDTO toResponseDTO(Object[] tuple) {
@@ -354,81 +358,6 @@ public class StayServiceImpl implements StayService {
 			.build();
 	}
 
-	private AvailDatesDTO buildAvailableCalendar(Long stayId, MonthContext monthCtx) {
-		List<LocalDate> dates;
-		boolean hasPrev;
-		boolean hasNext;
-
-		if (monthCtx.isPast()) {
-			// 과거 달: 항상 빈 목록, 좌측 이동 불가
-			dates = List.of();
-			hasPrev = false;
-			hasNext = stayAvailDateRepository.countOpenAndUnreservedOnOrAfter(stayId, monthCtx.today) > 0;
-		} else if (monthCtx.isCurrent()) {
-			// 이번 달
-			dates = stayAvailDateRepository.findOpenAndUnreservedInRange(stayId, monthCtx.today, monthCtx.monthEndEx);
-			hasPrev = false;
-			hasNext = stayAvailDateRepository.countOpenAndUnreservedOnOrAfter(stayId, monthCtx.monthEndEx) > 0;
-		} else {
-			// 미래 달
-			dates = stayAvailDateRepository.findOpenAndUnreservedInRange(stayId, monthCtx.monthStart,
-				monthCtx.monthEndEx);
-			hasPrev =
-				stayAvailDateRepository.countOpenAndUnreservedInRange(stayId, monthCtx.today, monthCtx.monthStart) > 0;
-			hasNext = stayAvailDateRepository.countOpenAndUnreservedOnOrAfter(stayId, monthCtx.monthEndEx) > 0;
-		}
-
-		return AvailDatesDTO.builder()
-			.yearMonth(monthCtx.target)
-			.dates(dates)
-			.hasPrev(hasPrev)
-			.hasNext(hasNext)
-			.build();
-	}
-
-	private OpenAndReservedDatesDTO buildOpenAndReservedCalendar(Long stayId, MonthContext monthCtx) {
-		List<LocalDate> openDates;
-		boolean hasOpenPrev;
-		boolean hasOpenNext;
-
-		if (monthCtx.isPast()) {
-			// 과거 달: 항상 빈 목록, 좌측 이동 불가
-			openDates = List.of();
-			hasOpenPrev = false;
-			hasOpenNext = stayAvailDateRepository.existsByStayIdAndAvailableDateGreaterThanEqual(stayId,
-				monthCtx.today);
-		} else if (monthCtx.isCurrent()) {
-			// 이번 달
-			openDates = stayAvailDateRepository.findOpenInRange(stayId, monthCtx.today, monthCtx.monthEndEx);
-			hasOpenPrev = false;
-			hasOpenNext = stayAvailDateRepository.existsByStayIdAndAvailableDateGreaterThanEqual(stayId,
-				monthCtx.monthEndEx);
-		} else {
-			// 미래 달
-			openDates = stayAvailDateRepository.findOpenInRange(stayId, monthCtx.monthStart, monthCtx.monthEndEx);
-			hasOpenPrev = stayAvailDateRepository.existsByStayIdAndAvailableDateGreaterThanEqualAndAvailableDateLessThan(
-				stayId, monthCtx.today, monthCtx.monthStart);
-			hasOpenNext = stayAvailDateRepository.existsByStayIdAndAvailableDateGreaterThanEqual(stayId,
-				monthCtx.monthEndEx);
-		}
-
-		List<LocalDate> reservedDates = stayAvailDateRepository.findOpenAndReservedInRange(stayId, monthCtx.monthStart,
-			monthCtx.monthEndEx);
-		boolean hasReservedPrev = stayAvailDateRepository.countOpenAndReservedBefore(stayId, monthCtx.monthStart) > 0;
-		boolean hasReservedNext =
-			stayAvailDateRepository.countOpenAndReservedOnOrAfter(stayId, monthCtx.monthEndEx) > 0;
-
-		return OpenAndReservedDatesDTO.builder()
-			.yearMonth(monthCtx.target)
-			.openDates(openDates)
-			.hasOpenPrev(hasOpenPrev)
-			.hasOpenNext(hasOpenNext)
-			.reservedDates(reservedDates)
-			.hasReservedPrev(hasReservedPrev)
-			.hasReservedNext(hasReservedNext)
-			.build();
-	}
-
 	//s3 관련 함수들
 	private void validateTempKey(String key) {
 		if (key == null || !key.startsWith("temp/") || key.contains("..")) {
@@ -469,32 +398,5 @@ public class StayServiceImpl implements StayService {
 					.toList())
 				.build())
 			.build());
-	}
-
-	private record MonthContext(
-		LocalDate today,
-		YearMonth nowYM,
-		YearMonth target,
-		LocalDate monthStart,
-		LocalDate monthEndEx
-	) {
-		static MonthContext of(YearMonth input) {
-			LocalDate today = LocalDate.now();
-			YearMonth nowYM = YearMonth.from(today);
-			YearMonth target = (input == null) ? nowYM : input; // null이면 이번달
-
-			LocalDate monthStart = target.atDay(1);
-			LocalDate monthEndEx = target.plusMonths(1).atDay(1); // [monthStart, monthEndEx)
-
-			return new MonthContext(today, nowYM, target, monthStart, monthEndEx);
-		}
-
-		boolean isPast() {
-			return target.isBefore(nowYM);
-		}
-
-		boolean isCurrent() {
-			return target.equals(nowYM);
-		}
 	}
 }

@@ -1,10 +1,8 @@
 package com.sido.backend.stay.controller;
 
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,7 +18,6 @@ import com.sido.backend.stay.entity.Stay;
 import com.sido.backend.stay.service.StayService;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
@@ -51,12 +48,10 @@ public class StayController {
 		return ResponseEntity.ok(pagedStaysDTO);
 	}
 
-	@Operation(summary = "월별 예약 가능 날짜 조회")
+	@Operation(summary = "예약 가능 날짜 조회")
 	@GetMapping("/{stayId}/available-dates")
-	public ResponseEntity<AvailDatesDTO> getAvailableDatesByMonth(@PathVariable("stayId") Long stayId,
-		@Schema(example = "2025-09") @DateTimeFormat(pattern = "yyyy-MM") @RequestParam(required = false)
-		YearMonth month) {
-		AvailDatesDTO availDatesDTO = stayService.getAvailableDatesByMonth(stayId, month);
+	public ResponseEntity<AvailDatesDTO> getAvailableDates(@PathVariable("stayId") Long stayId) {
+		AvailDatesDTO availDatesDTO = stayService.getAvailableDates(stayId);
 		return ResponseEntity.ok(availDatesDTO);
 	}
 

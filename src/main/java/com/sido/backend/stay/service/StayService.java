@@ -1,7 +1,6 @@
 package com.sido.backend.stay.service;
 
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
@@ -31,13 +30,13 @@ public interface StayService {
 
 	StayUpdateDTO editStay(long stayId, long memberId, StayUpdateDTO stayDTO);
 
-	AvailDatesDTO getAvailableDatesByMonth(Long stayId, YearMonth yearMonth);
+	AvailDatesDTO getAvailableDates(Long stayId);
 
 	StayResponseDetailDTO getStayDetail(Long stayId, LocalDate startDate, LocalDate endDate);
 
 	StayDeleteDTO deleteStay(Long memberId, Long stayId);
 
-	OpenAndReservedDatesDTO getOpenAndReservedDatesByMonth(Long stayId, YearMonth yearMonth);
+	OpenAndReservedDatesDTO getOpenAndReservedDates(Long stayId);
 
 	OpenAndReservedDatesDTO updateOpenDates(Long stayId, List<LocalDate> dates);
 }

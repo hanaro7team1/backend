@@ -1,11 +1,9 @@
 package com.sido.backend.stay.controller;
 
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.List;
 
 import org.springframework.data.domain.PageRequest;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -87,13 +85,11 @@ public class StayAdminController {
 		return ResponseEntity.ok(stayDeleteDTO);
 	}
 
-	@Operation(summary = "월별 오픈한 날짜 & 예약된 날짜 조회", description = "시골 관리자: 사랑방 목록 관리- 예약 가능 날짜 변경하기")
+	@Operation(summary = "오픈한 날짜 & 예약된 날짜 조회", description = "시골 관리자: 사랑방 목록 관리- 예약 가능 날짜 변경하기")
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@GetMapping("/{stayId}/open-dates")
-	public ResponseEntity<OpenAndReservedDatesDTO> getOpenAndReservedDatesByMonth(@PathVariable Long stayId,
-		@Schema(example = "2025-09") @DateTimeFormat(pattern = "yyyy-MM") @RequestParam(required = false)
-		YearMonth month) {
-		OpenAndReservedDatesDTO openAndReservedDates = stayService.getOpenAndReservedDatesByMonth(stayId, month);
+	public ResponseEntity<OpenAndReservedDatesDTO> getOpenAndReservedDates(@PathVariable Long stayId) {
+		OpenAndReservedDatesDTO openAndReservedDates = stayService.getOpenAndReservedDates(stayId);
 		return ResponseEntity.ok(openAndReservedDates);
 	}
 

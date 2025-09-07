@@ -15,7 +15,11 @@ public interface StayAvailDateRepository extends JpaRepository<StayAvailDate, Lo
 	 * 오픈
 	 */
 	// 오픈일 전체 조회
-	@Query("select sa.availableDate from StayAvailDate sa where sa.stay.id = :stayId")
+	@Query("""
+		select sa.availableDate from StayAvailDate sa
+			where sa.stay.id = :stayId
+			order by sa.availableDate asc
+		""")
 	List<LocalDate> findAllDatesByStayId(@Param("stayId") Long stayId);
 
 	// [start, end) 기간 내 오픈한 날짜 목록 조회
@@ -29,7 +33,7 @@ public interface StayAvailDateRepository extends JpaRepository<StayAvailDate, Lo
 	List<LocalDate> findOpenInRange(@Param("stayId") Long stayId, @Param("start") LocalDate start,
 		@Param("endExclusive") LocalDate endExclusive);
 
-	// before (포함) 이전에 오픈한 날짜 목록 조회
+	// before(포함) 이전에 오픈한 날짜 목록 조회
 	@Query("""
 		select sa.availableDate from StayAvailDate sa
 			where sa.stay.id = :stayId
@@ -37,6 +41,15 @@ public interface StayAvailDateRepository extends JpaRepository<StayAvailDate, Lo
 			order by sa.availableDate asc
 		""")
 	List<LocalDate> findOpenOnBefore(@Param("stayId") Long stayId, @Param("before") LocalDate before);
+
+	// after(포함) 이후에 오픈한 날짜 목록 조회
+	@Query("""
+		select sa.availableDate from StayAvailDate sa
+			where sa.stay.id = :stayId
+				and sa.availableDate >= :after
+			order by sa.availableDate asc
+		""")
+	List<LocalDate> findOpenOnAfter(@Param("stayId") Long stayId, @Param("after") LocalDate after);
 
 	// [start, end) 기간 내 오픈한 날짜 있는지
 	boolean existsByStayIdAndAvailableDateGreaterThanEqualAndAvailableDateLessThan(Long stayId, LocalDate start,
@@ -62,6 +75,20 @@ public interface StayAvailDateRepository extends JpaRepository<StayAvailDate, Lo
 			order by sa.availableDate asc
 		""")
 	List<LocalDate> findOpenAndUnreservedInRange(@Param("stayId") Long stayId, LocalDate start, LocalDate endExclusive);
+
+	// after(포함) 이후 '오픈 + 예약 미점유' 날짜 목록 조회
+	@Query("""
+		select sa.availableDate from StayAvailDate sa
+			where sa.stay.id = :stayId
+				and sa.availableDate >= :after
+				and not exists (
+					select 1 from ReservationDay rd
+						where rd.stay.id = sa.stay.id
+							and rd.date = sa.availableDate
+					)
+			order by sa.availableDate asc
+		""")
+	List<LocalDate> findOpenAndUnreservedOnAfter(@Param("stayId") Long stayId, @Param("after") LocalDate after);
 
 	// [start, end) 기간 내 '오픈 + 예약 미점유' 날짜 개수
 	@Query("""
@@ -90,65 +117,6 @@ public interface StayAvailDateRepository extends JpaRepository<StayAvailDate, Lo
 					)
 		""")
 	long countOpenAndUnreservedOnOrAfter(@Param("stayId") Long stayId, @Param("end") LocalDate end);
-
-	/**
-	 * 오픈 + 예약 점유
-	 */
-	// [start, end) 기간 내 '오픈 + 예약 점유' 날짜 목록 조회
-	@Query("""
-		select sa.availableDate from StayAvailDate sa
-			where sa.stay.id = :stayId
-				and sa.availableDate >= :start
-				and sa.availableDate < :endExclusive
-				and exists (
-					select 1 from ReservationDay rd
-						where rd.stay.id = sa.stay.id
-							and rd.date = sa.availableDate
-					)
-			order by sa.availableDate asc
-		""")
-	List<LocalDate> findOpenAndReservedInRange(@Param("stayId") Long stayId, LocalDate start, LocalDate endExclusive);
-
-	// [start, end) 기간 내 '오픈 + 예약 점유' 날짜 개수
-	@Query("""
-		select count(sa) from StayAvailDate sa
-			where sa.stay.id = :stayId
-				and sa.availableDate >= :start
-				and sa.availableDate < :endExclusive
-				and exists (
-					select 1 from ReservationDay rd
-						where rd.stay.id = sa.stay.id
-							and rd.date = sa.availableDate
-					)
-		""")
-	long countOpenAndReservedInRange(@Param("stayId") Long stayId, @Param("start") LocalDate start,
-		@Param("endExclusive") LocalDate endExclusive);
-
-	// start(미포함) 이전 '오픈 + 예약 점유' 날짜 개수
-	@Query("""
-		select count(sa) from StayAvailDate sa
-			where sa.stay.id = :stayId
-				and sa.availableDate < :start
-				and exists (
-					select 1 from ReservationDay rd
-						where rd.stay.id = sa.stay.id
-							and rd.date = sa.availableDate
-					)
-		""")
-	long countOpenAndReservedBefore(@Param("stayId") Long stayId, @Param("start") LocalDate start);
-
-	// end 이후 '오픈 + 예약 점유' 날짜 개수
-	@Query("""
-		select count(sa) from StayAvailDate sa
-			where sa.stay.id = :stayId
-				and sa.availableDate >= :end
-				and exists (
-					select 1 from ReservationDay rd
-						where rd.stay.id = sa.stay.id
-							and rd.date = sa.availableDate
-					)
-		""")
-	long countOpenAndReservedOnOrAfter(@Param("stayId") Long stayId, @Param("end") LocalDate end);
 
 	@Modifying
 	@Query("delete from StayAvailDate sa where sa.stay.id = :stayId")
