@@ -29,7 +29,7 @@ class RealEstatesRepositoryTest extends RepositoryTest {
 	void saveRealEstatesTest() {
 		RealEstate realEstate = RealEstate.builder()
 			.location("서울시 강남구 테헤란로 123")
-			.price(1000000000)
+			.price(1000000000L)
 			.capacity(6)
 			.area(100)
 			.description("강남역 근처 아파트")
@@ -69,7 +69,7 @@ class RealEstatesRepositoryTest extends RepositoryTest {
 				int num = random.nextInt(1000) + 1;
 				RealEstate realEstate = RealEstate.builder()
 					.location("서울시 송파구 올림픽로 " + num)
-					.price(500000000 + num * 10000000)
+					.price(500000000L + num * 10000000L)
 					.capacity(2 + num)
 					.area(50 + num * 5)
 					.description("잠실 근처 오피스텔 " + (i + 1))

@@ -79,17 +79,16 @@ public class RealEstateServiceImpl implements RealEstateService {
 			.build();
 	}
 
-	private String formatPrice(Integer price) {
+	private String formatPrice(Long price) {
 		if (price == null) {
 			return null;
 		}
 
-		long p = price.longValue();
-		if (p < 10000) {
-			return new DecimalFormat("#,###").format(p) + "원";
+		if (price < 10000) {
+			return new DecimalFormat("#,###").format(price) + "원";
 		}
 
-		long man = p / 10000;
+		long man = price / 10000;
 		if (man < 10000) {
 			return new DecimalFormat("#,###").format(man) + "만원";
 		} else {
