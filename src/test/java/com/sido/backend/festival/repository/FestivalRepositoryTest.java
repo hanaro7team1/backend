@@ -12,7 +12,7 @@ import org.springframework.test.annotation.Rollback;
 import com.sido.backend.festival.entity.Festival;
 
 @Rollback(false)
-class FestivalRepositoryTest extends RepositoryTest{
+class FestivalRepositoryTest extends RepositoryTest {
 	@Autowired
 	FestivalRepository repository;
 
@@ -28,7 +28,7 @@ class FestivalRepositoryTest extends RepositoryTest{
 					.startDate(ym.atDay(n))
 					.endDate(ym.atDay(n).plusDays(14))
 					.city("안동시")
-					.street("어딘가로 " + n)
+					.location("어딘가로 " + n)
 					.price(10000)
 					.url("andong.com/festival=" + n)
 					.description("festival description")
