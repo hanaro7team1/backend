@@ -29,7 +29,7 @@ public class RealEstate extends BaseEntity {
 	private Long id;
 
 	private String location;  // 지역
-	private Integer price;  // 가격
+	private Long price;  // 가격
 	private Integer capacity;  // 수용인원
 	private Integer area;  // 면적
 	private String description;  // 설명
