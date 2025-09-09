@@ -103,11 +103,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			System.out.println("*** [JWT] setAuthentication principal = " + dto.getClass().getName());
 
 		} catch (Exception e) {
+			// 토큰 만료
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401
 			response.setContentType("application/json");
-			ObjectMapper objectMapper = new ObjectMapper();
-			PrintWriter out = response.getWriter();
-			out.println(objectMapper.writeValueAsString(Map.of("error", "ERROR_ACCESS_TOKEN")));
-			out.close();
+			response.getWriter().write("{\"error\": \"ERROR_ACCESS_TOKEN\"}");
 		}
 
 		filterChain.doFilter(request, response);

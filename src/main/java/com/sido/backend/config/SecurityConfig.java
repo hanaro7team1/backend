@@ -21,6 +21,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.sido.backend.security.CustomAccessDeniedHandler;
+import com.sido.backend.security.CustomAuthenticationEntryPoint;
 import com.sido.backend.security.JwtAuthenticationFilter;
 import com.sido.backend.security.LoginFailureHandler;
 import com.sido.backend.security.LoginSuccessHandler;
@@ -32,7 +33,7 @@ import lombok.extern.log4j.Log4j2;
 @EnableMethodSecurity
 public class SecurityConfig {
 	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws
+	public SecurityFilterChain filterChain(HttpSecurity http) throws
 		Exception {
 		log.info("***** SecurityConfig - Security Filter Chain *****");
 
@@ -64,8 +65,10 @@ public class SecurityConfig {
 				.requestMatchers(HttpMethod.DELETE, "/api/festivals/**").authenticated()
 				.requestMatchers("/api/admin/**", "/api/reservations/**", "/api/mypage/**")
 				.authenticated())
-			.exceptionHandling(config
-				-> config.accessDeniedHandler(new CustomAccessDeniedHandler())) // 권한 핸들러 (403에러)
+			.exceptionHandling(config -> config
+				.authenticationEntryPoint(new CustomAuthenticationEntryPoint()) // 401
+				.accessDeniedHandler(new CustomAccessDeniedHandler())           // 403
+			)
 			.addFilterBefore(new JwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
