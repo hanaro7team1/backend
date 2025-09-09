@@ -9,6 +9,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,14 +46,14 @@ public class MemberController {
 			);
 
 			Map<String, Object> claims = JwtUtil.authenticationToClaims(authenticate);
-			String accessToken = (String) claims.get("accessToken");
-			String refreshToken = (String) claims.get("refreshToken");
-			String role = (String) claims.get("role");
+			String accessToken = JwtUtil.generateToken(claims, 60 * 3); //3시간
+			String refreshToken = JwtUtil.generateToken(claims, 60 * 10); //10시간
+			String role = (String)claims.get("role");
 
 			// httpOnly 쿠키로 토큰 설정
 			Cookie accessCookie = new Cookie("accessToken", accessToken);
 			accessCookie.setHttpOnly(true);
-			accessCookie.setSecure(false); // 로컬 개발환경이므로 false, 프로덕션에서는 true
+			accessCookie.setSecure(false);
 			accessCookie.setPath("/");
 			accessCookie.setMaxAge(60 * 60 * 3); // 3시간
 
@@ -60,7 +61,7 @@ public class MemberController {
 			refreshCookie.setHttpOnly(true);
 			refreshCookie.setSecure(false);
 			refreshCookie.setPath("/");
-			refreshCookie.setMaxAge(600 * 60); // 600분
+			refreshCookie.setMaxAge(60 * 60 * 10); // 10시간
 
 			Cookie roleCookie = new Cookie("role", role);
 			roleCookie.setHttpOnly(true);
@@ -72,7 +73,6 @@ public class MemberController {
 			response.addCookie(refreshCookie);
 			response.addCookie(roleCookie);
 
-			// 토큰 없이 사용자 정보만 반환
 			Map<String, Object> userInfo = new HashMap<>();
 			userInfo.put("memberId", claims.get("memberId"));
 			userInfo.put("loginId", claims.get("loginId"));
@@ -86,15 +86,100 @@ public class MemberController {
 		}
 	}
 
+	@Operation(summary = "토큰 갱신")
+	@PostMapping("/refresh")
+	public ResponseEntity<?> refresh(
+		@CookieValue(value = "refreshToken", required = false) String refreshToken,
+		HttpServletResponse response) {
+
+		System.out.println("REFRESH CONTROLLER ****** refreshToken: " + refreshToken);
+
+		if (refreshToken == null || refreshToken.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh token이 없습니다.");
+		}
+
+		try {
+			// refreshToken 검증
+			Map<String, Object> claims = JwtUtil.validateToken(refreshToken);
+
+			// 새로운 accessToken과 refreshToken 생성
+			String newAccessToken = JwtUtil.generateToken(claims, 60); //1시간
+			String newRefreshToken = JwtUtil.generateToken(claims, 600); //10시간
+			String role = (String)claims.get("role"); // role 정보 추출
+
+			System.out.println("REFRESH CONTROLLER ****** - newAccessToken: " + newAccessToken);
+			System.out.println("REFRESH CONTROLLER ****** - newRefreshToken: " + newRefreshToken);
+			System.out.println("REFRESH CONTROLLER ****** - role: " + role);
+
+			// 새로운 쿠키 설정
+			Cookie newAccessCookie = new Cookie("accessToken", newAccessToken);
+			newAccessCookie.setHttpOnly(true);
+			newAccessCookie.setSecure(false);
+			newAccessCookie.setPath("/");
+			newAccessCookie.setMaxAge(60 * 60 * 3); // 3시간
+
+			Cookie newRefreshCookie = new Cookie("refreshToken", newRefreshToken);
+			newRefreshCookie.setHttpOnly(true);
+			newRefreshCookie.setSecure(false);
+			newRefreshCookie.setPath("/");
+			newRefreshCookie.setMaxAge(60 * 10 * 10); // 10시간
+
+			// role 쿠키도 새로 설정
+			Cookie newRoleCookie = new Cookie("role", role);
+			newRoleCookie.setHttpOnly(true);
+			newRoleCookie.setSecure(false);
+			newRoleCookie.setPath("/");
+			newRoleCookie.setMaxAge(60 * 60 * 3); // 3시간
+
+			response.addCookie(newAccessCookie);
+			response.addCookie(newRefreshCookie);
+			response.addCookie(newRoleCookie);
+
+			System.out.println("REFRESH CONTROLLER ****** try - response: " + response);
+
+			// 응답 본문에 role 정보 포함
+			return ResponseEntity.ok().body(Map.of(
+				"message", "토큰이 갱신되었습니다.",
+				"role", role
+			));
+
+		} catch (Exception e) {
+			// refresh 토큰이 만료되거나 유효하지 않은 경우
+			// 모든 쿠키 삭제
+			Cookie accessCookie = new Cookie("accessToken", "");
+			accessCookie.setHttpOnly(true);
+			accessCookie.setSecure(false);
+			accessCookie.setPath("/");
+			accessCookie.setMaxAge(0);
+
+			Cookie refreshCookie = new Cookie("refreshToken", "");
+			refreshCookie.setHttpOnly(true);
+			refreshCookie.setSecure(false);
+			refreshCookie.setPath("/");
+			refreshCookie.setMaxAge(0);
+
+			Cookie roleCookie = new Cookie("role", "");
+			roleCookie.setHttpOnly(true);
+			roleCookie.setSecure(false);
+			roleCookie.setPath("/");
+			roleCookie.setMaxAge(0);
+
+			response.addCookie(accessCookie);
+			response.addCookie(refreshCookie);
+			response.addCookie(roleCookie);
+
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh token이 만료되었습니다. 다시 로그인해주세요.");
+		}
+	}
+
 	@Operation(summary = "사용자 로그아웃")
 	@PostMapping("/signout")
 	public ResponseEntity<?> logout(HttpServletResponse response) {
-		// 쿠키 삭제
 		Cookie accessCookie = new Cookie("accessToken", "");
 		accessCookie.setHttpOnly(true);
 		accessCookie.setSecure(false);
 		accessCookie.setPath("/");
-		accessCookie.setMaxAge(0); // 즉시 만료
+		accessCookie.setMaxAge(0);
 
 		Cookie refreshCookie = new Cookie("refreshToken", "");
 		refreshCookie.setHttpOnly(true);
@@ -102,7 +187,7 @@ public class MemberController {
 		refreshCookie.setPath("/");
 		refreshCookie.setMaxAge(0);
 
-		Cookie roleCookie = new Cookie("role", "role");
+		Cookie roleCookie = new Cookie("role", "");
 		roleCookie.setHttpOnly(true);
 		roleCookie.setSecure(false);
 		roleCookie.setPath("/");
