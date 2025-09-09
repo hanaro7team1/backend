@@ -67,8 +67,8 @@ public class StayController {
 	}
 
 	private DateRange parseSchedule(String schedule) {
-		LocalDate startDate = null;
-		LocalDate endDate = null;
+		LocalDate startDate = LocalDate.now();
+		LocalDate endDate = LocalDate.now().plusDays(2);
 
 		if (schedule != null && !schedule.isBlank()) {
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy.MM.dd");
