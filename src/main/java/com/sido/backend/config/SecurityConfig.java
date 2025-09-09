@@ -106,7 +106,7 @@ public class SecurityConfig {
 		// 쿠키 전송을 위해 credentials 허용
 		corsConfig.setAllowCredentials(true);
 		// allowCredentials가 true면 allowedOrigins를 "*"로 설정할 수 없음
-		corsConfig.setAllowedOrigins(List.of("http://localhost:3000")); // 프론트엔드 주소
+		corsConfig.setAllowedOrigins(List.of("http://localhost:3000", "https://sido.topician.com"));
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", corsConfig);
