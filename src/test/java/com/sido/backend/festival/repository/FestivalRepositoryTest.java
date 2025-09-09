@@ -2,25 +2,28 @@ package com.sido.backend.festival.repository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.Rollback;
 
+import com.sido.backend.RepositoryTest;
 import com.sido.backend.festival.entity.Festival;
 
-@Rollback(false)
 class FestivalRepositoryTest extends RepositoryTest {
 	@Autowired
-	FestivalRepository repository;
+	FestivalRepository festivalRepository;
 
 	@Test
+	@Order(1)
 	void addTest() {
+		long preCount = festivalRepository.count();
 		YearMonth ym = YearMonth.of(2025, 10);
 
-		repository.saveAll(
+		festivalRepository.saveAll(
 			Stream.iterate(1, n -> n + 1)
 				.limit(20)
 				.map(n -> Festival.builder()
@@ -35,32 +38,42 @@ class FestivalRepositoryTest extends RepositoryTest {
 					.build())
 				.toList());
 
-		assertEquals(20, repository.count());
+		assertEquals(preCount + 20, festivalRepository.count());
 	}
 
 	@Test
+	@Order(2)
 	void editTest() {
-		long before = repository.count();
+		long id = festivalRepository.count();
 
-		Festival target = repository.findAll().stream()
-			.filter(f -> f.getTitle().equals("축제10"))
-			.findFirst().orElseThrow();
+		LocalDate date = LocalDate.of(2025, 10, 14);
+		Festival target = Festival.builder()
+			.title("수정할 축제")
+			.startDate(date)
+			.endDate(date.plusDays(14))
+			.city("안동시")
+			.location("어딘가로 " + id + 1)
+			.price(10000)
+			.url("andong.com/festival=" + id + 1)
+			.description("festival description to be edited")
+			.build();
+		festivalRepository.save(target);
 
-		target.setTitle("축제10-수정");
+		target.setTitle("수정 완료 축제");
 		target.setCity("포항시");
-		repository.save(target);
+		festivalRepository.save(target);
 
-		Festival updated = repository.findById(target.getId()).orElseThrow();
-		assertEquals(before, repository.count());
-		assertEquals("축제10-수정", updated.getTitle());
+		Festival updated = festivalRepository.findById(target.getId()).orElseThrow();
+		assertEquals("수정 완료 축제", updated.getTitle());
 		assertEquals("포항시", updated.getCity());
 	}
 
 	@Test
+	@Order(3)
 	void deleteTest() {
 		long id = 3L;
-		repository.deleteById(id);
+		festivalRepository.deleteById(id);
 
-		assertTrue(repository.findById(id).isEmpty());
+		assertTrue(festivalRepository.findById(id).isEmpty());
 	}
 }
