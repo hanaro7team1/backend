@@ -5,6 +5,7 @@ import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,6 +27,7 @@ public class HostMember extends Member {
 	@NotBlank
 	private String region;
 
+	@Builder.Default
 	@Column(nullable = false, columnDefinition = "int default 0")
 	private Integer stayCount = 0;
 
