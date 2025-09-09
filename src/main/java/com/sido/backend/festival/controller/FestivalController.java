@@ -31,7 +31,7 @@ public class FestivalController {
 	@GetMapping
 	// PageResponseDTO<FestivalResponseDTO, Festival>
 	public ResponseEntity<?> getFestivalList(
-		@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "5") int listSize) {
+		@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "15") int listSize) {
 
 		return ResponseEntity.ok(service.getFestivalList(page, listSize));
 	}
