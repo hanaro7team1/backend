@@ -8,14 +8,19 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.sido.backend.RepositoryTest;
 import com.sido.backend.member.entity.HostMember;
 import com.sido.backend.member.entity.Member;
 import com.sido.backend.member.entity.MemberRole;
 
-class MemberRepositoryTest extends RepositoryTest {
+@SpringBootTest
+@Transactional
+@Rollback
+class MemberRepositoryTest {
 	@Autowired
 	MemberRepository memberRepository;
 
@@ -36,6 +41,7 @@ class MemberRepositoryTest extends RepositoryTest {
 			.role(MemberRole.ROLE_ADMIN)
 			.phone("055-000-0000")
 			.region("경남 창원시")
+			.stayCount(0)
 			.build();
 
 		HostMember savedAdmin = hostMemberRepository.save(admin);
@@ -53,12 +59,13 @@ class MemberRepositoryTest extends RepositoryTest {
 		// host 생성
 		List<HostMember> hostMembers = Stream.iterate(1, n -> n + 1).limit(3)
 			.map(n -> (HostMember)HostMember.builder()
-				.loginId("host" + n)
-				.password(passwordEncoder.encode("password123!"))
+				.loginId("admin" + n)
+				.password(passwordEncoder.encode("Password123!"))
 				.role(MemberRole.ROLE_ADMIN)
 				.phone("055-111-" + String.format("%04d", n))
 				.villageName("village" + n)
 				.region("region" + n)
+				.stayCount(0)
 				.build()
 			).toList();
 
@@ -67,9 +74,9 @@ class MemberRepositoryTest extends RepositoryTest {
 		// 일반 user 생성
 		List<Member> users = Stream.iterate(1, n -> n + 1).limit(10)
 			.map(n -> (Member)Member.builder()
-				.loginId("user" + n)
-				.password(passwordEncoder.encode("password123!"))
-				.name("user" + n)
+				.loginId("member" + n)
+				.password(passwordEncoder.encode("Password123!"))
+				.name("member" + n)
 				.role(MemberRole.ROLE_USER)
 				.phone("010-2222-" + String.format("%04d", n))
 				.build()

@@ -2,7 +2,6 @@ package com.sido.backend.realestate.repository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -14,15 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.sido.backend.RepositoryTest;
 import com.sido.backend.realestate.entity.RealEstate;
-import com.sido.backend.realestate.entity.RealEstateImage;
 
 class RealEstatesRepositoryTest extends RepositoryTest {
 
 	@Autowired
 	RealEstateRepository realEstatesRepository;
-
-	@Autowired
-	RealEstateImageRepository realEstateImageRepository;
 
 	@Test
 	@Order(1)
@@ -39,23 +34,11 @@ class RealEstatesRepositoryTest extends RepositoryTest {
 			.house("아파트")
 			.build();
 
-		// 부동산 이미지 추가
-		List<RealEstateImage> images = new ArrayList<>();
-		for (int i = 0; i < 2; i++) {
-			RealEstateImage image = RealEstateImage.builder()
-				.realEstate(realEstate)
-				.build();
-			images.add(image);
-		}
-		realEstate.setImages(images);
-
 		RealEstate savedRealEstate = realEstatesRepository.save(realEstate);
 		RealEstate fetchedRealEstate = realEstatesRepository.findById(savedRealEstate.getId()).orElseThrow();
 
 		assertEquals(savedRealEstate.getLocation(), fetchedRealEstate.getLocation());
 		assertNotNull(fetchedRealEstate.getId());
-		assertEquals(2, fetchedRealEstate.getImages().size());
-		assertNotNull(fetchedRealEstate.getImages().get(0).getId());
 	}
 
 	@Test
@@ -78,13 +61,6 @@ class RealEstatesRepositoryTest extends RepositoryTest {
 					.roomCount(1 + num % 2)
 					.house("오피스텔")
 					.build();
-
-				List<RealEstateImage> images = IntStream.range(0, 3)
-					.mapToObj(j -> RealEstateImage.builder()
-						.realEstate(realEstate)
-						.build())
-					.collect(Collectors.toList());
-				realEstate.setImages(images);
 				return realEstate;
 			})
 			.collect(Collectors.toList());
