@@ -67,10 +67,6 @@ public class JwtUtil {
 		MemberDTO memberDTO = new MemberDTO(
 			dto.getMemberId(), dto.getLoginId(), "", dto.getRole(), dto.getName(), dto.getVillageName());
 
-		Map<String, Object> claims = memberDTO.getClaims();
-
-		claims.put("accessToken", JwtUtil.generateToken(claims, 180));
-		claims.put("refreshToken", JwtUtil.generateToken(claims, 600));
-		return claims;
+		return memberDTO.getClaims();
 	}
 }

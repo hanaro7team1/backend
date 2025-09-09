@@ -1,7 +1,6 @@
 package com.sido.backend.security;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -12,7 +11,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sido.backend.member.dto.MemberDTO;
 
 import jakarta.servlet.FilterChain;
@@ -32,13 +30,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		"/v3/api-docs/**",
 		"/api/members/signin",
 		"/api/members/signup",
+		"/api/members/refresh",
 		"/api/host-members/signup",
 		"/api/host-members/check-id",
 		"/api/regions/**"
 	};
 
 	@Override
-	protected boolean shouldNotFilter(@NonNull HttpServletRequest request) throws ServletException {
+	protected boolean shouldNotFilter(@NonNull HttpServletRequest request)  {
 		String path = request.getRequestURI();
 		System.out.println("*** [JWT] shouldNotFilter path = " + path);
 		boolean isNotNeed = Arrays.stream(excludePatterns)
