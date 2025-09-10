@@ -260,7 +260,7 @@ public class StayServiceImpl implements StayService {
 		log.debug("openDatesBeforeToday = {}", openDatesBeforeToday);
 		// 오늘 이후만 가져오기
 		List<LocalDate> openDatesAfterToday = dates.stream()
-			.filter(d -> d.isAfter(LocalDate.now()))
+			.filter(d -> !d.isBefore(LocalDate.now()))
 			.toList();
 		log.debug("openDatesAfterToday = {}", openDatesAfterToday);
 
