@@ -256,7 +256,7 @@ public class StayServiceImpl implements StayService {
 
 		// 1) 업데이트할 날짜들 가공
 		// 오늘 이전은 변경 불가
-		List<LocalDate> openDatesBeforeToday = stayAvailDateRepository.findOpenOnBefore(stayId, LocalDate.now());
+		List<LocalDate> openDatesBeforeToday = stayAvailDateRepository.findOpenBefore(stayId, LocalDate.now());
 		log.debug("openDatesBeforeToday = {}", openDatesBeforeToday);
 		// 오늘 이후만 가져오기
 		List<LocalDate> openDatesAfterToday = dates.stream()

@@ -37,10 +37,10 @@ public interface StayAvailDateRepository extends JpaRepository<StayAvailDate, Lo
 	@Query("""
 		select sa.availableDate from StayAvailDate sa
 			where sa.stay.id = :stayId
-				and sa.availableDate <= :before
+				and sa.availableDate < :before
 			order by sa.availableDate asc
 		""")
-	List<LocalDate> findOpenOnBefore(@Param("stayId") Long stayId, @Param("before") LocalDate before);
+	List<LocalDate> findOpenBefore(@Param("stayId") Long stayId, @Param("before") LocalDate before);
 
 	// after(포함) 이후에 오픈한 날짜 목록 조회
 	@Query("""
